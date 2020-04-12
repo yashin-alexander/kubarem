@@ -1,5 +1,5 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#ifndef LOG_H
+#define LOG_H
 
 
 static const int MAX_LOG_STR_LENGTH = 512;
@@ -30,4 +30,4 @@ void _log (KubaremLogLevel level, const char * requested_format, ...);
     _log (KUBAREM_LOG_LEVEL_DEBUG, __VA_ARGS__)
 
 
-#endif // LOG_HPP
+#endif // LOG_H
