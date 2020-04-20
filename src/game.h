@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "input.h"
+#include "object.h"
 #include "shader.h"
 
 
@@ -23,19 +24,17 @@ enum GameState {
 class Game
 {
 private:
-//    int shaderProgram;
-    GLuint VAO;
+    GLuint 					VAO;
 public:
-    // Game state
     GameState              State;
     GLuint                 Width, Height;
     GLuint                 Lives;
     Input                  *inputController;
     Shader 				   *shaderProgram;
-    GLuint 					quadVAO;
-    glm::mat4 model;
+
+    glm::mat4 				model;
+    Kobject 				platform;
     float x_rot;
-    float y_rot;
 
 //    ~Game();
     void Update(GLfloat dt);
@@ -48,7 +47,7 @@ public:
 
     void Init();
     void ProcessInput(GLfloat deltaTime);
-//    void _update_vbo();
+    void InitRenderer();
     void Render();
 };
 
