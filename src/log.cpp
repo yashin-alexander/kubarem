@@ -1,7 +1,8 @@
-#include "log.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "log.h"
 
 
 static const char *
@@ -15,7 +16,7 @@ log_level_description (KubaremLogLevel level)
     case KUBAREM_LOG_LEVEL_INFO:
         return "INFO";
     case KUBAREM_LOG_LEVEL_ERR:
-        return "";
+        return "ERROR";
     }
     return "__LOG";
 }
