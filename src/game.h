@@ -25,6 +25,10 @@ class Game
 {
 private:
     GLuint 					VAO;
+
+    void _initProjection();
+    void _initObjects();
+
 public:
     GameState              State;
     GLuint                 Width, Height;
@@ -33,8 +37,9 @@ public:
     Shader 				   *shaderProgram;
 
     glm::mat4 				model;
-    Kobject 				platform;
+    Kobject  			   kobjects[2];
     float x_rot;
+    float x_move = 0;
 
 //    ~Game();
     void Update(GLfloat dt);
