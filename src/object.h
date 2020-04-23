@@ -16,6 +16,8 @@ public:
     GLboolean   Destroyed;
     Kobject();
     Kobject(glm::vec2 pos, glm::vec2 size, glm::vec3 color = glm::vec3(1.0f));
+
+    void Init();
 };
 
 
