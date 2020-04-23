@@ -3,13 +3,17 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 #include <glm/glm.hpp>
+#include "glm/gtx/string_cast.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+
+#include "log.h"
 #include "input.h"
 #include "object.h"
 #include "shader.h"
+#include "renderer.h"
 
 
 enum GameState {
@@ -28,6 +32,7 @@ private:
 
     void _initProjection();
     void _initObjects();
+    void _doRebounds(Kobject *kobject, glm::vec2 newPosition);
 
 public:
     GameState              State;
@@ -36,10 +41,8 @@ public:
     Input                  *inputController;
     Shader 				   *shaderProgram;
 
-    glm::mat4 				model;
-    Kobject  			   kobjects[2];
-    float x_rot;
-    float x_move = 0;
+    Renderer			   *renderer = nullptr;
+    Kobject  			    kobjects[3];
 
 //    ~Game();
     void Update(GLfloat dt);
