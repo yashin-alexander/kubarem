@@ -27,7 +27,7 @@ void Input::_TextInputCb(GLFWwindow* window, unsigned int codepoint)
 {
     char key_name;
     key_name = std::cin.narrow(codepoint, '0');
-    log_dbg("Key press detected: %c", key_name);
+//    log_dbg("Key press detected: %c", key_name);
 }
 
 Input::Input(GLFWwindow *window):
