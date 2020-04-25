@@ -12,7 +12,7 @@ Renderer::Renderer(Shader *shaderProgram):
 }
 
 
-void Renderer::drawObject(Kobject kobject, glm::vec2 position, glm::vec2 size, GLfloat rotate)
+void Renderer::drawObject(Object kobject, glm::vec2 position, glm::vec2 size, GLfloat rotate)
 {
     GLint vertexColorLocation = glGetUniformLocation(_shaderProgram->ID, "color");
     glUniform4f(vertexColorLocation,

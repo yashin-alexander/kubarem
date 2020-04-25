@@ -1,7 +1,7 @@
 #include "object.h"
 
 
-Kobject::Kobject()
+Object::Object()
         : Position (0, 0),
           Size     (1, 1),
           Color    (1.0f),
@@ -10,7 +10,7 @@ Kobject::Kobject()
           Destroyed(false) { }
 
 
-Kobject::Kobject(glm::vec2 pos, glm::vec2 size, glm::vec3 color)
+Object::Object(glm::vec2 pos, glm::vec2 size, glm::vec3 color)
         : Position (pos),
           Size     (size),
           Color    (color),
@@ -19,7 +19,7 @@ Kobject::Kobject(glm::vec2 pos, glm::vec2 size, glm::vec3 color)
           Destroyed(false) { }
 
 
-void Kobject::Init()
+void Object::Init()
 {
 
 }

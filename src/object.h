@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 
 
-class Kobject
+class Object
 {
 public:
     glm::vec2   Position, Size;
@@ -14,8 +14,8 @@ public:
     GLfloat     Rotation;
     GLboolean   IsSolid;
     GLboolean   Destroyed;
-    Kobject();
-    Kobject(glm::vec2 pos, glm::vec2 size, glm::vec3 color = glm::vec3(1.0f));
+    Object();
+    Object(glm::vec2 pos, glm::vec2 size, glm::vec3 color = glm::vec3(1.0f));
 
     void Init();
 };
