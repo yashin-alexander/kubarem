@@ -9,8 +9,8 @@
 #include "utils.h"
 
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1640;
+const unsigned int SCR_HEIGHT = 500;
 
 int main()
 {
@@ -18,7 +18,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "kubarem", nullptr, nullptr);
@@ -33,14 +33,6 @@ int main()
         return -1;
     }
 
-
-
-    // OpenGL configuration
-//    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-//    glEnable(GL_CULL_FACE);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     kubarem.Init();
 
     GLfloat deltaTime = 0.0f;
@@ -53,6 +45,7 @@ int main()
         kubarem.ProcessInput(deltaTime);
 
         kubarem.Render();
+        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

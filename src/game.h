@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "glm/gtc/random.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -16,6 +17,10 @@
 #include "renderer.h"
 
 
+#define DEFAULT_BALL_SPEED 10.0
+#define SCORES_TO_WIN 5
+
+
 enum GameState {
     GAME_ACTIVE = 1,
     GAME_MENU = 2,
@@ -25,6 +30,7 @@ enum GameState {
 };
 
 
+
 class Game
 {
 private:
@@ -32,7 +38,16 @@ private:
 
     void _initProjection();
     void _initObjects();
-    void _doRebounds(Kobject *kobject, glm::vec2 newPosition);
+    void _prepareGameState();
+    void _doRocketBoundsCheck(Object *kobject, glm::vec2 newPosition);
+    void _doBallRebound(const char * rocketName, float newBallImpulse);
+    void _doBallFly(Object *ball);
+    void _updateGameDescription(GLboolean startup = false);
+    void _processPlayerWin(const char * playerName);
+
+    int _platformHeight = 120;
+    int _platformWidth = 10;
+    int _ballSide = 20;
 
 public:
     GameState              State;
@@ -42,21 +57,28 @@ public:
     Shader 				   *shaderProgram;
 
     Renderer			   *renderer = nullptr;
-    Kobject  			    kobjects[3];
+    Object  			    kobjects[3];
+
+
+    GLfloat 	_ballSpeed = DEFAULT_BALL_SPEED;
+    GLfloat     _ballImpulse = 1.0; // ball goes right
+    GLfloat     _ballAngleY = 0.0;  // ball movement angle, ball moves straight
+    GLint		_ballReboundCounter = 0;
+    GLint       _scoreLeft = 0;
+    GLint       _scoreRight = 0;
+    std::string gameDescription = "Kubarem 0-0";
 
 //    ~Game();
     void Update(GLfloat dt);
-//    void Render();
     void DoCollisions();
     void ResetLevel();
 
 
-    Game(GLuint width, GLuint height, Input * input );
+    Game(GLuint width, GLuint height, Input * input);
 
     void Init();
-    void ProcessInput(GLfloat deltaTime);
-    void InitRenderer();
     void Render();
+    void ProcessInput(GLfloat deltaTime);
 };
 
 #endif // GAME_H
