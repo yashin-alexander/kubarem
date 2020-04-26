@@ -46,3 +46,10 @@ execute_process(COMMAND git submodule update --init ${GLM_DIR}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(GLM_INCLUDE_DIR "${GLM_DIR}")
+
+# assimp
+set(ASSIMP_DIR "${THIRDPARTY_DIR}/assimp")
+execute_process(COMMAND git submodule update --init ${ASSIMP_DIR}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(ASSIMP_INCLUDE_DIR "${ASSIMP_DIR}/include")
