@@ -12,7 +12,7 @@ Renderer::Renderer(Shader *shaderProgram):
 }
 
 
-void Renderer::drawObject(Object kobject, glm::vec2 position, glm::vec2 size, GLfloat rotate)
+void Renderer::drawObject(Object kobject, glm::vec3 position, glm::vec3 size, GLfloat rotate)
 {
     GLint vertexColorLocation = glGetUniformLocation(_shaderProgram->ID, "color");
     glUniform4f(vertexColorLocation,
@@ -22,11 +22,11 @@ void Renderer::drawObject(Object kobject, glm::vec2 position, glm::vec2 size, GL
                 1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(position,  0.0f));
+    view = glm::translate(view, glm::vec3(position));
     _shaderProgram->SetMatrix4("view", view);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(size, 0));
+    model = glm::scale(model, size);
     _shaderProgram->SetMatrix4("model", model);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

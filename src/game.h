@@ -38,16 +38,20 @@ private:
 
     void _initProjection();
     void _initObjects();
-    void _prepareGameState();
-    void _doRocketBoundsCheck(Object *kobject, glm::vec2 newPosition);
-    void _doBallRebound(const char * rocketName, float newBallImpulse);
-    void _doBallFly(Object *ball);
-    void _updateGameDescription(GLboolean startup = false);
-    void _processPlayerWin(const char * playerName);
 
-    int _platformHeight = 120;
-    int _platformWidth = 10;
-    int _ballSide = 20;
+    glm::vec3 cubePositions[10] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
 
 public:
     GameState              State;
@@ -59,14 +63,7 @@ public:
     Renderer			   *renderer = nullptr;
     Object  			    kobjects[3];
 
-
-    GLfloat 	_ballSpeed = DEFAULT_BALL_SPEED;
-    GLfloat     _ballImpulse = 1.0; // ball goes right
-    GLfloat     _ballAngleY = 0.0;  // ball movement angle, ball moves straight
-    GLint		_ballReboundCounter = 0;
-    GLint       _scoreLeft = 0;
-    GLint       _scoreRight = 0;
-    std::string gameDescription = "Kubarem 0-0";
+    std::string gameDescription = "Kubare";
 
 //    ~Game();
     void Update(GLfloat dt);

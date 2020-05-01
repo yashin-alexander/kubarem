@@ -11,7 +11,7 @@ private:
     Shader *_shaderProgram;
 public:
     Renderer(Shader *shaderProgram);
-    void drawObject(Object kobject, glm::vec2 postition, glm::vec2 size, GLfloat rotate);
+    void drawObject(Object kobject, glm::vec3 postition, glm::vec3 size, GLfloat rotate);
 };
 
 #endif // RENDERER_H

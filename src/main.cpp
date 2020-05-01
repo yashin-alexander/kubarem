@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <assimp/scene.h>
 
 #include "log.h"
 #include "game.h"
@@ -33,6 +34,13 @@ int main()
         return -1;
     }
 
+    // Define the viewport dimensions
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+    // Setup OpenGL options
+    glEnable(GL_DEPTH_TEST);
+
+
     kubarem.Init();
 
     GLfloat deltaTime = 0.0f;
@@ -45,7 +53,7 @@ int main()
         kubarem.ProcessInput(deltaTime);
 
         kubarem.Render();
-        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
+//        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
