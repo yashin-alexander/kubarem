@@ -12,9 +12,11 @@
 
 #include "log.h"
 #include "input.h"
+#include "model.h"
 #include "object.h"
 #include "shader.h"
 #include "renderer.h"
+#include "planet.cpp"
 
 
 #define DEFAULT_BALL_SPEED 10.0
@@ -39,18 +41,7 @@ private:
     void _initProjection();
     void _initObjects();
 
-    glm::vec3 cubePositions[10] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    GLfloat _cameraPosition = 0.0f;
 
 
 public:
@@ -61,9 +52,11 @@ public:
     Shader 				   *shaderProgram;
 
     Renderer			   *renderer = nullptr;
-    Object  			    kobjects[3];
 
-    std::string gameDescription = "Kubare";
+
+    Planet 	*first_planet = nullptr;
+
+    std::string gameDescription = "Kubarem";
 
 //    ~Game();
     void Update(GLfloat dt);

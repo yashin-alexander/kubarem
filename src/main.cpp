@@ -3,15 +3,15 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <assimp/scene.h>
 
 #include "log.h"
 #include "game.h"
 #include "utils.h"
+#include "mesh.h"
 
 
-const unsigned int SCR_WIDTH = 1640;
-const unsigned int SCR_HEIGHT = 500;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 900;
 
 int main()
 {
@@ -33,6 +33,8 @@ int main()
         log_err("Failed to initialize GLAD");
         return -1;
     }
+    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
+//    stbi_set_flip_vertically_on_load(true);
 
     // Define the viewport dimensions
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
