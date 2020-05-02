@@ -23,12 +23,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${STB_IMAGE_INCLUDE_DIR}")
 
 target_link_libraries(${PROJECT_NAME} "${OPENGL_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} "${GLEW_LIBRARIES}")
-target_link_libraries(${PROJECT_NAME} ${DEFAULT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} "${DEFAULT_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} "${OPENGL_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${FREETYPE_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${GLFW_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${CMAKE_DL_LIBS}")
 target_link_libraries(${PROJECT_NAME} "${GLAD_LIBRARY}")
+target_link_libraries(${PROJECT_NAME} "${STB_IMAGE_LIBRARY}")
 
 
 source_group("sources" FILES ${SOURCE_FILES_EXE})

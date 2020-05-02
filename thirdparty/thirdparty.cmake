@@ -44,12 +44,18 @@ set(GLAD_INCLUDE_DIR "${GLAD_DIR}/include")
 set(GLM_DIR "${THIRDPARTY_DIR}/glm")
 execute_process(COMMAND git submodule update --init ${GLM_DIR}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 set(GLM_INCLUDE_DIR "${GLM_DIR}")
 
 # assimp
 set(ASSIMP_DIR "${THIRDPARTY_DIR}/assimp")
 execute_process(COMMAND git submodule update --init ${ASSIMP_DIR}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 set(ASSIMP_INCLUDE_DIR "${ASSIMP_DIR}/include")
+
+# stb-image
+set(STB_IMAGE_DIR "${THIRDPARTY_DIR}/stb-image")
+add_library("stb-image" STATIC "${STB_IMAGE_DIR}/stb_image.cpp")
+target_include_directories("stb-image" PRIVATE "${STB_IMAGE_DIR}")
+
+set(STB_IMAGE_LIBRARY "stb-image")
+set(STB_IMAGE_INCLUDE_DIR "${STB_IMAGE_DIR}")
