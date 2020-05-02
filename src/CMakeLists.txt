@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME} "${FREETYPE_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${GLFW_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${CMAKE_DL_LIBS}")
 target_link_libraries(${PROJECT_NAME} "${GLAD_LIBRARY}")
+target_link_libraries(${PROJECT_NAME} "${ASSIMP_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${STB_IMAGE_LIBRARY}")
 
 
