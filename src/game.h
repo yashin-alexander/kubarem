@@ -54,7 +54,11 @@ public:
     Renderer			   *renderer = nullptr;
 
 
+    Planet 	*sun = nullptr;
     Planet 	*first_planet = nullptr;
+    Planet 	*second_planet = nullptr;
+    Planet 	*third_planet = nullptr;
+    Planet 	*moon = nullptr;
 
     std::string gameDescription = "Kubarem";
 

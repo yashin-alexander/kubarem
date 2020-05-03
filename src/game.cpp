@@ -13,12 +13,50 @@ void Game::Init()
 
     shaderProgram = loadShaderFromFile("src/shaders/default_vs.glsl",
                                        "src/shaders/default_fs.glsl");
+    GLfloat simulationSpeed = 2.0;
 
-    first_planet = new Planet("resources/objects/cyborg/cyborg.obj",
+    sun = new Planet("resources/objects/planet/planet.obj",
+                     "sun.png",
+                     shaderProgram,
+                     (float)Width / (float)Height,
+                     0,
+                     simulationSpeed * 0.2,
+                     -0.3f,
+                     glm::vec3(1.7f, 1.7f, 1.7f));
+
+    first_planet = new Planet("resources/objects/planet/planet.obj",
+                       "mercury.jpg",
                        shaderProgram,
                        (float)Width / (float)Height,
-                       2,
-                       -0.587);
+                       10,
+                       simulationSpeed * 0.8,
+                       1.587,
+                       glm::vec3(0.3f, 0.3f, 0.3f));
+
+    second_planet = new Planet("resources/objects/planet/planet.obj",
+                       "venus.jpg",
+                       shaderProgram,
+                       (float)Width / (float)Height,
+                       16,
+                       simulationSpeed * 0.324,
+                       0.587,
+                       glm::vec3(0.5f, 0.5f, 0.5f));
+    third_planet = new Planet("resources/objects/planet/planet.obj",
+                       "earth.jpg",
+                       shaderProgram,
+                       (float)Width / (float)Height,
+                       30,
+                       simulationSpeed * 0.2,
+                       -0.587,
+                       glm::vec3(0.7f, 0.7f, 0.7f));
+    moon = new Planet("resources/objects/planet/planet.obj",
+                       "moon.jpg",
+                       shaderProgram,
+                       (float)Width / (float)Height,
+                       4,
+                       simulationSpeed * 0.8,
+                       1.587,
+                       glm::vec3(0.2f, 0.2f, 0.2f));
 }
 
 
@@ -70,8 +108,13 @@ void Game::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(shaderProgram->ID);
 
-    first_planet->Render(VAO);
+    sun->Render(VAO, glm::vec2(0,0) - glm::vec2(sun->size), glm::vec2(0,0));
+    first_planet->Render(VAO, sun->position, glm::vec2(sun->size));
+    second_planet->Render(VAO, sun->position, glm::vec2(sun->size));
+    third_planet->Render(VAO, sun->position, glm::vec2(sun->size));
+    moon->Render(VAO, third_planet->position, glm::vec2(third_planet->size));
 }
+
 
 
 void Game::DoCollisions()

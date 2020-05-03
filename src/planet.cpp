@@ -55,7 +55,7 @@ public:
         view = glm::translate(view, glm::vec3(position, -35.0f));
         model = glm::rotate(model, _axisTilt, glm::vec3(0.0, 0.0, 1.0f)); // setup axis tilt
         model = glm::rotate(model, _rotationalSpeed * time, glm::vec3(0.0f, 1.0f, 0.0f));
-        projection = glm::perspective(glm::radians(70.0f), _screenScale, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(90.0f), _screenScale, 0.1f, 100.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, size);
 
