@@ -1,7 +1,9 @@
 #include "model.h"
 
 
-Model::Model(string const &path, bool gamma) : gammaCorrection(gamma)
+Model::Model(string const &path, bool gamma, string const texturePath) :
+    gammaCorrection(gamma),
+    texturePath(texturePath)
 {
     loadModel(path);
 }
@@ -139,10 +141,19 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
         if(!skip)
         {
             Texture texture;
-            texture.id = TextureFromFile(str.C_Str(), this->directory, false);
-            texture.type = typeName;
-            texture.path = str.C_Str();
-            log_info("Loading texture: %s/%s", (const char *)this->directory.c_str(), (const char *)(str).C_Str());
+            if (texturePath == "")
+            {
+                texture.id = TextureFromFile(str.C_Str(), this->directory, false);
+                texture.type = typeName;
+                texture.path = str.C_Str();
+                log_info("Loading texture: %s/%s", (const char *)this->directory.c_str(), (const char *)(str).C_Str());
+            } else
+            {
+                texture.id = TextureFromFile(texturePath.c_str(), this->directory, false);
+                texture.type = typeName;
+                texture.path = texturePath.c_str();
+                log_info("Loading texture: %s/%s", this->directory.c_str(), (const char *)texturePath.c_str());
+            }
             textures.push_back(texture);
             textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }

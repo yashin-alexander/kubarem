@@ -32,10 +32,11 @@ public:
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh>    meshes;
     string directory;
+    string texturePath;
     bool gammaCorrection;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path, bool gamma = false);
+    Model(string const &path, bool gamma = false, string const texture_path = "");
 
     // draws the model, and thus all its meshes
     void Draw(Shader shader);
