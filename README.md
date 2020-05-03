@@ -1,4 +1,15 @@
-## Opengl pong game realization.
+## Solar system simulation
+
+![Alt Text](gifs/solar-system.gif)
+
+To build and playback:
+```
+git checkout v0.2
+make
+./build/src/kubarem
+```
+
+## Pong game
 
 ![Alt Text](gifs/pong.gif)
 
