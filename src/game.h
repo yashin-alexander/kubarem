@@ -17,6 +17,7 @@
 #include "shader.h"
 #include "renderer.h"
 #include "planet.cpp"
+#include "camera.cpp"
 
 
 #define DEFAULT_BALL_SPEED 10.0
@@ -41,7 +42,7 @@ private:
     void _initProjection();
     void _initObjects();
 
-    GLfloat _cameraPosition = 0.0f;
+    Camera *camera = nullptr;
 
 
 public:

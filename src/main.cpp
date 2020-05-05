@@ -10,7 +10,7 @@
 #include "mesh.h"
 
 
-const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_WIDTH = 1960;
 const unsigned int SCR_HEIGHT = 1000;
 
 int main()
@@ -24,6 +24,8 @@ int main()
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "kubarem", nullptr, nullptr);
     glfwMakeContextCurrent(window);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Input input_controller = Input(window);
     Game kubarem = Game(SCR_WIDTH, SCR_HEIGHT, &input_controller);

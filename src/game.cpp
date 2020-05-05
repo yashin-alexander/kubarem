@@ -10,18 +10,19 @@ State(GAME_MENU), Width(width), Height (height), inputController(input)
 void Game::Init()
 {
     State = GAME_ACTIVE;
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
     shaderProgram = loadShaderFromFile("src/shaders/default_vs.glsl",
                                        "src/shaders/default_fs.glsl");
-    GLfloat simulationSpeed = 2.0;
+        GLfloat simulationSpeed = 1.5;
 
     sun = new Planet("resources/objects/planet/planet.obj",
                      "sun.png",
                      shaderProgram,
                      (float)Width / (float)Height,
                      0,
-                     simulationSpeed * 0.2,
-                     -0.3f,
+                     simulationSpeed * 0,
+                     0.555,
                      glm::vec3(1.7f, 1.7f, 1.7f));
 
     first_planet = new Planet("resources/objects/planet/planet.obj",
@@ -90,14 +91,13 @@ void Game::ProcessInput(GLfloat deltaTime)
     if (this->State == GAME_ACTIVE)
     {
         if (this->inputController->Keys[GLFW_KEY_W])
-        {
-            _cameraPosition += 0.1f;
-
-        }
+            camera->ProcessKeyboard(FORWARD, deltaTime);
         if (this->inputController->Keys[GLFW_KEY_S])
-        {
-            _cameraPosition -= 0.1f;
-        }
+            camera->ProcessKeyboard(BACKWARD, deltaTime);
+        if (this->inputController->Keys[GLFW_KEY_A])
+            camera->ProcessKeyboard(LEFT, deltaTime);
+        if (this->inputController->Keys[GLFW_KEY_D])
+            camera->ProcessKeyboard(RIGHT, deltaTime);
     }
 }
 
@@ -108,11 +108,16 @@ void Game::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(shaderProgram->ID);
 
-    sun->Render(VAO, glm::vec2(0,0) - glm::vec2(sun->size), glm::vec2(0,0));
-    first_planet->Render(VAO, sun->position, glm::vec2(sun->size));
-    second_planet->Render(VAO, sun->position, glm::vec2(sun->size));
-    third_planet->Render(VAO, sun->position, glm::vec2(sun->size));
-    moon->Render(VAO, third_planet->position, glm::vec2(third_planet->size));
+    if (inputController->MouseOffsetUpdated){
+        camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
+        inputController->MouseOffsetUpdated = false;
+    }
+
+    sun->Render(VAO, glm::vec2(0,0) - glm::vec2(sun->size), glm::vec2(0,0), camera);
+    first_planet->Render(VAO, sun->position, glm::vec2(sun->size), camera);
+    second_planet->Render(VAO, sun->position, glm::vec2(sun->size), camera);
+    third_planet->Render(VAO, sun->position, glm::vec2(sun->size), camera);
+    moon->Render(VAO, third_planet->position, glm::vec2(third_planet->size), camera);
 }
 
 
