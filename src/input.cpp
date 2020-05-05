@@ -30,10 +30,23 @@ void Input::_TextInputCb(GLFWwindow* window, unsigned int codepoint)
 //    log_dbg("Key press detected: %c", key_name);
 }
 
+
+void Input::_MouseMoveCb(GLFWwindow* window, double xpos, double ypos)
+{
+    MouseOffsets[X_OFFSET] = xpos - _mouseCurrentPpositionX;
+    MouseOffsets[Y_OFFSET] = _mouseCurrentPpositionY - ypos;
+
+    _mouseCurrentPpositionX = xpos;
+    _mouseCurrentPpositionY = ypos;
+
+    MouseOffsetUpdated = true;
+}
+
 Input::Input(GLFWwindow *window):
 _window(window)
 {
     this->setEventHandling();
     glfwSetKeyCallback(window, KeysSetupCb);
     glfwSetCharCallback(window, TextInputCb);
+    glfwSetCursorPosCallback(window, MouseMoveCb);
 }
