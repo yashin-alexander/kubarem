@@ -13,11 +13,10 @@
 #include "log.h"
 #include "input.h"
 #include "model.h"
-#include "object.h"
 #include "shader.h"
-#include "renderer.h"
-#include "planet.cpp"
+#include "object.cpp"
 #include "camera.cpp"
+#include "third_person_character.cpp"
 
 
 #define DEFAULT_BALL_SPEED 10.0
@@ -52,14 +51,8 @@ public:
     Input                  *inputController;
     Shader 				   *shaderProgram;
 
-    Renderer			   *renderer = nullptr;
-
-
-    Planet 	*sun = nullptr;
-    Planet 	*first_planet = nullptr;
-    Planet 	*second_planet = nullptr;
-    Planet 	*third_planet = nullptr;
-    Planet 	*moon = nullptr;
+    ThirdPersonCharacter *sun = nullptr;
+    Object *obj = nullptr;
 
     std::string gameDescription = "Kubarem";
 

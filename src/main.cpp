@@ -10,8 +10,8 @@
 #include "mesh.h"
 
 
-const unsigned int SCR_WIDTH = 1960;
-const unsigned int SCR_HEIGHT = 1000;
+const unsigned int SCR_WIDTH = 640;
+const unsigned int SCR_HEIGHT = 480;
 
 int main()
 {
