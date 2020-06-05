@@ -41,7 +41,6 @@ private:
     void _initProjection();
     void _initObjects();
 
-    Camera *camera = nullptr;
 
 
 public:
@@ -51,7 +50,9 @@ public:
     Input                  *inputController;
     Shader 				   *shaderProgram;
 
-    ThirdPersonCharacter *sun = nullptr;
+    ThirdPersonCamera 	   *camera;
+
+    ThirdPersonCharacter *mainCharacter = nullptr;
     Object *obj = nullptr;
 
     std::string gameDescription = "Kubarem";

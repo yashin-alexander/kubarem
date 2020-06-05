@@ -10,17 +10,17 @@ State(GAME_MENU), Width(width), Height (height), inputController(input)
 void Game::Init()
 {
     State = GAME_ACTIVE;
-    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
     shaderProgram = loadShaderFromFile("src/shaders/default_vs.glsl",
                                        "src/shaders/default_fs.glsl");
-        GLfloat simulationSpeed = 1.5;
 
-    sun = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
+    camera = new ThirdPersonCamera();
+    mainCharacter = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
                      "sun.png",
                      shaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(1.7f, 1.7f, 1.7f));
+                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     camera);
 
     obj = new Object("resources/objects/planet/planet.obj",
                      "moon.jpg",
@@ -59,14 +59,22 @@ void Game::ProcessInput(GLfloat deltaTime)
     }
     if (this->State == GAME_ACTIVE)
     {
-        if (this->inputController->Keys[GLFW_KEY_W])
-            camera->ProcessKeyboard(FORWARD, deltaTime);
-        if (this->inputController->Keys[GLFW_KEY_S])
-            camera->ProcessKeyboard(BACKWARD, deltaTime);
-        if (this->inputController->Keys[GLFW_KEY_A])
-            camera->ProcessKeyboard(LEFT, deltaTime);
-        if (this->inputController->Keys[GLFW_KEY_D])
-            camera->ProcessKeyboard(RIGHT, deltaTime);
+        if (this->inputController->Keys[GLFW_KEY_W]){
+//            camera->ProcessKeyboard(FORWARD, deltaTime);
+            mainCharacter->ProcessKeyboard(FORWARD, deltaTime);
+        }
+        if (this->inputController->Keys[GLFW_KEY_S]){
+//            camera->ProcessKeyboard(BACKWARD, deltaTime);
+            mainCharacter->ProcessKeyboard(BACKWARD, deltaTime);
+        }
+        if (this->inputController->Keys[GLFW_KEY_A]){
+//            camera->ProcessKeyboard(LEFT, deltaTime);
+            mainCharacter->ProcessKeyboard(LEFT, deltaTime);
+        }
+        if (this->inputController->Keys[GLFW_KEY_D]){
+//            camera->ProcessKeyboard(RIGHT, deltaTime);
+            mainCharacter->ProcessKeyboard(RIGHT, deltaTime);
+        }
     }
 }
 
@@ -81,9 +89,11 @@ void Game::Render()
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
     }
+//    log_dbg("%f %f %f", camera->Position[0], camera->Position[1], camera->Position[2]);
+//    log_dbg("%f %f %f", camera->Position[0], camera->Position[1], camera->Position[2]);
 
-    sun->Render(VAO, glm::vec2(0,0) - glm::vec2(sun->size), glm::vec2(0,0), camera);
-    obj->Render(VAO, glm::vec2(0,0) - glm::vec2(sun->size), glm::vec2(0,0), camera);
+    mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
+    obj->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
 }
 
 

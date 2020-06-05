@@ -39,15 +39,10 @@ public:
     {
 
         glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), _screenScale, 0.1f, 500.0f);
-//        projection = glm::perspective(glm::radians(90.0f), _screenScale, 0.1f, 100.0f);
         _shaderProgram->SetMatrix4("projection", projection);
 
         glm::mat4 model = glm::mat4(1.0f);
         GLfloat time = (float)glfwGetTime();
-        position = glm::vec2(
-                    (4.0f, 4.0f) +
-                             glm::vec2(glm::vec2(sin(2 * time), cos(2 * time))));
-        position = camera->Position + glm::vec3(0.0f, 0.0f, 3.9f);
 
         model = glm::rotate(model, 1.55f, glm::vec3(0.0, 0.0, 1.0f)); // setup axis tilt
         model = glm::rotate(model, time, glm::vec3(0.0f, -1.0f, 0.0f));
@@ -57,14 +52,8 @@ public:
 
 
         glm::mat4 view = camera->GetViewMatrix();
-//        view = glm::translate(view, glm::vec3(position[0], position[1], position[2]));
-//        log_dbg("pos %f %f %f", position[0], 0.0f, position[1]);
-
-        view = glm::translate(view, glm::vec3(10.0f, 0.0f, 10.0f));
-
+        view = glm::translate(view, glm::vec3(0.0f, 10.f*sin(5 * time), 0.0f));
         _shaderProgram->SetMatrix4("view", view);
-//        std::cout<<glm::to_string(view)<<std::endl;
-
 
         glBindVertexArray(VAO);
 
