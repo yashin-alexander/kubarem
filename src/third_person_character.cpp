@@ -17,7 +17,6 @@ private:
     GLfloat _screenScale;
     Shader *_shaderProgram = nullptr;
     Model  *_model = nullptr;
-    glm::vec3 _front;
     glm::vec3 _right;
     ThirdPersonCamera *_camera = nullptr;
 
@@ -38,8 +37,18 @@ public:
     {
         position = glm::vec3(0.0f, 0.0f, 0.0f);
         _model = new Model(modelPath, false, texturePath);
-        _front = glm::vec3(0.0f, 0.0f, -1.0f);
-        _right = glm::normalize(glm::cross(_front, glm::vec3(0.0f, 1.0f, 0.0f)));
+//        _right = glm::normalize(glm::cross(_front, glm::vec3(0.0f, 1.0f, 0.0f)));
+    }
+
+
+    glm::vec3 _getFront(){
+        return glm::vec3(_camera->Front[0],
+                         0.0f,
+                         _camera->Front[2]);
+    }
+
+    glm::vec3 _getRight(){
+        return _camera->Right;
     }
 
 
@@ -48,15 +57,15 @@ public:
 
         float velocity = deltaTime * 60;
         if (direction == FORWARD)
-            position += _front * velocity;
+            position += this->_getFront() * velocity;
         if (direction == BACKWARD)
-            position -= _front * velocity;
+            position -= this->_getFront() * velocity;
         if (direction == LEFT)
-            position -= _right * velocity;
+            position -= this->_getRight() * velocity;
         if (direction == RIGHT)
-            position += _right * velocity;
+            position += this->_getRight() * velocity;
 
-//        this->_camera->setPosition(position);
+        this->_camera->setMainCharacterPosition(position);
     }
 
     void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size)
