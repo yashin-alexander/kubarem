@@ -26,10 +26,12 @@ public:
            const char * texturePath,
            Shader *shader,
            GLfloat screenScale,
-           glm::vec3 planetSize):
+           glm::vec3 planetSize,
+           glm::vec2 position):
       _shaderProgram(shader),
       _screenScale(screenScale),
-      size(planetSize)
+      size(planetSize),
+      position(position)
     {
         _model = new Model(modelPath, false, texturePath);
 //        _model = new Model(modelPath, false);
@@ -52,7 +54,8 @@ public:
 
 
         glm::mat4 view = camera->GetViewMatrix();
-        view = glm::translate(view, glm::vec3(0.0f, 10.f*sin(5 * time), 0.0f));
+//        view = glm::translate(view, glm::vec3(0.0f, 10.f*sin(5 * time), 0.0f));
+        view = glm::translate(view, glm::vec3(position[0], 0.0f, position[1]));
         _shaderProgram->SetMatrix4("view", view);
 
         glBindVertexArray(VAO);

@@ -54,6 +54,7 @@ public:
 
     ThirdPersonCharacter *mainCharacter = nullptr;
     Object *obj = nullptr;
+    Object *obj1 = nullptr;
 
     std::string gameDescription = "Kubarem";
 

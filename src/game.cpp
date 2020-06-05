@@ -26,7 +26,14 @@ void Game::Init()
                      "moon.jpg",
                      shaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(1.7f, 1.7f, 1.7f));
+                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     glm::vec2(10.0, 0.0f));
+    obj1 = new Object("resources/objects/planet/planet.obj",
+                     "moon.jpg",
+                     shaderProgram,
+                     (float)Width / (float)Height,
+                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     glm::vec2(-10.0, 0.0f));
 }
 
 
@@ -94,6 +101,7 @@ void Game::Render()
 
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
     obj->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
+    obj1->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
 }
 
 

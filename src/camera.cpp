@@ -50,7 +50,7 @@ public:
 
     glm::mat4 GetViewMatrix()
     {
-        return glm::lookAt(Position, Position + Front, Up);
+        return glm::lookAt(Position, Position + glm::vec3(Front[0], Front[1], Front[2]) , Up);
     }
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
@@ -96,7 +96,7 @@ public:
     }
 
 protected:
-    void updateCameraVectors()
+    virtual void updateCameraVectors()
     {
         // Calculate the new Front vector
         glm::vec3 front;
@@ -115,11 +115,18 @@ class ThirdPersonCamera: public Camera
 {
 
 public:
+
+
+    glm::vec3 mainCharacterPosition;
     GLfloat springArmLength = 40.f;
+    glm::vec3 springArmOffset;
 
     ThirdPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)) : Camera(position)
     {
-        setPosition(position);
+        Pitch = -30.0f;
+        springArmOffset = glm::vec3(0.0f, 20.0f, springArmLength);
+        mainCharacterPosition = position;
+        setMainCharacterPosition(position);
         log_dbg("Camera position = %f %f %f", position[0], position[1], position[2]);
         updateCameraVectors();
     }
@@ -131,16 +138,27 @@ public:
         yoffset *= MouseSensitivity;
 
         Yaw   -= xoffset;
-        Pitch += yoffset;
+//        Pitch += yoffset;
 
         if (abs(xoffset) > 0.000001){
-            GLfloat hipo = sqrt(2 * pow(springArmLength, 2) - 2 * pow(springArmLength, 2) * glm::cos(glm::radians(xoffset)));
-            // cosine theorem
-            GLfloat x_off = glm::sin(glm::radians((180 - xoffset) / 2)) / hipo;
-            GLfloat y_off = glm::cos(glm::radians((180 - xoffset) / 2)) / hipo;
-            log_dbg("Yaw %f Offset %f cos %f Hipo %f", Yaw, xoffset, glm::cos(glm::radians(xoffset)), hipo);
-            log_dbg("X %f Y %f", x_off, y_off);
+            GLfloat x = glm::sin(glm::radians(Yaw)) * springArmLength;
+            GLfloat y = glm::cos(glm::radians(Yaw)) * springArmLength;
+//            log_dbg("Yaw %f x %f y %f", Yaw, x, y);
+            log_dbg("Yaw %f Front %f x %f y %f", abs(fmod(glm::radians(Yaw), 2.0)) - 1, Front[0], Front[1], Front[2]);
+//            log_dbg("Yaw %f ")
+
+            springArmOffset = glm::vec3(-y, 20.0f, -x);
+            this->Position = this->mainCharacterPosition + springArmOffset;
         }
+
+//        if (abs(xoffset) > 0.000001){
+//            GLfloat hipo = sqrt(2 * pow(springArmLength, 2) - 2 * pow(springArmLength, 2) * glm::cos(glm::radians(xoffset)));
+//             cosine theorem
+//            GLfloat x_off = glm::sin(glm::radians((180 - xoffset) / 2)) / hipo;
+//            GLfloat y_off = glm::cos(glm::radians((180 - xoffset) / 2)) / hipo;
+//            log_dbg("Yaw %f Offset %f cos %f Hipo %f", Yaw, xoffset, glm::cos(glm::radians(xoffset)), hipo);
+//            log_dbg("X %f Y %f", x_off, y_off);
+//        }
 
 //        GLfloat pos_offset = (this->springArmLength / tan(Yaw));
 //        log_dbg("Yaw % f ARM %f", tan(Yaw), pos_offset);
@@ -158,8 +176,24 @@ public:
     }
 
 
-    void setPosition(glm::vec3 position){
-        this->Position = position + glm::vec3(0.0f, 0.0f, springArmLength);
+    void setMainCharacterPosition(glm::vec3 position){
+        this->mainCharacterPosition = position;
+        this->Position = this->mainCharacterPosition + springArmOffset;
+        updateCameraVectors();
+    }
+
+
+    virtual void updateCameraVectors()
+    {
+        // Calculate the new Front vector
+        glm::vec3 front;
+        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        front.y = sin(glm::radians(Pitch));
+        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        Front = glm::normalize(front);
+        // Also re-calculate the Right and Up vector
+        Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        Up    = glm::normalize(glm::cross(Right, Front));
     }
 };
 
