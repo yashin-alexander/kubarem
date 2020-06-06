@@ -29,11 +29,34 @@ void Game::Init()
                      glm::vec3(1.7f, 1.7f, 1.7f),
                      glm::vec2(10.0, 0.0f));
     obj1 = new Object("resources/objects/planet/planet.obj",
-                     "moon.jpg",
+                     "r.jpg",
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1.7f, 1.7f, 1.7f),
                      glm::vec2(-10.0, 0.0f));
+
+
+//    map = new Object("resources/objects/cyborg/cyborg.obj",
+//                     "cyborg_normal.png",
+//                     shaderProgram,
+//                     (float)Width / (float)Height,
+//                     glm::vec3(1.7f, 1.7f, 1.7f),
+//                     glm::vec2(0.0, 0.0f));
+//    map = new Object("resources/objects/cyborg/cyborg.obj",
+//                     "cyborg_diffuse.png",
+    map = new Map("resources/objects/map/1.obj",
+                     "r.jpg",
+                     shaderProgram,
+                     (float)Width / (float)Height,
+                     glm::vec3(20.f, 6.f, 20.f),
+                     glm::vec3(0.0, -269.4f, 0.f));
+
+    /*map = new Object("resources/objects/map/rock.obj",
+                     "",
+                     shaderprogram,
+                     (float)width / (float)height,
+                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     glm::vec2(0.0, 0.0f));*/
 }
 
 
@@ -102,6 +125,7 @@ void Game::Render()
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
     obj->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
     obj1->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
+    map->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
 }
 
 

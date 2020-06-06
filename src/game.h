@@ -15,6 +15,7 @@
 #include "model.h"
 #include "shader.h"
 #include "object.cpp"
+#include "map.cpp"
 #include "camera.cpp"
 #include "third_person_character.cpp"
 
@@ -55,6 +56,8 @@ public:
     ThirdPersonCharacter *mainCharacter = nullptr;
     Object *obj = nullptr;
     Object *obj1 = nullptr;
+    Object *obj2 = nullptr;
+    Map *map = nullptr;
 
     std::string gameDescription = "Kubarem";
 

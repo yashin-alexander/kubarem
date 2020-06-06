@@ -34,13 +34,13 @@ public:
       position(position)
     {
         _model = new Model(modelPath, false, texturePath);
-//        _model = new Model(modelPath, false);
+;//        _model = new Model(modelPath, false);
     }
 
-    void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size, Camera *camera)
+    virtual void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size, Camera *camera)
     {
 
-        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), _screenScale, 0.1f, 500.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), _screenScale, 0.1f, 1200.0f);
         _shaderProgram->SetMatrix4("projection", projection);
 
         glm::mat4 model = glm::mat4(1.0f);

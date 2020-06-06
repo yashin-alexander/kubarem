@@ -20,6 +20,9 @@ private:
     glm::vec3 _right;
     ThirdPersonCamera *_camera = nullptr;
 
+    GLint invertedConrolFrames = 0;
+    GLfloat speed = 1.0f;
+
 public:
     glm::vec3 position;
     glm::vec3 size;
@@ -54,22 +57,46 @@ public:
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
+        float velocity = deltaTime * speed * 120;
+        glm::vec3 newPosition;
 
-        float velocity = deltaTime * 60;
         if (direction == FORWARD)
-            position += this->_getFront() * velocity;
+            newPosition = position + this->_getFront() * velocity;
         if (direction == BACKWARD)
-            position -= this->_getFront() * velocity;
+            newPosition = position - this->_getFront() * velocity;
         if (direction == LEFT)
-            position -= this->_getRight() * velocity;
+            newPosition = position - this->_getRight() * velocity;
         if (direction == RIGHT)
-            position += this->_getRight() * velocity;
+            newPosition = position + this->_getRight() * velocity;
 
-        this->_camera->setMainCharacterPosition(position);
+        this->moveEvent(newPosition);
+    }
+
+    void moveEvent(glm::vec3 newPosition)
+    {
+        if (isInsidePlate(newPosition)){
+            this->position = newPosition;
+            this->_camera->setMainCharacterPosition(position);
+        } else {
+            if (abs(speed) < 8){
+                speed *= -2.0f;
+            }
+            else {
+                speed /= -1.0f;
+            }
+            log_info("Bounds touched! Controls inverted!");
+        }
+    }
+
+    GLboolean isInsidePlate(glm::vec3 positionToCheck)
+    {
+        // hardcode plate radius
+        return (pow(positionToCheck[0], 2) + pow(positionToCheck[2], 2)) < 120000;
     }
 
     void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size)
     {
+//        log_warn("Positoin %f %f", position[0], position[2]);
 
         glm::mat4 projection = glm::perspective(glm::radians(45.f), _screenScale, 0.1f, 500.0f);
         _shaderProgram->SetMatrix4("projection", projection);
@@ -77,15 +104,15 @@ public:
         glm::mat4 model = glm::mat4(1.0f);
         GLfloat time = (float)glfwGetTime();
 
-        model = glm::rotate(model, 1.55f, glm::vec3(0.0, 0.0, 1.0f)); // setup axis tilt
-        model = glm::rotate(model, time, glm::vec3(0.0f, -1.0f, 0.0f));
+//        model = glm::rotate(model, 1.55f, glm::vec3(0.0, 0.0, 1.0f)); // setup axis tilt
+//        model = glm::rotate(model, time, glm::vec3(0.0f, -1.0f, 0.0f));
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, size);
         _shaderProgram->SetMatrix4("model", model);
 
         glm::mat4 view = _camera->GetViewMatrix();
-
         view = glm::translate(view, position);
+        log_err("Position %f %f %f", position[0], position[1], position[2]);
         _shaderProgram->SetMatrix4("view", view);
 
         glBindVertexArray(VAO);

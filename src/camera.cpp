@@ -123,11 +123,11 @@ public:
 
     ThirdPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)) : Camera(position)
     {
-        Pitch = -30.0f;
-        springArmOffset = glm::vec3(0.0f, 20.0f, springArmLength);
+        Pitch = -20.0f;
+        springArmOffset = glm::vec3(0.0f, -Pitch, springArmLength);
         mainCharacterPosition = position;
         setMainCharacterPosition(position);
-        log_dbg("Camera position = %f %f %f", position[0], position[1], position[2]);
+//        log_dbg("Camera position = %f %f %f", position[0], position[1], position[2]);
         updateCameraVectors();
     }
 
@@ -137,42 +137,26 @@ public:
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
-        Yaw   -= xoffset;
-//        Pitch += yoffset;
 
         if (abs(xoffset) > 0.000001){
+            Yaw   += xoffset;
+            Pitch += yoffset;
             GLfloat x = glm::sin(glm::radians(Yaw)) * springArmLength;
             GLfloat y = glm::cos(glm::radians(Yaw)) * springArmLength;
-//            log_dbg("Yaw %f x %f y %f", Yaw, x, y);
-            log_dbg("Yaw %f Front %f x %f y %f", abs(fmod(glm::radians(Yaw), 2.0)) - 1, Front[0], Front[1], Front[2]);
-//            log_dbg("Yaw %f ")
+//            log_dbg("Yaw %f Front %f x %f y %f", abs(fmod(glm::radians(Yaw), 2.0)) - 1, Front[0], Front[1], Front[2]);
 
-            springArmOffset = glm::vec3(-y, 20.0f, -x);
+            if (constrainPitch)
+            {
+                if (Pitch > -10.0f)
+                    Pitch = -10.0f;
+                if (Pitch < -25.0f)
+                    Pitch = -25.0f;
+            }
+
+            springArmOffset = glm::vec3(-y, -Pitch, -x);
             this->Position = this->mainCharacterPosition + springArmOffset;
+            updateCameraVectors();
         }
-
-//        if (abs(xoffset) > 0.000001){
-//            GLfloat hipo = sqrt(2 * pow(springArmLength, 2) - 2 * pow(springArmLength, 2) * glm::cos(glm::radians(xoffset)));
-//             cosine theorem
-//            GLfloat x_off = glm::sin(glm::radians((180 - xoffset) / 2)) / hipo;
-//            GLfloat y_off = glm::cos(glm::radians((180 - xoffset) / 2)) / hipo;
-//            log_dbg("Yaw %f Offset %f cos %f Hipo %f", Yaw, xoffset, glm::cos(glm::radians(xoffset)), hipo);
-//            log_dbg("X %f Y %f", x_off, y_off);
-//        }
-
-//        GLfloat pos_offset = (this->springArmLength / tan(Yaw));
-//        log_dbg("Yaw % f ARM %f", tan(Yaw), pos_offset);
-//        Position += (0.0f, -pos_offset, 0.0f);
-
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-        }
-
-        updateCameraVectors();
     }
 
 
