@@ -16,10 +16,10 @@ void Game::Init()
 
     camera = new ThirdPersonCamera();
     mainCharacter = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
-                     "sun.png",
+                     "r.jpg",
                      shaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     glm::vec3(4.f, 4.f, 4.f),
                      camera);
 
     obj = new Object("resources/objects/planet/planet.obj",
@@ -29,7 +29,7 @@ void Game::Init()
                      glm::vec3(1.7f, 1.7f, 1.7f),
                      glm::vec2(10.0, 0.0f));
     obj1 = new Object("resources/objects/planet/planet.obj",
-                     "r.jpg",
+                     "sun.png",
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1.7f, 1.7f, 1.7f),

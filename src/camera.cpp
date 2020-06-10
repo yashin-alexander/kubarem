@@ -147,10 +147,10 @@ public:
 
             if (constrainPitch)
             {
-                if (Pitch > -10.0f)
-                    Pitch = -10.0f;
-                if (Pitch < -25.0f)
-                    Pitch = -25.0f;
+                if (Pitch > -0.0f)
+                    Pitch = -0.0f;
+                if (Pitch < -30.0f)
+                    Pitch = -30.0f;
             }
 
             springArmOffset = glm::vec3(-y, -Pitch, -x);

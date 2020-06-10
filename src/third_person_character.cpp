@@ -19,8 +19,10 @@ private:
     Model  *_model = nullptr;
     glm::vec3 _right;
     ThirdPersonCamera *_camera = nullptr;
+    GLfloat frontRotator = 0;
+    GLfloat rightRotator = 0;
 
-    GLint invertedConrolFrames = 0;
+    GLint invertedConrolFrames = 0.0f;
     GLfloat speed = 1.0f;
 
 public:
@@ -43,7 +45,6 @@ public:
 //        _right = glm::normalize(glm::cross(_front, glm::vec3(0.0f, 1.0f, 0.0f)));
     }
 
-
     glm::vec3 _getFront(){
         return glm::vec3(_camera->Front[0],
                          0.0f,
@@ -60,14 +61,22 @@ public:
         float velocity = deltaTime * speed * 120;
         glm::vec3 newPosition;
 
-        if (direction == FORWARD)
+        if (direction == FORWARD){
             newPosition = position + this->_getFront() * velocity;
-        if (direction == BACKWARD)
+            frontRotator = 1.0;
+        }
+        if (direction == BACKWARD){
             newPosition = position - this->_getFront() * velocity;
-        if (direction == LEFT)
+            frontRotator = -1.0;
+        }
+        if (direction == LEFT){
             newPosition = position - this->_getRight() * velocity;
-        if (direction == RIGHT)
+            rightRotator = -1.0f;
+        }
+        if (direction == RIGHT){
             newPosition = position + this->_getRight() * velocity;
+            rightRotator = 1.0f;
+        }
 
         this->moveEvent(newPosition);
     }
@@ -96,26 +105,44 @@ public:
 
     void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size)
     {
-//        log_warn("Positoin %f %f", position[0], position[2]);
 
         glm::mat4 projection = glm::perspective(glm::radians(45.f), _screenScale, 0.1f, 500.0f);
         _shaderProgram->SetMatrix4("projection", projection);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        GLfloat time = (float)glfwGetTime();
-
-//        model = glm::rotate(model, 1.55f, glm::vec3(0.0, 0.0, 1.0f)); // setup axis tilt
-//        model = glm::rotate(model, time, glm::vec3(0.0f, -1.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, size);
-        _shaderProgram->SetMatrix4("model", model);
+        this->_processRotation();
 
         glm::mat4 view = _camera->GetViewMatrix();
         view = glm::translate(view, position);
-        log_err("Position %f %f %f", position[0], position[1], position[2]);
+        log_dbg("Position %f %f %f", position[0], position[1], position[2]);
         _shaderProgram->SetMatrix4("view", view);
 
         glBindVertexArray(VAO);
         _model->Draw(*_shaderProgram);
     }
+
+    void _processRotation(){
+        glm::mat4 model = glm::mat4(1.0f);
+        GLfloat time = (float)glfwGetTime();
+        GLfloat rotationMutiplier = time * 3;
+
+        model = glm::rotate(model, glm::radians(_camera->Yaw), glm::vec3(0, -1.0, 0));
+        if (rightRotator and frontRotator){
+            model = glm::rotate(model, 0.75f * -frontRotator * rightRotator, glm::vec3(0.0, 1.0, 0.0));
+            model = glm::rotate(model, rotationMutiplier, glm::vec3(0.0f, 0.0f, -frontRotator));
+        } else if (rightRotator)
+            model = glm::rotate(model, rotationMutiplier, glm::vec3(rightRotator, 0.0f, 0.0f));
+        else if (frontRotator)
+            model = glm::rotate(model, rotationMutiplier, glm::vec3(0.0f, 0.0f, -frontRotator));
+
+        model = glm::scale(model, size);
+        _shaderProgram->SetMatrix4("model", model);
+
+        _flushRotators();
+    }
+
+    void _flushRotators(){
+        frontRotator = 0.0f;
+        rightRotator = 0.0f;
+    }
+
 };
