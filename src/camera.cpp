@@ -179,6 +179,16 @@ public:
         Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up    = glm::normalize(glm::cross(Right, Front));
     }
+
+    glm::vec3 FrontXZ()
+    {
+        return glm::vec3(this->Front[0], 0.0f, this->Front[2]);
+    }
+
+    glm::vec3 RightXZ()
+    {
+        return glm::vec3(this->Right[0], 0.0f, this->Right[2]);
+    }
 };
 
 #endif

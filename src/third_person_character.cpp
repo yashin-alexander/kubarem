@@ -18,7 +18,6 @@ private:
     Shader *_shaderProgram = nullptr;
     Model  *_model = nullptr;
     glm::vec3 _right;
-    ThirdPersonCamera *_camera = nullptr;
     GLfloat frontRotator = 0;
     GLfloat rightRotator = 0;
 
@@ -26,6 +25,7 @@ private:
     GLfloat speed = 1.0f;
 
 public:
+    ThirdPersonCamera *_camera = nullptr;
     glm::vec3 position;
     glm::vec3 size;
 
@@ -125,14 +125,13 @@ public:
         GLfloat time = (float)glfwGetTime();
         GLfloat rotationMutiplier = time * 3;
 
-        model = glm::rotate(model, glm::radians(_camera->Yaw), glm::vec3(0, -1.0, 0));
-        if (rightRotator and frontRotator){
-            model = glm::rotate(model, 0.75f * -frontRotator * rightRotator, glm::vec3(0.0, 1.0, 0.0));
-            model = glm::rotate(model, rotationMutiplier, glm::vec3(0.0f, 0.0f, -frontRotator));
-        } else if (rightRotator)
-            model = glm::rotate(model, rotationMutiplier, glm::vec3(rightRotator, 0.0f, 0.0f));
-        else if (frontRotator)
-            model = glm::rotate(model, rotationMutiplier, glm::vec3(0.0f, 0.0f, -frontRotator));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+
+        if (frontRotator || rightRotator)
+            model = glm::rotate(model,
+                                rotationMutiplier,
+                                frontRotator * _camera->FrontXZ() +
+                                rightRotator * _camera->RightXZ());
 
         model = glm::scale(model, size);
         _shaderProgram->SetMatrix4("model", model);
@@ -146,3 +145,4 @@ public:
     }
 
 };
+
