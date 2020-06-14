@@ -12,44 +12,125 @@
 #include "object.h"
 
 
+class MoveRotationKeeper
+{
+private:
+    GLfloat rightDirection = 0.0f;
+    GLfloat frontDirection = 0.0f;
+
+    GLfloat frontRotationAmount = 0.0f;
+    GLfloat rightRotationAmount = 0.0f;
+
+    GLfloat lastZRotation = 0.0f;
+    GLfloat lastXRotation = 0.0f;
+
+    glm::mat4 model;
+
+public:
+    MoveRotationKeeper(){}
+
+    void flushDirections()
+    {
+        rightDirection = 0.0f;
+        frontDirection = 0.0f;
+    }
+
+    void setMoveRight()
+    {
+        rightDirection = 1.0f;
+        lastXRotation = rightDirection;
+    }
+
+    void setMoveLeft()
+    {
+        rightDirection = -1.0f;
+        lastXRotation = rightDirection;
+    }
+
+    void setMoveForward()
+    {
+        frontDirection = 1.0f;
+        lastZRotation = frontDirection;
+    }
+
+    void setMoveBackward()
+    {
+        frontDirection = -1.0f;
+        lastZRotation = frontDirection;
+    }
+
+    void setLastModelMatrix(glm::mat4 model)
+    {
+        this->model = model;
+    }
+
+    glm::mat4 getLastModelMatrix()
+    {
+        return this->model;
+    }
+
+    GLboolean isMovingBothDirections()
+    {
+        return rightDirection && frontDirection;
+    }
+
+    GLfloat getFrontDirection()
+    {
+        return frontDirection;
+    }
+
+    GLfloat getRightDirection()
+    {
+        return rightDirection;
+    }
+
+    GLfloat calculateFrontRotation(GLfloat rotationStep){
+        frontRotationAmount += frontDirection * rotationStep;
+        return frontRotationAmount;
+    }
+
+    GLfloat calculateRightRotation(GLfloat rotationStep){
+        rightRotationAmount += rightDirection * rotationStep;
+        return rightRotationAmount;
+    }
+};
+
+
 class ThirdPersonCharacter
 {
 private:
     GLfloat _screenScale;
-    Shader *_shaderProgram = nullptr;
     Model  *_model = nullptr;
-    GLfloat frontRotator = 0;
-    GLfloat rightRotator = 0;
+    Shader *_shaderProgram = nullptr;
 
     GLfloat speed = 1.0f;
+    GLfloat time = 0.0f;
 
-    glm::mat4 currentRotation = glm::mat4(1);
-    GLfloat lastRotationStamp = 0.0f;
-    GLfloat rotationDelta = 0.0f;
-    GLboolean isRotatedTillLastFrame = false;
+    MoveRotationKeeper * rotationKeeper = nullptr;
 
 public:
     ThirdPersonCamera *_camera = nullptr;
     glm::vec3 position;
     glm::vec3 size;
-    Object *sticked = nullptr;
+    Object * sticked[2] = {nullptr, nullptr};
 
     ThirdPersonCharacter(const char * modelPath,
            const char * texturePath,
            Shader *shader,
            GLfloat screenScale,
-           glm::vec3 planetSize,
+           glm::vec3 size,
            ThirdPersonCamera * camera):
       _shaderProgram(shader),
       _screenScale(screenScale),
-      size(planetSize),
+      size(size),
       _camera(camera)
     {
         position = glm::vec3(0.0f, 0.0f, 0.0f);
         _model = new Model(modelPath, false, texturePath);
-//        _right = glm::normalize(glm::cross(_front, glm::vec3(0.0f, 1.0f, 0.0f)));
 
-        currentRotation = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+        rotationKeeper = new MoveRotationKeeper();
+        rotationKeeper->setLastModelMatrix(
+                    glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0)));
     }
 
     glm::vec3 _getFront(){
@@ -70,19 +151,19 @@ public:
 
         if (direction == FORWARD){
             newPosition = position + this->_getFront() * velocity;
-            frontRotator = 1.0;
+            rotationKeeper->setMoveForward();
         }
         if (direction == BACKWARD){
             newPosition = position - this->_getFront() * velocity;
-            frontRotator = -1.0;
+            rotationKeeper->setMoveBackward();
         }
         if (direction == LEFT){
             newPosition = position - this->_getRight() * velocity;
-            rightRotator = -1.0f;
+            rotationKeeper->setMoveLeft();
         }
         if (direction == RIGHT){
             newPosition = position + this->_getRight() * velocity;
-            rightRotator = 1.0f;
+            rotationKeeper->setMoveRight();
         }
 
         this->moveEvent(newPosition);
@@ -95,7 +176,7 @@ public:
             this->_camera->setMainCharacterPosition(position);
         } else {
             if (abs(speed) < 8){
-                speed *= -2.0f;
+                speed *= -1.0f;
             }
             else {
                 speed /= -1.0f;
@@ -127,45 +208,50 @@ public:
     }
 
     void _processRotation(){
-        glm::mat4 model = glm::mat4(1.0f);
-        GLfloat time = (float)glfwGetTime();
-        GLfloat rotationMutiplier = time;
+        glm::mat4 model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+        GLfloat rotationDelta = _getRotationMultiplier();
 
-        if (isRotatedTillLastFrame and (rightRotator || frontRotator)){
-            model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+        if (rotationKeeper->isMovingBothDirections())
+        {
+           model = glm::rotate(model,
+                               rotationKeeper->getFrontDirection() * rotationKeeper->calculateFrontRotation(rotationDelta),
+                               rotationKeeper->getFrontDirection() * _getFront() +
+                               rotationKeeper->getRightDirection() * _getRight());
+            rotationKeeper->setLastModelMatrix(model);
+        } else if (rotationKeeper->getFrontDirection()){
+           model = glm::rotate(model,
+                               rotationKeeper->calculateFrontRotation(rotationDelta),
+                               _getFront());
+            rotationKeeper->setLastModelMatrix(model);
+        } else if (rotationKeeper->getRightDirection()){
             model = glm::rotate(model,
-                                rotationMutiplier - rotationDelta,
-                                frontRotator * _camera->FrontXZ() +
-                                rightRotator * _camera->RightXZ());
-            currentRotation = model;
-            lastRotationStamp = rotationMutiplier;
-        } else if (!isRotatedTillLastFrame and (rightRotator || frontRotator)){
-            rotationDelta = rotationMutiplier - lastRotationStamp + rotationDelta;
-            model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
-            model = glm::rotate(model,
-                                rotationMutiplier - rotationDelta,
-                                frontRotator * _camera->FrontXZ() +
-                                rightRotator * _camera->RightXZ());
-            currentRotation = model;
-            lastRotationStamp = rotationMutiplier;
+                                rotationKeeper->calculateRightRotation(rotationDelta),
+                                _getRight());
+            rotationKeeper->setLastModelMatrix(model);
+        } else {
+            model = rotationKeeper->getLastModelMatrix();
         }
-        else {
-            model = currentRotation;
-        }
-        isRotatedTillLastFrame = rightRotator || frontRotator;
 
-        sticked->SetMainObjectRotation(model, _camera->FrontXZ(), _camera->RightXZ());
+        this->_processStickedObjects(model);
+        rotationKeeper->flushDirections();
 
         model = glm::scale(model, size);
         _shaderProgram->SetMatrix4("model", model);
-
-        _flushRotators();
     }
 
-    void _flushRotators(){
-        frontRotator = 0.0f;
-        rightRotator = 0.0f;
+    GLfloat _getRotationMultiplier(){
+        if(this->time == 0.0f)
+            time = (float)glfwGetTime();
+
+        GLfloat old_time = this->time;
+        this->time = (float)glfwGetTime();
+        return 9 * (glfwGetTime() - old_time);
     }
 
+    void _processStickedObjects(glm::mat4 model){
+        for (int i = 0; i < 2; i++){
+            sticked[i]->SetMainObjectRotation(model);
+        }
+    }
 };
 
