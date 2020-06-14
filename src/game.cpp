@@ -16,24 +16,34 @@ void Game::Init()
 
     camera = new ThirdPersonCamera();
     mainCharacter = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
-                     "r.jpg",
+                     "grid.png",
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(4.f, 4.f, 4.f),
                      camera);
 
-    obj = new Object("resources/objects/planet/planet.obj",
-                     "moon.jpg",
+    obj = new Object("resources/objects/cyborg/cyborg.obj",
+                     "cyborg_normal.png",
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1.7f, 1.7f, 1.7f),
-                     glm::vec2(10.0, 0.0f));
+                     glm::vec3(14.0, 0.f, 12.f));
     obj1 = new Object("resources/objects/planet/planet.obj",
                      "sun.png",
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1.7f, 1.7f, 1.7f),
-                     glm::vec2(-10.0, 0.0f));
+                     glm::vec3(0.0, 3.5f, -3.5f));
+
+    for (int i = 0; i < 5; i++){
+        objects[i] = new Object("resources/objects/planet/planet.obj",
+                     "moon.jpg",
+                     shaderProgram,
+                     (float)Width / (float)Height,
+                     glm::vec3(3, 3, 3),
+                     glm::vec3(-40.0, 0.0f, 35.0f*i));
+        log_info("Object %d created", i);
+    }
 
 
 //    map = new Object("resources/objects/cyborg/cyborg.obj",
@@ -50,13 +60,6 @@ void Game::Init()
                      (float)Width / (float)Height,
                      glm::vec3(20.f, 6.f, 20.f),
                      glm::vec3(0.0, -269.4f, 0.f));
-
-    /*map = new Object("resources/objects/map/rock.obj",
-                     "",
-                     shaderprogram,
-                     (float)width / (float)height,
-                     glm::vec3(1.7f, 1.7f, 1.7f),
-                     glm::vec2(0.0, 0.0f));*/
 }
 
 
@@ -119,17 +122,19 @@ void Game::Render()
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
     }
-//    log_dbg("%f %f %f", camera->Position[0], camera->Position[1], camera->Position[2]);
-//    log_dbg("%f %f %f", camera->Position[0], camera->Position[1], camera->Position[2]);
-
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
-    obj->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
-    obj1->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
+    obj->Render(VAO, glm::vec2(0,0), camera);
+    obj1->Render(VAO, glm::vec2(0,0), camera);
     map->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
+
+    for (int i = 0; i < 5; i++){
+        objects[i]->Render(VAO, glm::vec2(0,0), camera);
+    }
 }
 
 
 
 void Game::DoCollisions()
 {
+    mainCharacter->doCollisions(objects);
 }

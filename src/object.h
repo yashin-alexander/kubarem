@@ -21,9 +21,12 @@ private:
     Shader *_shaderProgram = nullptr;
     Model  *_model = nullptr;
     glm::mat4 _mainObjectRotation;
+
 public:
     glm::vec3 position;
     glm::vec3 size;
+    GLboolean isSticked = false;
+    glm::vec3 stickedToPosition = glm::vec3(0,0,0);
 
     Object(const char * modelPath,
            const char * texturePath,
@@ -32,7 +35,7 @@ public:
            glm::vec3 planetSize,
            glm::vec3 position);
 
-    virtual void Render(GLint VAO, glm::vec3 circling_around, glm::vec2 main_size, Camera *camera);
+    virtual void Render(GLint VAO, glm::vec2 main_size, Camera *camera);
     void SetMainObjectRotation(glm::mat4 rotation);
 };
 

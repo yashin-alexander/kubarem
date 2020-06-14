@@ -14,7 +14,7 @@
 #include "input.h"
 #include "model.h"
 #include "shader.h"
-#include "object.cpp"
+#include "object.h"
 #include "map.cpp"
 #include "camera.cpp"
 #include "third_person_character.cpp"
@@ -54,6 +54,7 @@ public:
     ThirdPersonCamera 	   *camera;
 
     ThirdPersonCharacter *mainCharacter = nullptr;
+    Object *objects[5];
     Object *obj = nullptr;
     Object *obj1 = nullptr;
     Object *obj2 = nullptr;

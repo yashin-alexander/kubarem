@@ -101,6 +101,7 @@ class ThirdPersonCharacter
 private:
     GLfloat _screenScale;
     Model  *_model = nullptr;
+    glm::mat4 model;
     Shader *_shaderProgram = nullptr;
 
     GLfloat speed = 1.0f;
@@ -112,7 +113,8 @@ public:
     ThirdPersonCamera *_camera = nullptr;
     glm::vec3 position;
     glm::vec3 size;
-    Object * sticked[2] = {nullptr, nullptr};
+    Object * sticked[7];
+    GLint objectsSticked = 0;
 
     ThirdPersonCharacter(const char * modelPath,
            const char * texturePath,
@@ -208,7 +210,7 @@ public:
     }
 
     void _processRotation(){
-        glm::mat4 model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+        model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
         GLfloat rotationDelta = _getRotationMultiplier();
 
         if (rotationKeeper->isMovingBothDirections())
@@ -249,8 +251,35 @@ public:
     }
 
     void _processStickedObjects(glm::mat4 model){
-        for (int i = 0; i < 2; i++){
+        for (int i = 0; i < objectsSticked; i++){
+            sticked[i]->stickedToPosition = this->position;
             sticked[i]->SetMainObjectRotation(model);
+        }
+    }
+
+    void doCollisions(Object * objectsList []){
+        Object *currentObject = nullptr;
+        GLfloat distance;
+
+        for (int i = 0; i <= 5; i++)
+        {
+            currentObject = objectsList[i];
+            distance = glm::distance(currentObject->position, position);
+            if (!currentObject->isSticked
+                and distance <= (size[0] + currentObject->size[0]))
+            {
+                log_info("New object found!");
+                log_info("Distance to object: %f", distance);
+
+                this->sticked[objectsSticked] = currentObject;
+                objectsSticked++;
+                currentObject->isSticked = true;
+                glm::vec3 newObjectPosition  = position - currentObject->position;
+                log_info("New object position %f %f %f", newObjectPosition[0], newObjectPosition[1], newObjectPosition[2]);
+                newObjectPosition = glm::vec3(model * glm::vec4(glm::normalize(newObjectPosition), 1.0f));
+                currentObject->position = newObjectPosition;
+            } else {
+            }
         }
     }
 };

@@ -28,14 +28,15 @@ Object::Object(const char * modelPath,
 }
 
 
-void Object::Render(GLint VAO, glm::vec3 circling_around, glm::vec2 main_size, Camera *camera)
+void Object::Render(GLint VAO, glm::vec2 main_size, Camera *camera)
 {
     glm::mat4 model = glm::mat4(1.0f);
 
     GLfloat time = (float)glfwGetTime();
-    model = glm::translate(model, circling_around);
+    model = glm::translate(model, stickedToPosition);
     model *= _mainObjectRotation;
     model = glm::translate(model, position);
+    model = glm::scale(model, size);
 
     _shaderProgram->SetMatrix4("model", model);
     glm::mat4 view = camera->GetViewMatrix();
