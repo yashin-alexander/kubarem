@@ -113,7 +113,7 @@ public:
     ThirdPersonCamera *_camera = nullptr;
     glm::vec3 position;
     glm::vec3 size;
-    Object * sticked[7];
+    Object * sticked[100];
     GLint objectsSticked = 0;
 
     ThirdPersonCharacter(const char * modelPath,
@@ -213,6 +213,7 @@ public:
         model = glm::rotate(glm::mat4(1), glm::radians(90.0f), glm::vec3(0, 1.0, 0));
         GLfloat rotationDelta = _getRotationMultiplier();
 
+//        /*
         if (rotationKeeper->isMovingBothDirections())
         {
            model = glm::rotate(model,
@@ -233,6 +234,7 @@ public:
         } else {
             model = rotationKeeper->getLastModelMatrix();
         }
+//        */
 
         this->_processStickedObjects(model);
         rotationKeeper->flushDirections();
@@ -257,11 +259,11 @@ public:
         }
     }
 
-    void doCollisions(Object * objectsList []){
+    void doCollisions(Object * objectsList [], GLint _size){
         Object *currentObject = nullptr;
         GLfloat distance;
 
-        for (int i = 0; i <= 5; i++)
+        for (int i = 0; i <= _size; i++)
         {
             currentObject = objectsList[i];
             distance = glm::distance(currentObject->position, position);
@@ -275,8 +277,19 @@ public:
                 objectsSticked++;
                 currentObject->isSticked = true;
                 glm::vec3 newObjectPosition  = position - currentObject->position;
-                log_info("New object position %f %f %f", newObjectPosition[0], newObjectPosition[1], newObjectPosition[2]);
+//                glm::vec3 newObjectPosition = glm::vec3(4, 0, 0);
+
+                glm::mat4 r = glm::mat4(1);
+                r = glm::rotate(r, glm::radians(90.0f), glm::vec3(0, 1.0, 0));
+//                r = glm::rotate(r, rotationKeeper->getFrontDirection() * rotationKeeper->calculateFrontRotation(0.0f),
+//                                rotationKeeper->getFrontDirection() * _getFront());
+
                 newObjectPosition = glm::vec3(model * glm::vec4(glm::normalize(newObjectPosition), 1.0f));
+                log_info("New object position %f %f %f", newObjectPosition[0], newObjectPosition[1], newObjectPosition[2]);
+                newObjectPosition = glm::vec3(r * glm::vec4(newObjectPosition, 1.0f));
+                log_info("New object position %f %f %f", newObjectPosition[0], newObjectPosition[1], newObjectPosition[2]);
+//                newObjectPosition = glm::vec3(model * glm::vec4(glm::normalize(newObjectPosition), 1.0f));
+
                 currentObject->position = newObjectPosition;
             } else {
             }

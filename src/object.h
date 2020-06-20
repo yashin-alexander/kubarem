@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 
-#include <stdio.h>
 #include "glm/gtx/string_cast.hpp"
 
 #include "log.h"
@@ -28,8 +27,7 @@ public:
     GLboolean isSticked = false;
     glm::vec3 stickedToPosition = glm::vec3(0,0,0);
 
-    Object(const char * modelPath,
-           const char * texturePath,
+    Object(Model *model,
            Shader *shader,
            GLfloat screenScale,
            glm::vec3 planetSize,

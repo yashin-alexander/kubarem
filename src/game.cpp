@@ -9,12 +9,23 @@ State(GAME_MENU), Width(width), Height (height), inputController(input)
 
 void Game::Init()
 {
+    glGenVertexArrays(1, &VAO);
+
     State = GAME_ACTIVE;
 
     shaderProgram = loadShaderFromFile("src/shaders/default_vs.glsl",
                                        "src/shaders/default_fs.glsl");
 
+    boxShaderProgram = loadShaderFromFile("src/shaders/box_vs.glsl",
+                                           "src/shaders/box_fs.glsl");
+
     camera = new ThirdPersonCamera();
+    box = new Box("resources/textures/background.png",
+                  boxShaderProgram, (float)Width / (float)Height,
+                  glm::vec3(850, 0, 850),
+                  glm::vec3(0.f, -4.5f, 0.f));
+    box->Init();
+
     mainCharacter = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
                      "grid.png",
                      shaderProgram,
@@ -22,26 +33,35 @@ void Game::Init()
                      glm::vec3(4.f, 4.f, 4.f),
                      camera);
 
-    obj = new Object("resources/objects/cyborg/cyborg.obj",
-                     "cyborg_normal.png",
+    Model * cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false, "cyborg_normal.png");
+    Model * sunModel = new Model("resources/objects/planet/planet.obj", false, "earth.jpg");
+    Model * planetModel = new Model("resources/objects/planet/planet.obj", false, "moon.jpg");
+    obj = new Object(cyborgModel,
                      shaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1.7f, 1.7f, 1.7f),
                      glm::vec3(14.0, 0.f, 12.f));
-    obj1 = new Object("resources/objects/planet/planet.obj",
-                     "sun.png",
+    obj1 = new Object(sunModel,
                      shaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(1.7f, 1.7f, 1.7f),
+                     glm::vec3(2.7f, 2.7f, 2.7f),
                      glm::vec3(0.0, 3.5f, -3.5f));
 
-    for (int i = 0; i < 5; i++){
-        objects[i] = new Object("resources/objects/planet/planet.obj",
-                     "moon.jpg",
+
+    for (int i = 0; i < 15; i++){
+        objects[i] = new Object(planetModel,
                      shaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(3, 3, 3),
-                     glm::vec3(-40.0, 0.0f, 35.0f*i));
+                     glm::vec3(2, 2, 2),
+                     glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
+        log_info("Object %d created", i);
+    }
+    for (int i = 15; i < 25; i++){
+        objects[i] = new Object(sunModel,
+                     shaderProgram,
+                     (float)Width / (float)Height,
+                     glm::vec3(1 + i*0.1, 1 + i*0.1, 1 + i*0.1),
+                     glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
         log_info("Object %d created", i);
     }
 
@@ -116,8 +136,12 @@ void Game::Render()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(shaderProgram->ID);
 
+    glUseProgram(boxShaderProgram->ID);
+    box->Render(camera);
+
+
+    glUseProgram(shaderProgram->ID);
     if (inputController->MouseOffsetUpdated){
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
@@ -125,9 +149,9 @@ void Game::Render()
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
     obj->Render(VAO, glm::vec2(0,0), camera);
     obj1->Render(VAO, glm::vec2(0,0), camera);
-    map->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
+//    map->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
 
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < 25; i++){
         objects[i]->Render(VAO, glm::vec2(0,0), camera);
     }
 }
@@ -136,5 +160,5 @@ void Game::Render()
 
 void Game::DoCollisions()
 {
-    mainCharacter->doCollisions(objects);
+    mainCharacter->doCollisions(objects, 24);
 }

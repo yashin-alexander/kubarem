@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "log.h"
+#include "box.h"
 #include "input.h"
 #include "model.h"
 #include "shader.h"
@@ -20,8 +21,7 @@
 #include "third_person_character.cpp"
 
 
-#define DEFAULT_BALL_SPEED 10.0
-#define SCORES_TO_WIN 5
+#define OBJECTS_MAX_AMOUNT 100
 
 
 enum GameState {
@@ -37,12 +37,11 @@ enum GameState {
 class Game
 {
 private:
-    GLuint 					VAO;
+    GLuint 	VAO;
+    GLuint  LightVAO;
 
     void _initProjection();
     void _initObjects();
-
-
 
 public:
     GameState              State;
@@ -50,15 +49,17 @@ public:
     GLuint                 Lives;
     Input                  *inputController;
     Shader 				   *shaderProgram;
+    Shader 				   *boxShaderProgram;
 
     ThirdPersonCamera 	   *camera;
 
     ThirdPersonCharacter *mainCharacter = nullptr;
-    Object *objects[5];
+    Object *objects[OBJECTS_MAX_AMOUNT];
     Object *obj = nullptr;
     Object *obj1 = nullptr;
     Object *obj2 = nullptr;
     Map *map = nullptr;
+    Box *box = nullptr;
 
     std::string gameDescription = "Kubarem";
 

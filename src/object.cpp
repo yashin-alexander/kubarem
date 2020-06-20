@@ -12,8 +12,7 @@
 #include "object.h"
 
 
-Object::Object(const char * modelPath,
-       const char * texturePath,
+Object::Object(Model *model,
        Shader *shader,
        GLfloat screenScale,
        glm::vec3 size,
@@ -23,7 +22,7 @@ Object::Object(const char * modelPath,
   size(size),
   position(position)
 {
-    _model = new Model(modelPath, false, texturePath);
+    _model = model;
     _mainObjectRotation = glm::mat4(1.0f);
 }
 
