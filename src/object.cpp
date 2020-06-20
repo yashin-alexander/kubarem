@@ -27,11 +27,26 @@ Object::Object(Model *model,
 }
 
 
-void Object::Render(GLint VAO, glm::vec2 main_size, Camera *camera)
+void Object::Render(GLint VAO, glm::vec3 lightPoint, Camera *camera)
 {
+    glUseProgram(_shaderProgram->ID);
+    _shaderProgram->SetVector3f("light.position", lightPoint);
+    _shaderProgram->SetVector3f("viewPos", camera->Position);
+
+    // light properties
+    GLfloat time = glfwGetTime();
+    _shaderProgram->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
+    _shaderProgram->SetVector3f("light.diffuse", 0.1f, cos(2*time), sin(time));
+    _shaderProgram->SetVector3f("light.specular", 1.0f, .0f, .0f);
+
+    // material properties
+    _shaderProgram->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
+    _shaderProgram->SetFloat("material.shininess", 256.0f);
+
+
     glm::mat4 model = glm::mat4(1.0f);
 
-    GLfloat time = (float)glfwGetTime();
+//    GLfloat time = (float)glfwGetTime();
     model = glm::translate(model, stickedToPosition);
     model *= _mainObjectRotation;
     model = glm::translate(model, position);

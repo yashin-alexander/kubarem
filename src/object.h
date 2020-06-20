@@ -33,7 +33,7 @@ public:
            glm::vec3 planetSize,
            glm::vec3 position);
 
-    virtual void Render(GLint VAO, glm::vec2 main_size, Camera *camera);
+    virtual void Render(GLint VAO, glm::vec3 lightPoint, Camera *camera);
     void SetMainObjectRotation(glm::mat4 rotation);
 };
 
