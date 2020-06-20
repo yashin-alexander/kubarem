@@ -16,7 +16,6 @@
 #include "model.h"
 #include "shader.h"
 #include "object.h"
-#include "map.cpp"
 #include "camera.cpp"
 #include "third_person_character.cpp"
 
@@ -48,18 +47,18 @@ public:
     GLuint                 Width, Height;
     GLuint                 Lives;
     Input                  *inputController;
-    Shader 				   *shaderProgram;
-    Shader 				   *boxShaderProgram;
+    Shader 				   *objectShaderProgram;
+    Shader 				   *mainCharacterShaderProgram;
+    Shader 				   *lampShaderProgram;
 
     ThirdPersonCamera 	   *camera;
 
     ThirdPersonCharacter *mainCharacter = nullptr;
     Object *objects[OBJECTS_MAX_AMOUNT];
-    Object *obj = nullptr;
-    Object *obj1 = nullptr;
-    Object *obj2 = nullptr;
-    Map *map = nullptr;
+    Object *cyborg = nullptr;
     Box *box = nullptr;
+    Box *box1 = nullptr;
+    Box *lamp = nullptr;
 
     std::string gameDescription = "Kubarem";
 

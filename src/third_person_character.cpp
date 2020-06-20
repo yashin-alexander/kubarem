@@ -117,7 +117,6 @@ public:
     GLint objectsSticked = 0;
 
     ThirdPersonCharacter(const char * modelPath,
-           const char * texturePath,
            Shader *shader,
            GLfloat screenScale,
            glm::vec3 size,
@@ -128,7 +127,7 @@ public:
       _camera(camera)
     {
         position = glm::vec3(0.0f, 0.0f, 0.0f);
-        _model = new Model(modelPath, false, texturePath);
+        _model = new Model(modelPath, false);
 
         rotationKeeper = new MoveRotationKeeper();
         rotationKeeper->setLastModelMatrix(
@@ -173,18 +172,18 @@ public:
 
     void moveEvent(glm::vec3 newPosition)
     {
-        if (isInsidePlate(newPosition)){
+//        if (isInsidePlate(newPosition)){
             this->position = newPosition;
             this->_camera->setMainCharacterPosition(position);
-        } else {
-            if (abs(speed) < 8){
-                speed *= -1.0f;
-            }
-            else {
-                speed /= -1.0f;
-            }
-            log_info("Bounds touched! Controls inverted!");
-        }
+//        } else {
+//            if (abs(speed) < 8){
+//                speed *= -1.0f;
+//            }
+//            else {
+//                speed /= -1.0f;
+//            }
+//            log_info("Bounds touched! Controls inverted!");
+//        }
     }
 
     GLboolean isInsidePlate(glm::vec3 positionToCheck)
@@ -195,6 +194,21 @@ public:
 
     void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size)
     {
+        glUseProgram(_shaderProgram->ID);
+        glm::vec3 lightPos(60.f, 20.f, -60.f);
+        _shaderProgram->SetVector3f("light.position", lightPos);
+        _shaderProgram->SetVector3f("viewPos", _camera->Position);
+
+        // light properties
+        GLfloat time = glfwGetTime();
+        _shaderProgram->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
+        _shaderProgram->SetVector3f("light.diffuse", 0.1f, cos(2*time), sin(time));
+        _shaderProgram->SetVector3f("light.specular", 1.0f, .0f, .0f);
+
+        // material properties
+        _shaderProgram->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
+        _shaderProgram->SetFloat("material.shininess", 256.0f);
+
 
         glm::mat4 projection = glm::perspective(glm::radians(45.f), _screenScale, 0.1f, 500.0f);
         _shaderProgram->SetMatrix4("projection", projection);

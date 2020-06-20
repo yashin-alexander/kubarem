@@ -13,44 +13,54 @@ void Game::Init()
 
     State = GAME_ACTIVE;
 
-    shaderProgram = loadShaderFromFile("src/shaders/default_vs.glsl",
-                                       "src/shaders/default_fs.glsl");
+    mainCharacterShaderProgram = loadShaderFromFile("src/shaders/main_vs.glsl",
+                                                    "src/shaders/main_fs.glsl");
 
-    boxShaderProgram = loadShaderFromFile("src/shaders/box_vs.glsl",
-                                           "src/shaders/box_fs.glsl");
+    objectShaderProgram = loadShaderFromFile("src/shaders/object_vs.glsl",
+                                             "src/shaders/object_fs.glsl");
+
+    lampShaderProgram = loadShaderFromFile("src/shaders/lamp_vs.glsl",
+                                           "src/shaders/lamp_fs.glsl");
 
     camera = new ThirdPersonCamera();
     box = new Box("resources/textures/background.png",
-                  boxShaderProgram, (float)Width / (float)Height,
+                  objectShaderProgram,
+                  (float)Width / (float)Height,
                   glm::vec3(850, 0, 850),
                   glm::vec3(0.f, -4.5f, 0.f));
-    box->Init();
 
-    mainCharacter = new ThirdPersonCharacter("resources/objects/planet/planet.obj",
-                     "grid.png",
-                     shaderProgram,
+    box1 = new Box("resources/textures/minecraft_wood.png",
+                   objectShaderProgram,
+                   (float)Width / (float)Height,
+                   glm::vec3(16, 16, 16),
+                   glm::vec3(30, 6, -50.f));
+
+    lamp = new Lamp("resources/textures/background.png",
+                    lampShaderProgram,
+                    (float)Width / (float)Height,
+                    glm::vec3(10, 10, 10),
+                    glm::vec3(60.f, 5.f, -60.f));
+
+    // models load
+    Model * cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
+    Model * sunModel = new Model("resources/objects/sphere/sphere.obj", false);
+    Model * triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
+
+    mainCharacter = new ThirdPersonCharacter("resources/objects/sphere/disco/sphere.obj",
+                     mainCharacterShaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(4.f, 4.f, 4.f),
                      camera);
 
-    Model * cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false, "cyborg_normal.png");
-    Model * sunModel = new Model("resources/objects/planet/planet.obj", false, "earth.jpg");
-    Model * planetModel = new Model("resources/objects/planet/planet.obj", false, "moon.jpg");
-    obj = new Object(cyborgModel,
-                     shaderProgram,
+    cyborg = new Object(cyborgModel,
+                     objectShaderProgram,
                      (float)Width / (float)Height,
-                     glm::vec3(1.7f, 1.7f, 1.7f),
-                     glm::vec3(14.0, 0.f, 12.f));
-    obj1 = new Object(sunModel,
-                     shaderProgram,
-                     (float)Width / (float)Height,
-                     glm::vec3(2.7f, 2.7f, 2.7f),
-                     glm::vec3(0.0, 3.5f, -3.5f));
-
+                     glm::vec3(4.7f, 4.7f, 4.7f),
+                     glm::vec3(30.0, 14.f, -50.f));
 
     for (int i = 0; i < 15; i++){
-        objects[i] = new Object(planetModel,
-                     shaderProgram,
+        objects[i] = new Object(triangleSphereModel,
+                     objectShaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(2, 2, 2),
                      glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
@@ -58,39 +68,23 @@ void Game::Init()
     }
     for (int i = 15; i < 25; i++){
         objects[i] = new Object(sunModel,
-                     shaderProgram,
+                     objectShaderProgram,
                      (float)Width / (float)Height,
                      glm::vec3(1 + i*0.1, 1 + i*0.1, 1 + i*0.1),
                      glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
         log_info("Object %d created", i);
     }
-
-
-//    map = new Object("resources/objects/cyborg/cyborg.obj",
-//                     "cyborg_normal.png",
-//                     shaderProgram,
-//                     (float)Width / (float)Height,
-//                     glm::vec3(1.7f, 1.7f, 1.7f),
-//                     glm::vec2(0.0, 0.0f));
-//    map = new Object("resources/objects/cyborg/cyborg.obj",
-//                     "cyborg_diffuse.png",
-    map = new Map("resources/objects/map/1.obj",
-                     "r.jpg",
-                     shaderProgram,
-                     (float)Width / (float)Height,
-                     glm::vec3(20.f, 6.f, 20.f),
-                     glm::vec3(0.0, -269.4f, 0.f));
 }
 
 
 void Game::_initProjection()
 {
-    glUseProgram(shaderProgram->ID);
+    glUseProgram(objectShaderProgram->ID);
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)Width / (GLfloat)Height, 0.1f, 100.0f);
-    this->shaderProgram->SetMatrix4("projection", projection);
+    this->objectShaderProgram->SetMatrix4("projection", projection);
 
     glm::mat4 view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    this->shaderProgram->SetMatrix4("view", projection);
+    this->objectShaderProgram->SetMatrix4("view", projection);
 }
 
 
@@ -113,19 +107,15 @@ void Game::ProcessInput(GLfloat deltaTime)
     if (this->State == GAME_ACTIVE)
     {
         if (this->inputController->Keys[GLFW_KEY_W]){
-//            camera->ProcessKeyboard(FORWARD, deltaTime);
             mainCharacter->ProcessKeyboard(FORWARD, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_S]){
-//            camera->ProcessKeyboard(BACKWARD, deltaTime);
             mainCharacter->ProcessKeyboard(BACKWARD, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_A]){
-//            camera->ProcessKeyboard(LEFT, deltaTime);
             mainCharacter->ProcessKeyboard(LEFT, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_D]){
-//            camera->ProcessKeyboard(RIGHT, deltaTime);
             mainCharacter->ProcessKeyboard(RIGHT, deltaTime);
         }
     }
@@ -134,26 +124,26 @@ void Game::ProcessInput(GLfloat deltaTime)
 
 void Game::Render()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+//    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(boxShaderProgram->ID);
-    box->Render(camera);
-
-
-    glUseProgram(shaderProgram->ID);
+//    /*
     if (inputController->MouseOffsetUpdated){
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
     }
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
-    obj->Render(VAO, glm::vec2(0,0), camera);
-    obj1->Render(VAO, glm::vec2(0,0), camera);
-//    map->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0), camera);
 
     for (int i = 0; i < 25; i++){
-        objects[i]->Render(VAO, glm::vec2(0,0), camera);
+        objects[i]->Render(VAO, mainCharacter->position, camera);
     }
+
+    box->Render(camera, mainCharacter->position);
+    box1->Render(camera, mainCharacter->position);
+    lamp->Render(camera, mainCharacter->position);
+
+    cyborg->Render(VAO, mainCharacter->position, camera);
 }
 
 
