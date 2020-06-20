@@ -7,7 +7,9 @@ Box::Box(const char *textureName, Shader *_shaderProgram, GLfloat _screenScale, 
     _screenScale(_screenScale),
     _size(size),
     _position(position)
-    {};
+    {
+        this->Init();
+    };
 
 
 void Box::Init(){
@@ -20,45 +22,45 @@ void Box::Init(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // normales coord attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // texture
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char *data = stbi_load(_textureName, &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        log_dbg("Box texture is loaded");
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-        log_err("Failed to load BOX texture");
-
-    stbi_image_free(data);
+    texture1 = loadTexture(_textureName);
 
     _shaderProgram->Use();
     _shaderProgram->SetInteger("texture1", 0);
 }
 
 
-void Box::Render(Camera *camera){
+void Box::Render(Camera *camera, glm::vec3 lightPoint){
+    glUseProgram(_shaderProgram->ID);
+    _shaderProgram->SetVector3f("light.position", lightPoint);
+    _shaderProgram->SetVector3f("viewPos", camera->Position);
+
+    // light properties
+    GLfloat time = glfwGetTime();
+    _shaderProgram->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
+    _shaderProgram->SetVector3f("light.diffuse", 0.1f, cos(2*time), sin(time));
+    _shaderProgram->SetVector3f("light.specular", 1.0f, .0f, .0f);
+
+    // material properties
+    _shaderProgram->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
+    _shaderProgram->SetFloat("material.shininess", 256.0f);
+
+
     // bind textures on corresponding texture units
+    // bind diffuse map
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, texture1);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, _position);
@@ -75,3 +77,45 @@ void Box::Render(Camera *camera){
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 };
+
+
+GLuint Box::loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        log_err("Failed to load texture %s", path);
+        stbi_image_free(data);
+    }
+
+    return textureID;
+}
+
+Lamp::Lamp(const char *textureName, Shader *_shaderProgram, GLfloat _screenScale, glm::vec3 size, glm::vec3 position):
+      Box(textureName, _shaderProgram, _screenScale, size, position){};
+
