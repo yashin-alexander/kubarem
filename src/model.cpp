@@ -115,6 +115,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     // 4. height maps
     std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    log_dbg("--------------");
 
         // return a mesh object created from the extracted mesh data
    return Mesh(vertices, indices, textures);
@@ -128,6 +129,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
     {
         aiString str;
         mat->GetTexture(type, i, &str);
+//        log_info("Loading %s texture from file %s", typeName.c_str(), str.C_Str());
         bool skip = false;
         for(unsigned int j = 0; j < textures_loaded.size(); j++)
         {
@@ -141,19 +143,14 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
         if(!skip)
         {
             Texture texture;
-            if (texturePath == "")
-            {
-                texture.id = TextureFromFile(str.C_Str(), this->directory, false);
-                texture.type = typeName;
-                texture.path = str.C_Str();
-                log_info("Loading texture: %s/%s", (const char *)this->directory.c_str(), (const char *)(str).C_Str());
-            } else
-            {
-                texture.id = TextureFromFile(texturePath.c_str(), this->directory, false);
-                texture.type = typeName;
-                texture.path = texturePath.c_str();
-                log_info("Loading texture: %s/%s", this->directory.c_str(), (const char *)texturePath.c_str());
-            }
+            std::string currentTextureName = std::string(typeName + ".png");
+            std::string currentTexturePath = std::string(this->directory + "/" + currentTextureName);
+
+            log_info("Loading custom %s: %s", typeName.c_str(), currentTexturePath.c_str());
+            texture.id = TextureFromFile(currentTextureName.c_str(), this->directory, false);
+            texture.type = typeName;
+            texture.path = currentTexturePath.c_str();
+
             textures.push_back(texture);
             textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }
