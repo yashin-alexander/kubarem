@@ -44,6 +44,11 @@ int main()
     // Setup OpenGL options
     glEnable(GL_DEPTH_TEST);
 
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+//    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     kubarem.Init();
 
@@ -56,7 +61,7 @@ int main()
 
         kubarem.ProcessInput(deltaTime);
         kubarem.DoCollisions();
-        kubarem.Render();
+        kubarem.Render(deltaTime);
 //        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
         glfwPollEvents();

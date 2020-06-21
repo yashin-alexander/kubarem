@@ -13,6 +13,11 @@ void Game::Init()
 
     State = GAME_ACTIVE;
 
+    textShaderProgram = loadShaderFromFile("src/shaders/text_vs.glsl",
+                                           "src/shaders/text_fs.glsl");
+    textRenderer = new TextRenderer(this->Width, this->Height, textShaderProgram);
+    textRenderer->Load("resources/fonts/default.ttf", 24);
+
     mainCharacterShaderProgram = loadShaderFromFile("src/shaders/main_vs.glsl",
                                                     "src/shaders/main_fs.glsl");
 
@@ -122,13 +127,11 @@ void Game::ProcessInput(GLfloat deltaTime)
 }
 
 
-void Game::Render()
+void Game::Render(GLfloat deltaTime)
 {
-//    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    /*
     if (inputController->MouseOffsetUpdated){
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
@@ -144,6 +147,12 @@ void Game::Render()
     lamp->Render(camera, mainCharacter->position);
 
     cyborg->Render(VAO, mainCharacter->position, camera);
+    textRenderer->RenderText(
+                std::string("Items collected: ") + std::to_string(mainCharacter->objectsSticked),
+                glm::vec2(5.0f, 5.0f), 1.0f);
+    textRenderer->RenderText(
+                std::string("FPS: ") + std::to_string(int(1 / deltaTime)),
+                glm::vec2(this->Width - 110.f, 5.0f), 1.0f);
 }
 
 

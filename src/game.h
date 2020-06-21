@@ -18,6 +18,7 @@
 #include "object.h"
 #include "camera.cpp"
 #include "third_person_character.cpp"
+#include "text_renderer.h"
 
 
 #define OBJECTS_MAX_AMOUNT 100
@@ -50,6 +51,8 @@ public:
     Shader 				   *objectShaderProgram;
     Shader 				   *mainCharacterShaderProgram;
     Shader 				   *lampShaderProgram;
+    Shader                 *textShaderProgram;
+    TextRenderer           *textRenderer;
 
     ThirdPersonCamera 	   *camera;
 
@@ -71,7 +74,7 @@ public:
     Game(GLuint width, GLuint height, Input * input);
 
     void Init();
-    void Render();
+    void Render(GLfloat deltaTime);
     void ProcessInput(GLfloat deltaTime);
 };
 
