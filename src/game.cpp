@@ -31,7 +31,7 @@ void Game::Init()
     box = new Box("resources/textures/background.png",
                   objectShaderProgram,
                   (float)Width / (float)Height,
-                  glm::vec3(850, 0, 850),
+                  glm::vec3(850, 1, 850),
                   glm::vec3(0.f, -4.5f, 0.f));
 
     box1 = new Box("resources/textures/minecraft_wood.png",
@@ -144,7 +144,7 @@ void Game::Render(GLfloat deltaTime)
 
     box->Render(camera, mainCharacter->position);
     box1->Render(camera, mainCharacter->position);
-    lamp->Render(camera, mainCharacter->position);
+//    lamp->Render(camera, mainCharacter->position);
 
     cyborg->Render(VAO, mainCharacter->position, camera);
     textRenderer->RenderText(
