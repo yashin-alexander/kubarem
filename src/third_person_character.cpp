@@ -9,7 +9,7 @@
 #include "model.h"
 #include "shader.h"
 #include "camera.cpp"
-#include "object.h"
+#include "objects/object.h"
 
 
 class MoveRotationKeeper
@@ -113,7 +113,7 @@ public:
     ThirdPersonCamera *_camera = nullptr;
     glm::vec3 position;
     glm::vec3 size;
-    Object * sticked[100];
+    ModeledObject * sticked[100];
     GLint objectsSticked = 0;
 
     ThirdPersonCharacter(const char * modelPath,
@@ -268,13 +268,13 @@ public:
 
     void _processStickedObjects(glm::mat4 model){
         for (int i = 0; i < objectsSticked; i++){
-            sticked[i]->stickedToPosition = this->position;
+            sticked[i]->SetStickedToPosition(this->position);
             sticked[i]->SetMainObjectRotation(model);
         }
     }
 
-    void doCollisions(Object * objectsList [], GLint _size){
-        Object *currentObject = nullptr;
+    void doCollisions(ModeledObject * objectsList [], GLint _size){
+        ModeledObject *currentObject = nullptr;
         GLfloat distance;
 
         for (int i = 0; i <= _size; i++)

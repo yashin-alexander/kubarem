@@ -11,14 +11,13 @@
 #include <iostream>
 
 #include "log.h"
-#include "box.h"
 #include "input.h"
 #include "model.h"
 #include "shader.h"
-#include "object.h"
 #include "camera.cpp"
 #include "third_person_character.cpp"
 #include "text_renderer.h"
+#include "objects/object.h"
 
 
 #define OBJECTS_MAX_AMOUNT 100
@@ -57,11 +56,10 @@ public:
     ThirdPersonCamera 	   *camera;
 
     ThirdPersonCharacter *mainCharacter = nullptr;
-    Object *objects[OBJECTS_MAX_AMOUNT];
-    Object *cyborg = nullptr;
-    Box *box = nullptr;
-    Box *box1 = nullptr;
-    Box *lamp = nullptr;
+    ModeledObject *objects[OBJECTS_MAX_AMOUNT];
+    ModeledObject *cyborg = nullptr;
+    CustomGeometryObject *cube = nullptr;
+    CustomGeometryObject *floor = nullptr;
 
     std::string gameDescription = "Kubarem";
 

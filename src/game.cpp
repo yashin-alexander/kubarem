@@ -27,24 +27,8 @@ void Game::Init()
     lampShaderProgram = loadShaderFromFile("src/shaders/lamp_vs.glsl",
                                            "src/shaders/lamp_fs.glsl");
 
+
     camera = new ThirdPersonCamera();
-    box = new Box("resources/textures/background.png",
-                  objectShaderProgram,
-                  (float)Width / (float)Height,
-                  glm::vec3(850, 1, 850),
-                  glm::vec3(0.f, -4.5f, 0.f));
-
-    box1 = new Box("resources/textures/minecraft_wood.png",
-                   objectShaderProgram,
-                   (float)Width / (float)Height,
-                   glm::vec3(16, 16, 16),
-                   glm::vec3(30, 6, -50.f));
-
-    lamp = new Lamp("resources/textures/background.png",
-                    lampShaderProgram,
-                    (float)Width / (float)Height,
-                    glm::vec3(10, 10, 10),
-                    glm::vec3(60.f, 5.f, -60.f));
 
     // models load
     Model * cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
@@ -57,26 +41,47 @@ void Game::Init()
                      glm::vec3(4.f, 4.f, 4.f),
                      camera);
 
-    cyborg = new Object(cyborgModel,
-                     objectShaderProgram,
-                     (float)Width / (float)Height,
-                     glm::vec3(4.7f, 4.7f, 4.7f),
-                     glm::vec3(30.0, 14.f, -50.f));
+    cube = new CustomGeometryObject((float)Width / (float)Height,
+                                    objectShaderProgram,
+                                    camera,
+                                    &mainCharacter->position,
+                                    "resources/textures/minecraft_wood.png",
+                                    glm::vec3(0, 6, 0),
+                                    glm::vec3(16, 16, 16));
+    floor = new CustomGeometryObject((float)Width / (float)Height,
+                                     objectShaderProgram,
+                                     camera,
+                                     &mainCharacter->position,
+                                     "resources/textures/background.png",
+                                     glm::vec3(0, -4.5, 0),
+                                     glm::vec3(850, 1, 850));
+
+    cyborg = new ModeledObject((float)Width / (float)Height,
+                               objectShaderProgram,
+                               cyborgModel,
+                               camera,
+                               &mainCharacter->position,
+                               glm::vec3(4.7f, 6.0f, 4.7f),
+                               glm::vec3(4.7f, 4.7f, 4.7f));
 
     for (int i = 0; i < 15; i++){
-        objects[i] = new Object(triangleSphereModel,
-                     objectShaderProgram,
-                     (float)Width / (float)Height,
-                     glm::vec3(2, 2, 2),
-                     glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
+        objects[i] = new ModeledObject((float)Width / (float)Height,
+                                       objectShaderProgram,
+                                       triangleSphereModel,
+                                       camera,
+                                       &mainCharacter->position,
+                                       glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
+                                       glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
     }
     for (int i = 15; i < 25; i++){
-        objects[i] = new Object(sunModel,
-                     objectShaderProgram,
-                     (float)Width / (float)Height,
-                     glm::vec3(1 + i*0.1, 1 + i*0.1, 1 + i*0.1),
-                     glm::vec3(cos(i)*60.0f, cos(i)*2, sin(i)-10.0f*i));
+        objects[i] = new ModeledObject((float)Width / (float)Height,
+                                       objectShaderProgram,
+                                       sunModel,
+                                       camera,
+                                       &mainCharacter->position,
+                                       glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
+                                       glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
     }
 }
@@ -131,22 +136,20 @@ void Game::Render(GLfloat deltaTime)
 {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     if (inputController->MouseOffsetUpdated){
         camera->ProcessMouseMovement(inputController->MouseOffsets[X_OFFSET], inputController->MouseOffsets[Y_OFFSET]);
         inputController->MouseOffsetUpdated = false;
     }
+    floor->Render();
+    cube->Render();
+    cyborg->Render();
+
     mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
 
-    for (int i = 0; i < 25; i++){
-        objects[i]->Render(VAO, mainCharacter->position, camera);
+    for (int i = 0; i < 24; i++){
+        objects[i]->Render();
     }
 
-    box->Render(camera, mainCharacter->position);
-    box1->Render(camera, mainCharacter->position);
-//    lamp->Render(camera, mainCharacter->position);
-
-    cyborg->Render(VAO, mainCharacter->position, camera);
     textRenderer->RenderText(
                 std::string("Items collected: ") + std::to_string(mainCharacter->objectsSticked),
                 glm::vec2(5.0f, 5.0f), 1.0f);
