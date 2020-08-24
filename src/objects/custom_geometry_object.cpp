@@ -1,13 +1,14 @@
 #include "object.h"
 #include <stb_image.h>
 
-CustomGeometryObject::CustomGeometryObject(Shader * shader_program,
+CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
+                                           Shader * shader_program,
                                            Camera * camera,
-                                           glm::vec3 light_point,
+                                           const glm::vec3 * light_point,
                                            const char * texture_name,
                                            glm::vec3 position,
                                            glm::vec3 size):
-    Object_(shader_program, camera, light_point, position, size)
+    Object_(screen_scale, shader_program, camera, light_point, position, size)
 {
     CustomGeometryObject::Init(texture_name);
 };
@@ -50,8 +51,8 @@ void CustomGeometryObject::loadTexture_(char const * path)
 
 void CustomGeometryObject::Init(char const * path)
 {
-    glGenVertexArrays(2, &VAO_);
-    glGenBuffers(2, &VBO_);
+    glGenVertexArrays(1, &VAO_);
+    glGenBuffers(1, &VBO_);
 
     glBindVertexArray(VAO_);
 
@@ -77,9 +78,8 @@ void CustomGeometryObject::Init(char const * path)
 
 void CustomGeometryObject::Render()
 {
-    log_dbg("P %f", camera_->Position[0]);
     glUseProgram(shader_program_->ID);
-    shader_program_->SetVector3f("light.position", light_point_);
+    shader_program_->SetVector3f("light.position", *light_point_);
     shader_program_->SetVector3f("viewPos", camera_->Position);
 
     // light properties
@@ -96,14 +96,13 @@ void CustomGeometryObject::Render()
     // bind diffuse map
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, texture1);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     model = glm::scale(model, size);
 
     glm::mat4 view = camera_->GetViewMatrix();
+
     glm::mat4 projection = glm::perspective(glm::radians(camera_->Zoom), screen_scale_, 0.1f, 1200.0f);
 
     shader_program_->SetMatrix4("model", model);
