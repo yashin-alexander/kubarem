@@ -1,0 +1,20 @@
+name: Linux build
+
+on: push
+
+jobs:
+  build:
+      runs-on: ubuntu-20.04
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+         sudo apt-get update
+         sudo apt-get install libsoil-dev libglm-dev libassimp-dev \
+         libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev
+      - name: Build assimp
+        run: make init
+      - name: Build project
+        run: make
