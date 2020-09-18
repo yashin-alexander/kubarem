@@ -1,23 +1,37 @@
-## Solar system simulation
+## Dependencies installation
+```
+apt-get install libsoil-dev libglm-dev libassimp-dev \
+        libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev
+make init
+```
 
-![Alt Text](gifs/solar-system.gif)
+### Examples
+Several examples are available. To buld and playback, use the following:
+```
+git checkout ${EXAMPLE_HASH}
+make
+./build/src/kubarem
+```
+
+## Katamari Damacy clone
+
+To build and playback:
+```
+git checkout v0.3
+```
+
+## Solar system simulation
 
 To build and playback:
 ```
 git checkout v0.2
-make
-./build/src/kubarem
 ```
 
 ## Pong game
 
-![Alt Text](gifs/pong.gif)
-
 To build and play:
 ```
 git checkout v0.1
-make
-./build/src/kubarem
 ```
 
 Controls:
