@@ -1,7 +1,11 @@
+[![Actions Status](https://github.com/yashin-alexander/kubarem/workflows/Linux%20build/badge.svg)](https://github.com/yashin-alexander/kubarem/actions)
+
+
 ## Dependencies installation
 ```
 apt-get install libsoil-dev libglm-dev libassimp-dev \
-        libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev
+        libglew-dev libglfw3-dev libxinerama-dev \ 
+        libxcursor-dev libxi-dev libasound2-dev
 make init
 ```
 
