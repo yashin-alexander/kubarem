@@ -60,3 +60,12 @@ target_include_directories("stb-image" PRIVATE "${STB_IMAGE_DIR}")
 
 set(STB_IMAGE_LIBRARY "stb-image")
 set(STB_IMAGE_INCLUDE_DIR "${STB_IMAGE_DIR}")
+
+# soloud
+set(SOLOUD_DIR "${THIRDPARTY_DIR}/soloud")
+configure_file("${THIRDPARTY_DIR}/soloud_configure.cmake" "${SOLOUD_DIR}/contrib/Configure.cmake")
+add_subdirectory("${SOLOUD_DIR}/contrib")
+target_include_directories("soloud" PRIVATE "${SOLOUD_DIR}/include")
+
+set(SOLOUD_LIBRARY "soloud")
+set(SOLOUD_INCLUDE_DIR "${SOLOUD_DIR}/include")

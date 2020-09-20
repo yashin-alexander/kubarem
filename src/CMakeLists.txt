@@ -20,6 +20,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${GLAD_INCLUDE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${GLM_INCLUDE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${IMGUI_INCLUDE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${STB_IMAGE_INCLUDE_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${SOLOUD_INCLUDE_DIR}")
 
 target_link_libraries(${PROJECT_NAME} "${OPENGL_LIBRARIES}")
 target_link_libraries(${PROJECT_NAME} "${GLEW_LIBRARIES}")
@@ -31,6 +32,7 @@ target_link_libraries(${PROJECT_NAME} "${CMAKE_DL_LIBS}")
 target_link_libraries(${PROJECT_NAME} "${GLAD_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${ASSIMP_LIBRARY}")
 target_link_libraries(${PROJECT_NAME} "${STB_IMAGE_LIBRARY}")
+target_link_libraries(${PROJECT_NAME} "${SOLOUD_LIBRARY}")
 
 
 source_group("sources" FILES ${SOURCE_FILES_EXE})
