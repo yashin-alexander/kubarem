@@ -9,7 +9,7 @@ file(GLOB_RECURSE HEADER_FILES_EXE
      *.hpp)
 
 add_executable(${TARGET_NAME} ${HEADER_FILES_EXE} ${SOURCE_FILES_EXE})
-set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${TARGET_NAME} PRIVATE ${kubarem_SOURCE_DIR}/src)
