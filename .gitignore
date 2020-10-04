@@ -4,3 +4,6 @@ kubarem.includes
 kubarem.creator.user
 kubarem.creator
 kubarem.config
+.vscode/
+*.code-workspace
+*.pdb
