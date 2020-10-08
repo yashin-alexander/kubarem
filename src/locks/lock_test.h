@@ -7,7 +7,9 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
 #include "lock_base.h"
+#include "scoped_lock.h"
 
 namespace testing
 {
@@ -66,7 +68,7 @@ namespace testing
     class PrintTestTask final : public TestTaskBase<LockClass>
     {
     public:
-        PrintTestTask(const std::string& task_name, const std::vector<std::string>& values_to_print);
+        PrintTestTask(const std::string& task_name, const std::vector<std::string>& values_to_print, bool lock_double = false);
 
     private:
         std::vector<std::thread> GetTaskThreads() override;
@@ -74,11 +76,12 @@ namespace testing
 
         std::vector<std::string> values;
         std::stringstream result_stream;
+        const bool lock_double;
     };
 
     template<class LockClass>
-    inline PrintTestTask<LockClass>::PrintTestTask(const std::string& task_name, const std::vector<std::string>& values_to_print)
-    : TestTaskBase<LockClass>(task_name)
+    inline PrintTestTask<LockClass>::PrintTestTask(const std::string& task_name, const std::vector<std::string>& values_to_print, const bool lock_double)
+    : TestTaskBase<LockClass>(task_name), lock_double(lock_double)
     {
         values = values_to_print;
     }
@@ -92,17 +95,19 @@ namespace testing
         {
             std::thread task_thread([&value, this]()
             {
-                using namespace std::chrono_literals;
+                ScopedLock line_lock(this->lock);
 
-                this->lock.Acquire();
-                
                 for(const char& letter : value)
                 {
-                    result_stream << letter;
-                    std::this_thread::sleep_for(1ms);
-                }
+                    if(lock_double)
+                        this->lock.Acquire();
 
-                this->lock.Release();
+                    result_stream << letter;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+                    if(lock_double)
+                        this->lock.Release();
+                }
             });
 
             task_threads.push_back(std::move(task_thread));
