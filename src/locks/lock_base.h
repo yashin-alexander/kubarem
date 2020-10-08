@@ -9,7 +9,7 @@ class LockBase
 public:
     using optional_sting = std::optional<std::string>;
 
-    LockBase(optional_sting name = optional_sting());
+    explicit LockBase(optional_sting name = optional_sting());
 
     virtual bool TryAcquire() = 0;
     virtual void Acquire() = 0;
@@ -18,11 +18,6 @@ public:
     template<class StreamClass>
     friend StreamClass& operator<<(StreamClass& stream, const LockBase& lock);
 
-protected:
-    std::string lock_class_name;
-    std::string lock_name;
-
-private:    
     // Copying locks is not allowed _for now_ to avoid easy-to-make mistakes
     LockBase(const LockBase& other) = delete;
     LockBase& operator=(const LockBase& other) = delete;
@@ -30,6 +25,10 @@ private:
     // Moving locks is not allowed _for now_ to avoid easy-to-make mistakes
     LockBase(LockBase&& other) = delete;
     LockBase& operator=(LockBase&& other) = delete;
+
+protected:
+    std::string lock_class_name;
+    std::string lock_name;
 };
 
 inline LockBase::LockBase(optional_sting name)

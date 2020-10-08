@@ -7,11 +7,11 @@
 class SpinLock : public LockBase
 {
 public:
-    SpinLock(const optional_sting& name);
+    explicit SpinLock(const optional_sting& name);
 
-    virtual bool TryAcquire();
-    virtual void Acquire();
-    virtual void Release();
+    bool TryAcquire() override;
+    void Acquire() override;
+    void Release() override;
 
 protected:
     std::atomic_flag is_locked;

@@ -15,13 +15,13 @@ namespace testing
     class NotLock : public LockBase
     {
     public:
-        NotLock(const std::string name) : LockBase(name) 
+        explicit NotLock(const std::string& name) : LockBase(name)
         {
             lock_class_name = "NotLock";
         }
-        virtual bool TryAcquire() { return true; }
-        virtual void Acquire() {};
-        virtual void Release() {};
+        bool TryAcquire() override { return true; }
+        void Acquire() override {};
+        void Release() override {};
     };
 
     #pragma region Task base
@@ -33,7 +33,7 @@ namespace testing
         void RunTask();
 
     protected:
-        TestTaskBase(const std::string& task_name)
+        explicit TestTaskBase(const std::string& task_name)
         : lock(task_name + " lock")
         {}
 
@@ -55,7 +55,7 @@ namespace testing
         }
 
         OnTaskFinished();
-        std::cout << "Finised test" << std::endl;
+        std::cout << "Finished test" << std::endl;
     }
 
     #pragma endregion
@@ -78,7 +78,7 @@ namespace testing
 
     template<class LockClass>
     inline PrintTestTask<LockClass>::PrintTestTask(const std::string& task_name, const std::vector<std::string>& values_to_print)
-    : TestTaskBase(task_name)
+    : TestTaskBase<LockClass>(task_name)
     {
         values = values_to_print;
     }
@@ -94,7 +94,7 @@ namespace testing
             {
                 using namespace std::chrono_literals;
 
-                lock.Acquire();
+                this->lock.Acquire();
                 
                 for(const char& letter : value)
                 {
@@ -102,7 +102,7 @@ namespace testing
                     std::this_thread::sleep_for(1ms);
                 }
 
-                lock.Release();
+                this->lock.Release();
             });
 
             task_threads.push_back(std::move(task_thread));
