@@ -19,7 +19,9 @@ protected:
     using thread_id = std::thread::id;
 
     thread_id owner_thread_id = thread_id();
-    std::atomic_int lock_count = 0;
+    std::atomic<int> lock_count = 0;
+
+    static_assert(std::atomic<int>::is_always_lock_free, "atomic int is not lock free, need to use other type");
 };
 
 inline ReentrantLock::ReentrantLock(const LockBase::optional_sting& name)
