@@ -26,7 +26,17 @@ void Game::Init()
 
     lampShaderProgram = loadShaderFromFile("src/shaders/lamp_vs.glsl",
                                            "src/shaders/lamp_fs.glsl");
+    particleShaderProgram = loadShaderFromFile("src/shaders/particle_vs.glsl",
+                                               "src/shaders/particle_fs.glsl");
 
+
+    ParticleParameters particles_parameters{glm::vec3(15, 0, -75),
+                                             glm::vec3(50, 50, 50),
+                                             13.8,
+                                             5,
+                                             45,
+                                             0.3};
+    particleController = new ParticleController(particles_parameters,  800, (float)Width / (float)Height, particleShaderProgram);
 
     camera = new ThirdPersonCamera();
 
@@ -149,6 +159,9 @@ void Game::Render(GLfloat deltaTime)
     for (int i = 0; i < 24; i++){
         objects[i]->Render();
     }
+
+    particleController->update(deltaTime);
+    particleController->renderParticles(camera);
 
     textRenderer->RenderText(
                 std::string("Items collected: ") + std::to_string(mainCharacter->objectsSticked),

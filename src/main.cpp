@@ -1,13 +1,9 @@
-#include <iostream>
-#include <unistd.h>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "log.h"
 #include "game.h"
 #include "utils.h"
-#include "mesh.h"
 
 
 const unsigned int SCR_WIDTH = 1280;

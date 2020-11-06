@@ -18,6 +18,7 @@
 #include "third_person_character.cpp"
 #include "text_renderer.h"
 #include "objects/object.h"
+#include "particles/particle_controller.h"
 
 
 #define OBJECTS_MAX_AMOUNT 100
@@ -51,6 +52,9 @@ public:
     Shader 				   *mainCharacterShaderProgram;
     Shader 				   *lampShaderProgram;
     Shader                 *textShaderProgram;
+    Shader                 *particleShaderProgram;
+
+    ParticleController     *particleController;
     TextRenderer           *textRenderer;
 
     ThirdPersonCamera 	   *camera;
