@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdarg>
+#include <sstream>
+#include <thread>
 
 #include "log.h"
 
@@ -27,8 +29,11 @@ static void build_log_format(char * log_format, size_t length, KubaremLogLevel l
     const char * log_level_str;
     size_t log_level_str_size = 0;
 
+    std::stringstream thread_id;
+    thread_id << std::this_thread::get_id();
+
     log_level_str = log_level_description(level);
-    sprintf(log_format, "[%s]: ", log_level_str);
+    sprintf(log_format, "[%s: %s]: ", thread_id.str().c_str(), log_level_str);
 
     log_level_str_size = sizeof (log_format);
     strncat(log_format, requested_format, length - log_level_str_size);
@@ -40,6 +45,9 @@ static void build_log_format(char * log_format, size_t length, KubaremLogLevel l
 
 void _log (KubaremLogLevel level, const char * requested_format, ...)
 {
+    if(level > MAX_LOG_LEVEL)
+        return;
+
     va_list args;
     char log_format[MAX_LOG_STR_LENGTH];
 
