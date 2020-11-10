@@ -4,10 +4,11 @@ template<class LockClass>
 class ScopedLock final
 {
 public:
-    explicit ScopedLock(LockClass& Lock)
+    explicit ScopedLock(LockClass& Lock, bool is_lock_already_acquired = false)
     : LockRef(Lock)
     {
-        LockRef.Acquire();
+        if (!is_lock_already_acquired)
+            LockRef.Acquire();
     }
 
     ~ScopedLock()
