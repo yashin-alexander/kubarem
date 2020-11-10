@@ -31,13 +31,13 @@ void Input::_TextInputCb(GLFWwindow* window, unsigned int codepoint)
 }
 
 
-void Input::_MouseMoveCb(GLFWwindow* window, double xpos, double ypos)
+void Input::_MouseMoveCb(GLFWwindow* window, float xpos, float ypos)
 {
-    MouseOffsets[X_OFFSET] = xpos - _mouseCurrentPpositionX;
-    MouseOffsets[Y_OFFSET] = _mouseCurrentPpositionY - ypos;
+    MouseOffsets[X_OFFSET] = xpos - _mouseCurrentPositionX;
+    MouseOffsets[Y_OFFSET] = _mouseCurrentPositionY - ypos;
 
-    _mouseCurrentPpositionX = xpos;
-    _mouseCurrentPpositionY = ypos;
+    _mouseCurrentPositionX = xpos;
+    _mouseCurrentPositionY = ypos;
 
     MouseOffsetUpdated = true;
 }

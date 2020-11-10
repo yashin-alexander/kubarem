@@ -32,10 +32,10 @@ void Game::Init()
 
     ParticleParameters particles_parameters{glm::vec3(15, 0, -75),
                                              glm::vec3(50, 50, 50),
-                                             13.8,
+                                             13.8f,
                                              5,
                                              45,
-                                             0.3};
+                                             0.3f};
     particleController = new ParticleController(particles_parameters,  800, (float)Width / (float)Height, particleShaderProgram);
 
     camera = new ThirdPersonCamera();

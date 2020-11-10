@@ -200,7 +200,7 @@ public:
         _shaderProgram->SetVector3f("viewPos", _camera->Position);
 
         // light properties
-        GLfloat time = glfwGetTime();
+        GLfloat time = (float)glfwGetTime();
         _shaderProgram->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
         _shaderProgram->SetVector3f("light.diffuse", 0.1f, cos(2*time), sin(time));
         _shaderProgram->SetVector3f("light.specular", 1.0f, .0f, .0f);
@@ -263,7 +263,7 @@ public:
 
         GLfloat old_time = this->time;
         this->time = (float)glfwGetTime();
-        return 9 * (glfwGetTime() - old_time);
+        return 9 * (this->time - old_time);
     }
 
     void _processStickedObjects(glm::mat4 model){

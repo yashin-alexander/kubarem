@@ -51,7 +51,7 @@ int main()
     GLfloat deltaTime = 0.0f;
     GLfloat lastFrame = 0.0f;
     while(!glfwWindowShouldClose(window)){
-        GLfloat currentFrame = glfwGetTime();
+        GLfloat currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 

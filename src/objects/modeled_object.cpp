@@ -22,7 +22,7 @@ void ModeledObject::Render()
     shader_program_->SetVector3f("viewPos", camera_->Position);
 
     // light properties
-    GLfloat time = glfwGetTime();
+    GLfloat time = (float)glfwGetTime();
     shader_program_->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
     shader_program_->SetVector3f("light.diffuse", 0.1f, cos(2*time), sin(time));
     shader_program_->SetVector3f("light.specular", 1.0f, .0f, .0f);
