@@ -2,9 +2,6 @@
 #define LOG_H
 
 
-static const int MAX_LOG_STR_LENGTH = 512;
-
-
 /* Log levels */
 typedef enum {
     KUBAREM_LOG_LEVEL_ERR   = 0x00000001,
@@ -12,6 +9,11 @@ typedef enum {
     KUBAREM_LOG_LEVEL_INFO  = 0x00000004,
     KUBAREM_LOG_LEVEL_DEBUG = 0x00000008
 } KubaremLogLevel;
+
+
+static const int MAX_LOG_STR_LENGTH = 512;
+// Any message with log higher that this will be ignored in runtime
+static const KubaremLogLevel MAX_LOG_LEVEL = KUBAREM_LOG_LEVEL_DEBUG;
 
 
 void _log (KubaremLogLevel level, const char * requested_format, ...);
