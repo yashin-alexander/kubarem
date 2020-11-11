@@ -26,6 +26,9 @@ public:
     LockBase(LockBase&& other) = delete;
     LockBase& operator=(LockBase&& other) = delete;
 
+    void UpdateName(const std::string& new_name);
+    void UpdateName(std::string&& new_name);
+
 protected:
     std::string lock_class_name;
     std::string lock_name;
@@ -45,4 +48,14 @@ StreamClass& operator<<(StreamClass& stream, const LockBase& lock)
 {
     stream << lock.lock_class_name << "[" << &lock << "] " << lock.lock_name;
     return stream;
+}
+
+inline void LockBase::UpdateName(const std::string &new_name)
+{
+    lock_name = new_name;
+}
+
+inline void LockBase::UpdateName(std::string &&new_name)
+{
+    lock_name = std::move(new_name);
 }
