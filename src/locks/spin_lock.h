@@ -7,7 +7,7 @@
 class SpinLock : public LockBase
 {
 public:
-    explicit SpinLock(const optional_sting& name);
+    explicit SpinLock(const optional_sting& name = optional_sting());
 
     bool TryAcquire() override;
     void Acquire() override;

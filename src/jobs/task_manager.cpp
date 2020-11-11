@@ -1,17 +1,25 @@
 #include "task_manager.h"
 
 #include <algorithm>
+#include <cassert>
 #include <thread>
 #include "task_worker.h"
 #include "locks/scoped_lock.h"
 #include "log.h"
 
 TaskManager::TaskManager()
-    : tasks_lock("TasksLock"), workers_lock("WorkersLock"), maxWorkersCount(CalcMaxWorkersCount())
+    : workers_lock("WorkersLock"), maxWorkersCount(CalcMaxWorkersCount())
 {
     assert(maxWorkersCount > 0);
     workers.reserve(maxWorkersCount);
     free_workers.reserve(maxWorkersCount);
+
+    for(unsigned i = 0; i < AllTaskPriorities.size(); ++i)
+    {
+        const auto priority = AllTaskPriorities[i];
+        waiting_tasks[i].priority = priority;
+        waiting_tasks[i].lock.UpdateName(std::string(GetPriorityName(priority)) + "PriorityTasksLock");
+    }
 }
 
 TaskManager::~TaskManager()
@@ -62,7 +70,7 @@ void TaskManager::WaitForTask(const TaskHandleBase &task_handle)
     }
 }
 
-void TaskManager::AddTask(std::unique_ptr<TaskBase> task)
+void TaskManager::AddTask(std::unique_ptr<TaskBase> task, TaskPriority priority)
 {
     // Try to assign task to a worker immediately
     {
@@ -94,31 +102,10 @@ void TaskManager::AddTask(std::unique_ptr<TaskBase> task)
 
     // Put a task in the queue, if no worker can run it now
     {
-        ScopedLock scopeTasksLock(tasks_lock);
-        waiting_tasks.push_back(std::move(task));
+        auto& container = GetTasksForPriority(priority);
+        ScopedLock scopeTasksLock(container.lock);
+        container.tasks.push_back(std::move(task));
     }
-}
-
-std::optional<std::unique_ptr<TaskBase>> TaskManager::GetNextTask()
-{
-    if(!tasks_lock.TryAcquire())
-        return {};
-    ScopedLock scopeTasksLock(tasks_lock, true);
-
-    if(waiting_tasks.empty())
-        return {};
-
-    auto result = std::move(waiting_tasks.back());
-    waiting_tasks.pop_back();
-    return result;
-}
-
-unsigned int TaskManager::CalcMaxWorkersCount()
-{
-    const auto result = std::thread::hardware_concurrency();
-    if (result == 0)
-        return 4; // 4 threads by default
-    return result;
 }
 
 bool TaskManager::AddFreeWorker(TaskWorker *worker)
@@ -130,3 +117,46 @@ bool TaskManager::AddFreeWorker(TaskWorker *worker)
     free_workers.push_back(worker);
     return true;
 }
+
+std::optional<std::unique_ptr<TaskBase>> TaskManager::GetNextTask()
+{
+    for(auto& tasks : waiting_tasks)
+    {
+        if (!tasks.lock.TryAcquire())
+            continue;
+
+        ScopedLock scopeTasksLock(tasks.lock, true);
+        if(tasks.tasks.empty())
+            continue;
+
+        auto result = std::move(tasks.tasks.back());
+        tasks.tasks.pop_back();
+        return result;
+    }
+
+    return {};
+}
+
+TaskManager::TasksContainer &TaskManager::GetTasksForPriority(TaskPriority priority)
+{
+    for(auto& tasks : waiting_tasks)
+    {
+        if(tasks.priority == priority)
+            return tasks;
+    }
+
+    assert(false); // Shouldn't hit that
+    return waiting_tasks[0];
+}
+
+unsigned int TaskManager::CalcMaxWorkersCount()
+{
+    const auto result = std::thread::hardware_concurrency();
+    if (result == 0)
+        return 4; // 4 threads by default
+    return result;
+}
+
+TaskManager::TasksContainer::TasksContainer()
+: lock("TasksLock"), priority(TaskPriority::Normal)
+{}

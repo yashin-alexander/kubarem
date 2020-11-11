@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <array>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -30,23 +31,37 @@ public:
 
     // Puts task to the execution queue
     template<class Function, class... Args>
-    std::shared_ptr<TaskHandle<TaskManager::ResultType<Function, Args...>>> RunTask(Function&& func, Args&&... args)
+    std::shared_ptr<TaskHandle<TaskManager::ResultType<Function, Args...>>> RunTask(TaskPriority priority, Function&& func, Args&&... args)
     {
         using TaskResultType = ResultType<Function, Args...>;
 
         auto handle = std::make_shared<TaskHandle<TaskResultType>>(std::bind(&TaskManager::WaitForTask, this, std::placeholders::_1));
         auto bound_func = std::bind(std::forward<Function>(func), std::forward<Args>(args)...);
         Task<TaskResultType>* task = new Task<TaskResultType>(bound_func, handle);
-        AddTask(std::unique_ptr<TaskBase>(task));
+        AddTask(std::unique_ptr<TaskBase>(task), priority);
         return handle;
     }
 
-    // Puts task to the execution queue
+    // Puts task to the execution queue with normal priority
+    template<class Function, class... Args>
+    std::shared_ptr<TaskHandle<TaskManager::ResultType<Function, Args...>>> RunTask(Function&& func, Args&&... args)
+    {
+        return RunTask(TaskPriority::Normal, std::forward<Function>(func), std::forward<Args>(args)...);
+    }
+
+    // Puts task to the execution queue and waits for the result
+    template<class Function, class... Args>
+    TaskManager::ResultType<Function, Args...> RunAndWaitForTask(TaskPriority priority, Function&& func, Args&&... args)
+    {
+        auto handle = RunTask(priority, std::forward<Function>(func), std::forward<Args>(args)...);
+        return handle->WaitForTaskResult();
+    }
+
+    // Puts task to the execution queue with normal priority and waits for the result
     template<class Function, class... Args>
     TaskManager::ResultType<Function, Args...> RunAndWaitForTask(Function&& func, Args&&... args)
     {
-        auto handle = RunTask(std::forward<Function>(func), std::forward<Args>(args)...);
-        return handle->WaitForTaskResult();
+        return RunAndWaitForTask(TaskPriority::Normal, std::forward<Function>(func), std::forward<Args>(args)...);
     }
 
 protected:
@@ -56,17 +71,27 @@ protected:
     // Blocks current thread until task with this handle will be finished (handle.HasTaskResult() is true)
     void WaitForTask(const TaskHandleBase& task_handle);
 
-    void AddTask(std::unique_ptr<TaskBase> task);
+    void AddTask(std::unique_ptr<TaskBase> task, TaskPriority priority);
 
     bool AddFreeWorker(TaskWorker* worker);
 
     std::optional<std::unique_ptr<TaskBase>> GetNextTask();
 
 private:
+    struct TasksContainer
+    {
+        TasksContainer();
+
+        TaskPriority priority;
+        SpinLock lock;
+        std::vector<std::unique_ptr<TaskBase>> tasks;
+    };
+
+    TasksContainer& GetTasksForPriority(TaskPriority priority);
+
     static unsigned int CalcMaxWorkersCount();
 
-    SpinLock tasks_lock;
-    std::vector<std::unique_ptr<TaskBase>> waiting_tasks;
+    std::array<TasksContainer, AllTaskPriorities.size()> waiting_tasks;
 
     // TODO: Can use a lock-free container, probably?
     SpinLock workers_lock;
