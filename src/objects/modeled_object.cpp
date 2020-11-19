@@ -1,5 +1,7 @@
 #include "object.h"
 
+#include "camera.h"
+
 
 ModeledObject::ModeledObject(GLfloat screen_scale,
                              Shader * shader_program,
@@ -8,8 +10,8 @@ ModeledObject::ModeledObject(GLfloat screen_scale,
                              const glm::vec3 * light_point,
                              glm::vec3 position,
                              glm::vec3 size):
-    Object_(screen_scale, shader_program, camera, light_point, position, size),
-    model_(model)
+        Object(screen_scale, shader_program, camera, light_point, position, size),
+        model_(model)
 {
     _mainObjectRotation = glm::mat4(1.0f);
 }
@@ -19,7 +21,7 @@ void ModeledObject::Render()
 {
     glUseProgram(shader_program_->ID);
     shader_program_->SetVector3f("light.position", *light_point_);
-    shader_program_->SetVector3f("viewPos", camera_->Position);
+    shader_program_->SetVector3f("viewPos", camera_->position_);
 
     // light properties
     GLfloat time = (float)glfwGetTime();
@@ -43,7 +45,7 @@ void ModeledObject::Render()
     shader_program_->SetMatrix4("model", model);
     glm::mat4 view = camera_->GetViewMatrix();
     shader_program_->SetMatrix4("view", view);
-    glm::mat4 projection = glm::perspective(glm::radians(camera_->Zoom), screen_scale_, 0.1f, 1200.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera_->zoom_), screen_scale_, 0.1f, 1200.0f);
     shader_program_->SetMatrix4("projection", projection);
 
     glBindVertexArray(VAO_);

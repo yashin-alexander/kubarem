@@ -1,5 +1,8 @@
 #include "game.h"
 
+#include "camera.h"
+#include "third_person_character.h"
+
 
 Game::Game(GLuint width, GLuint height, Input * input):
 State(GAME_MENU), Width(width), Height (height), inputController(input)
@@ -55,14 +58,14 @@ void Game::Init()
     cube = new CustomGeometryObject((float)Width / (float)Height,
                                     objectShaderProgram,
                                     camera,
-                                    &mainCharacter->position,
+                                    &mainCharacter->position_,
                                     "resources/textures/minecraft_wood.png",
                                     glm::vec3(0, 6, 0),
                                     glm::vec3(16, 16, 16));
     floor = new CustomGeometryObject((float)Width / (float)Height,
                                      objectShaderProgram,
                                      camera,
-                                     &mainCharacter->position,
+                                     &mainCharacter->position_,
                                      "resources/textures/background.png",
                                      glm::vec3(0, -4.5, 0),
                                      glm::vec3(850, 1, 850));
@@ -71,7 +74,7 @@ void Game::Init()
                                objectShaderProgram,
                                cyborgModel,
                                camera,
-                               &mainCharacter->position,
+                               &mainCharacter->position_,
                                glm::vec3(4.7f, 6.0f, 4.7f),
                                glm::vec3(4.7f, 4.7f, 4.7f));
 
@@ -80,7 +83,7 @@ void Game::Init()
                                        objectShaderProgram,
                                        triangleSphereModel,
                                        camera,
-                                       &mainCharacter->position,
+                                       &mainCharacter->position_,
                                        glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                        glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -90,7 +93,7 @@ void Game::Init()
                                        objectShaderProgram,
                                        sunModel,
                                        camera,
-                                       &mainCharacter->position,
+                                       &mainCharacter->position_,
                                        glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                        glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -128,16 +131,16 @@ void Game::ProcessInput(GLfloat deltaTime)
     if (this->State == GAME_ACTIVE)
     {
         if (this->inputController->Keys[GLFW_KEY_W]){
-            mainCharacter->ProcessKeyboard(FORWARD, deltaTime);
+            mainCharacter->ProcessKeyboard(CameraMovement::kForward, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_S]){
-            mainCharacter->ProcessKeyboard(BACKWARD, deltaTime);
+            mainCharacter->ProcessKeyboard(CameraMovement::kBackward, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_A]){
-            mainCharacter->ProcessKeyboard(LEFT, deltaTime);
+            mainCharacter->ProcessKeyboard(CameraMovement::kLeft, deltaTime);
         }
         if (this->inputController->Keys[GLFW_KEY_D]){
-            mainCharacter->ProcessKeyboard(RIGHT, deltaTime);
+            mainCharacter->ProcessKeyboard(CameraMovement::kRight, deltaTime);
         }
     }
 }
@@ -155,7 +158,7 @@ void Game::Render(GLfloat deltaTime)
     cube->Render();
     cyborg->Render();
 
-    mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size), glm::vec2(0,0));
+    mainCharacter->Render(VAO, glm::vec2(0,0) - glm::vec2(mainCharacter->size_), glm::vec2(0,0));
 
     for (int i = 0; i < 24; i++){
         objects[i]->Render();
@@ -165,7 +168,7 @@ void Game::Render(GLfloat deltaTime)
     particleController->renderParticles(camera);
 
     textRenderer->RenderText(
-                std::string("Items collected: ") + std::to_string(mainCharacter->objectsSticked),
+                std::string("Items collected: ") + std::to_string(mainCharacter->objects_sticked_),
                 glm::vec2(5.0f, 5.0f), 1.0f);
     textRenderer->RenderText(
                 std::string("FPS: ") + std::to_string(int(1 / deltaTime)),
@@ -176,5 +179,5 @@ void Game::Render(GLfloat deltaTime)
 
 void Game::DoCollisions()
 {
-    mainCharacter->doCollisions(objects, 24);
+    mainCharacter->DoCollisions(objects, 24);
 }

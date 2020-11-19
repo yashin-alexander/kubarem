@@ -1,16 +1,15 @@
-#ifndef OBJECTS_H
-#define OBJECTS_H
+#pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 #include "log.h"
 #include "model.h"
 #include "shader.h"
-#include "camera.cpp"
 
+class Camera;
 
-class Object_
+class Object
 {
 protected:
     GLuint VAO_;
@@ -24,21 +23,21 @@ public:
     glm::vec3 position;
     glm::vec3 size;
 
-    Object_ (GLfloat screen_scale,
-             Shader * shader_program,
-             Camera * camera,
-             const glm::vec3 * light_point,
-             glm::vec3 position,
-             glm::vec3 size);
+    Object (GLfloat screen_scale,
+            Shader * shader_program,
+            Camera * camera,
+            const glm::vec3 * light_point,
+            glm::vec3 position,
+            glm::vec3 size);
 
-    virtual ~Object_();
+    virtual ~Object();
 
     virtual void Render();
     virtual void DoCollisions();
 };
 
 
-class CustomGeometryObject: public Object_
+class CustomGeometryObject: public Object
 {
 protected:
     GLuint texture;
@@ -105,7 +104,7 @@ public:
 };
 
 
-class ModeledObject: public Object_
+class ModeledObject: public Object
 {
 protected:
     Model  *model_ = nullptr;
@@ -136,6 +135,3 @@ class ThirdPersonCharacter: public ModeledObject
 
 };
 */
-
-
-#endif // OBJECTS_H

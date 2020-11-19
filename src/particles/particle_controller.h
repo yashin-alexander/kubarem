@@ -1,8 +1,9 @@
 #pragma once
 
-#include "camera.cpp"
 #include "particles/particle.h"
 #include "particles/particle_renderer.h"
+
+class Camera;
 
 class ParticleController{
 
