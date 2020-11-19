@@ -18,7 +18,7 @@ TextRenderer::TextRenderer(GLuint width, GLuint height, Shader * shaderProgram)
     glBindVertexArray(0);
 }
 
-void TextRenderer::Load(std::string font, GLuint fontSize)
+void TextRenderer::Load(const std::string& font, GLuint fontSize)
 {
     this->Characters.clear();
     FT_Library ft;
@@ -72,7 +72,7 @@ void TextRenderer::Load(std::string font, GLuint fontSize)
     FT_Done_FreeType(ft);
 }
 
-void TextRenderer::RenderText(std::string text, glm::vec2 position, GLfloat scale, glm::vec3 color)
+void TextRenderer::RenderText(const std::string& text, glm::vec2 position, GLfloat scale, glm::vec3 color)
 {
     this->_shaderProgram->Use();
     this->_shaderProgram->SetMatrix4("projection", glm::ortho(0.0f, static_cast<GLfloat>(width), static_cast<GLfloat>(height), 0.0f), GL_TRUE);

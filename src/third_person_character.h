@@ -191,7 +191,7 @@ public:
 
     void Render(GLint VAO, glm::vec2 circling_around, glm::vec2 main_size)
     {
-        glUseProgram(shader_program_->ID);
+        glUseProgram(shader_program_->program_ID_);
         glm::vec3 lightPos(60.f, 20.f, -60.f);
         shader_program_->SetVector3f("light.position", lightPos);
         shader_program_->SetVector3f("viewPos", camera_->position_);
