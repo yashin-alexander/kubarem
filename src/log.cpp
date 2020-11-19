@@ -56,4 +56,6 @@ void _log (KubaremLogLevel level, const char * requested_format, ...)
     va_start(args, requested_format);
     vfprintf(stdout, log_format, args);
     va_end(args);
+
+    fflush(stdout);
 }
