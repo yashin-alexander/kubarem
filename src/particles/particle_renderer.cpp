@@ -1,6 +1,7 @@
-#include "shader.h"
-#include "particles/particle.h"
 #include "particles/particle_renderer.h"
+
+#include "camera.h"
+#include "shader.h"
 
 
 ParticleRenderer::ParticleRenderer(GLfloat screenScale, Shader *shaderProgram) : screenScale_(screenScale),
@@ -40,7 +41,7 @@ void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& parti
     shaderProgram_->Use();
 
     vboBufferWritePosition = -1;
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenScale_, 0.1f, 1200.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_), screenScale_, 0.1f, 1200.0f);
     shaderProgram_->SetMatrix4("projectionMatrix", projection);
     for (auto& it : particles) {
         if (it.isActive()) {
@@ -122,7 +123,7 @@ void ParticleRenderer::createQuadAttributesVBO(uint32_t attribute, uint32_t data
 
 void ParticleRenderer::updateQuadAttributesVBO(const std::vector<Particle>& particles) {
     glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
-    glBufferData(GL_ARRAY_BUFFER,  instanceDataLength * maxQuadCount * sizeof(GLfloat), vboAttributesBuffer, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, instanceDataLength * maxQuadCount * sizeof(GLfloat), vboAttributesBuffer, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vboAttributesBuffer), vboAttributesBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

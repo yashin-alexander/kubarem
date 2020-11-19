@@ -1,8 +1,11 @@
 #pragma once
 
-#include <list>
-#include "shader.h"
-#include "camera.cpp"
+#include <vector>
+#include "particles/particle.h"
+
+class Camera;
+class Shader;
+
 
 static const size_t maxQuadCount = 10000;
 static const size_t maxVertexCount = maxQuadCount * 4;

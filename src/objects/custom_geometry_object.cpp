@@ -1,5 +1,8 @@
-#include "object.h"
-#include <stb_image.h>
+#include "objects/object.h"
+
+#include "stb_image.h"
+
+#include "camera.h"
 
 CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
                                            Shader * shader_program,
@@ -8,7 +11,7 @@ CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
                                            const char * texture_name,
                                            glm::vec3 position,
                                            glm::vec3 size):
-    Object_(screen_scale, shader_program, camera, light_point, position, size)
+    Object(screen_scale, shader_program, camera, light_point, position, size)
 {
     CustomGeometryObject::Init(texture_name);
 };
@@ -80,7 +83,7 @@ void CustomGeometryObject::Render()
 {
     glUseProgram(shader_program_->ID);
     shader_program_->SetVector3f("light.position", *light_point_);
-    shader_program_->SetVector3f("viewPos", camera_->Position);
+    shader_program_->SetVector3f("viewPos", camera_->position_);
 
     // light properties
     GLfloat time = (float)glfwGetTime();
@@ -103,7 +106,7 @@ void CustomGeometryObject::Render()
 
     glm::mat4 view = camera_->GetViewMatrix();
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera_->Zoom), screen_scale_, 0.1f, 1200.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera_->zoom_), screen_scale_, 0.1f, 1200.0f);
 
     shader_program_->SetMatrix4("model", model);
     shader_program_->SetMatrix4("view", view);

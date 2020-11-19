@@ -1,25 +1,24 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <string>
+
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 #include "glm/gtc/random.hpp"
 #include "glm/gtx/string_cast.hpp"
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <iostream>
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "log.h"
 #include "input.h"
 #include "model.h"
 #include "shader.h"
-#include "camera.cpp"
-#include "third_person_character.cpp"
 #include "text_renderer.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
 
+class ThirdPersonCamera;
+class ThirdPersonCharacter;
 
 #define OBJECTS_MAX_AMOUNT 100
 
@@ -79,5 +78,3 @@ public:
     void Render(GLfloat deltaTime);
     void ProcessInput(GLfloat deltaTime);
 };
-
-#endif // GAME_H
