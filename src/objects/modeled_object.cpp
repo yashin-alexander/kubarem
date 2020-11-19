@@ -19,7 +19,7 @@ ModeledObject::ModeledObject(GLfloat screen_scale,
 
 void ModeledObject::Render()
 {
-    glUseProgram(shader_program_->ID);
+    glUseProgram(shader_program_->program_ID_);
     shader_program_->SetVector3f("light.position", *light_point_);
     shader_program_->SetVector3f("viewPos", camera_->position_);
 

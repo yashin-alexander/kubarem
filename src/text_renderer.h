@@ -2,6 +2,7 @@
 #define TEXT_RENDERER_H
 
 #include <map>
+#include <string>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -28,8 +29,8 @@ public:
     std::map<GLchar, Character> Characters;
     Shader * _shaderProgram;
     TextRenderer(GLuint width, GLuint height, Shader * shaderProgram);
-    void Load(std::string font, GLuint fontSize);
-    void RenderText(std::string text, glm::vec2 position, GLfloat scale, glm::vec3 color = glm::vec3(1.0f));
+    void Load(const std::string& font, GLuint fontSize);
+    void RenderText(const std::string& text, glm::vec2 position, GLfloat scale, glm::vec3 color = glm::vec3(1.0f));
 private:
     GLuint VAO;
     GLuint VBO;

@@ -20,61 +20,60 @@
 class ThirdPersonCamera;
 class ThirdPersonCharacter;
 
-#define OBJECTS_MAX_AMOUNT 100
+const unsigned kMaxObjectsAmount = 100;
 
 
-enum GameState {
-    GAME_ACTIVE = 1,
-    GAME_MENU = 2,
-    GAME_WIN = 3,
-    GAME_LOSE = 4,
-    GAME_STOPPED =5
+enum class GameState {
+    kGameActive = 1,
+    kGameMenu = 2,
+    kGameWin = 3,
+    kGameLose = 4,
+    kGameStopped = 5
 };
 
 
 
 class Game
 {
-private:
-    GLuint 	VAO;
-    GLuint  LightVAO;
-
-    void _initProjection();
-    void _initObjects();
 
 public:
-    GameState              State;
-    GLuint                 Width, Height;
-    GLuint                 Lives;
-    Input                  *inputController;
-    Shader 				   *objectShaderProgram;
-    Shader 				   *mainCharacterShaderProgram;
-    Shader 				   *lampShaderProgram;
-    Shader                 *textShaderProgram;
-    Shader                 *particleShaderProgram;
+    GameState              state_;
+    GLuint                 width_, height_;
+    GLuint                 lives_;
+    Input                  *input_controller_;
+    Shader 				   *object_shader_program_;
+    Shader 				   *main_character_shader_program_;
+    Shader 				   *lamp_shader_program_;
+    Shader                 *text_shader_program_;
+    Shader                 *particle_shader_program_;
 
-    ParticleController     *particleController;
-    TextRenderer           *textRenderer;
+    ParticleController     *particle_controller_;
+    TextRenderer           *text_renderer_;
 
-    ThirdPersonCamera 	   *camera;
+    ThirdPersonCamera 	   *camera_;
 
-    ThirdPersonCharacter *mainCharacter = nullptr;
-    ModeledObject *objects[OBJECTS_MAX_AMOUNT];
-    ModeledObject *cyborg = nullptr;
-    CustomGeometryObject *cube = nullptr;
-    CustomGeometryObject *floor = nullptr;
+    ThirdPersonCharacter   *main_character_ = nullptr;
+    ModeledObject          *objects_[kMaxObjectsAmount];
+    ModeledObject          *cyborg_ = nullptr;
+    CustomGeometryObject   *cube_ = nullptr;
+    CustomGeometryObject   *floor_ = nullptr;
 
     std::string gameDescription = "Kubarem";
-
-//    ~Game();
-    void Update(GLfloat dt);
-    void DoCollisions();
-    void ResetLevel();
-
 
     Game(GLuint width, GLuint height, Input * input);
 
     void Init();
-    void Render(GLfloat deltaTime);
+    void Shutdown();
+
+    void DoCollisions();
     void ProcessInput(GLfloat deltaTime);
+    void Update(GLfloat dt);
+    void Render(GLfloat deltaTime);
+
+private:
+    GLuint 	VAO_;
+    GLuint  light_VAO_;
+
+    void InitProjection();
+    void InitObjects();
 };

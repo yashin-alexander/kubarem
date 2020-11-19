@@ -71,6 +71,8 @@ int main()
         glfwPollEvents();
     }
 
+    kubarem.Shutdown();
+
     glfwDestroyWindow(window);
     glfwTerminate();
 
