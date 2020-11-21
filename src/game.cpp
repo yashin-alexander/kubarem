@@ -35,8 +35,8 @@ void Game::Init()
                                              13.8f,
                                              5,
                                              45,
-                                             0.3f};
-    particleController = new ParticleController(particles_parameters,  800, (float)Width / (float)Height, particleShaderProgram);
+                                             1.0f};
+    particleController = new ParticleController(particles_parameters,  5000, (float)Width / (float)Height, particleShaderProgram);
 
     camera = new ThirdPersonCamera();
 
