@@ -4,6 +4,10 @@
 #include "shader.h"
 #include "camera.cpp"
 
+static const size_t maxQuadCount = 10000;
+static const size_t maxVertexCount = maxQuadCount * 4;
+static const size_t maxIndexCount = maxQuadCount * 6;
+static const size_t instanceDataLength = 16; // only mat4 for ModelView matrix for now
 
 class ParticleRenderer
 {
@@ -16,16 +20,24 @@ public:
 
 protected:
         static constexpr GLfloat particle_vertices_[8] = {
-                0.5f,  0.5f,
-                0.5f, -0.5f,
-                -0.5f, -0.5f,
-                -0.5f,  0.5f
-    };
+             0.5f, -0.5f,    //  3     1
+             0.5f,  0.5f,    //
+            -0.5f, -0.5f,    //  2     0
+            -0.5f,  0.5f     // we are using GL_TRIANGLE_STRIP
+        };
+
+    void createEmptyVBO(uint32_t floatCount);
+    void createQuadAttributesVBO(uint32_t attribute, uint32_t dataSize, uint32_t instancedDataLength, uint32_t offset) const;
+    void updateQuadAttributesVBO(const std::vector<Particle>& particles);
 
     Shader *shaderProgram_;
     glm::mat4 modelViewMatrix_;
     GLfloat screenScale_;
     GLuint VAO_;
-    GLuint VBO_;
+    GLuint vertexPositionsVBO_;
+    GLuint quadAttributesVBO_;
+
+    GLfloat vboAttributesBuffer[instanceDataLength * maxQuadCount];
+    uint64_t vboBufferWritePosition = 0;
 };
 
