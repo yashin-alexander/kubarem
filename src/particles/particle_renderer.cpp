@@ -7,12 +7,29 @@ ParticleRenderer::ParticleRenderer(GLfloat screenScale, Shader *shaderProgram) :
 shaderProgram_(shaderProgram)
 {
     glGenVertexArrays(1, &this->VAO_);
-    glGenBuffers(1, &this->VBO_);
+
+    // set up positions VBO
+    glGenBuffers(1, &this->vertexPositionsVBO_);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vertexPositionsVBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(particle_vertices_), particle_vertices_, GL_STATIC_DRAW);
     glBindVertexArray(this->VAO_);
-    glBindBuffer(GL_ARRAY_BUFFER, this->VBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(particle_vertices_), particle_vertices_, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // set up modelView VBO
+    createEmptyVBO(instanceDataLength * maxQuadCount);
+    createQuadAttributesVBO(1, 4, instanceDataLength, 0);
+    createQuadAttributesVBO(2, 4, instanceDataLength, 4);
+    createQuadAttributesVBO(3, 4, instanceDataLength, 8);
+    createQuadAttributesVBO(4, 4, instanceDataLength, 12);
+
+    glBindVertexArray(this->VAO_);
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
     glBindVertexArray(0);
 }
 
@@ -20,17 +37,18 @@ shaderProgram_(shaderProgram)
 void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& particles) {
     shaderProgram_->Use();
 
+    vboBufferWritePosition = -1;
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenScale_, 0.1f, 1200.0f);
+    shaderProgram_->SetMatrix4("projectionMatrix", projection);
     for (auto& it : particles) {
         if (it.isActive()) {
-            glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenScale_, 0.1f, 1200.0f);
             updateModelViewMatrix(it.getPosition(), it.getRotation(), it.getScale(), camera->GetViewMatrix());
-            shaderProgram_->SetMatrix4("projectionMatrix", projection);
-            shaderProgram_->SetMatrix4("modelViewMatrix", modelViewMatrix_);
-            glBindVertexArray(VAO_);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-            glBindVertexArray(0);
         }
     }
+    updateQuadAttributesVBO(particles);
+    glBindVertexArray(VAO_);
+    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particles.size());
+    glBindVertexArray(0);
 }
 
 
@@ -51,4 +69,52 @@ void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotatio
     model = glm::scale(model, glm::vec3(scale, scale, scale));
 
     modelViewMatrix_ = view * model;
+
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[0][0];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[0][1];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[0][2];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[0][3];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[1][0];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[1][1];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[1][2];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[1][3];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[2][0];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[2][1];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[2][2];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[2][3];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][0];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][1];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][2];
+    vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][3];
+}
+
+
+void ParticleRenderer::createEmptyVBO(uint32_t floatCount) {
+    glGenBuffers(1, &this->quadAttributesVBO_);
+    glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
+    glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(GLfloat), nullptr, GL_STREAM_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void ParticleRenderer::createQuadAttributesVBO(uint32_t attribute, uint32_t dataSize, uint32_t instancedDataLength,
+                                               uint32_t offset) const {
+    /* VAO structure:
+     *
+     * positionsVBO:      2f 2f, 2f 2f, 2f 2f, 2f 2f   x, y for each vertex of a quad. Each x, y pair obviously goes for different vertex.
+     * quadAttributesVBO: 4f, 4f, 4f, 4f               ModelViewMatrix mat4 for each quad(!). So, glVertexAttribDivisor is used here.
+     * */
+    glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
+    glBindVertexArray(VAO_);
+    glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLength * sizeof(GLfloat), (const void *)(offset * sizeof(GLfloat)));
+    glVertexAttribDivisor(attribute, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+
+void ParticleRenderer::updateQuadAttributesVBO(const std::vector<Particle>& particles) {
+    glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
+    glBufferData(GL_ARRAY_BUFFER,  instanceDataLength * maxQuadCount * sizeof(GLfloat), vboAttributesBuffer, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vboAttributesBuffer), vboAttributesBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
