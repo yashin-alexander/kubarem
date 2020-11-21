@@ -167,7 +167,7 @@ void Game::Render(GLfloat deltaTime)
 
     main_character_->Render(VAO_, glm::vec2(0, 0) - glm::vec2(main_character_->size_), glm::vec2(0, 0));
 
-    for (int i = 0; i < 24; i++){
+    for (int i = 0; i < 25; i++){
         objects_[i]->Render();
     }
 
