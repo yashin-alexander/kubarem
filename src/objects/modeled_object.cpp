@@ -48,7 +48,6 @@ void ModeledObject::Render()
     glm::mat4 projection = glm::perspective(glm::radians(camera_->zoom_), screen_scale_, 0.1f, 1200.0f);
     shader_program_->SetMatrix4("projection", projection);
 
-    glBindVertexArray(VAO_);
     model_->Draw(*shader_program_);
 }
 
