@@ -20,20 +20,17 @@ void Shader::Compile(const GLchar* vertex_source, const GLchar* fragment_source)
     const GLuint v_shader_ID = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(v_shader_ID, 1, &vertex_source, NULL);
     glCompileShader(v_shader_ID);
-    CheckCompileErrors(v_shader_ID, "VERTEX");
 
     // Fragment Shader
     const GLuint f_shader_ID = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(f_shader_ID, 1, &fragment_source, NULL);
     glCompileShader(f_shader_ID);
-    CheckCompileErrors(f_shader_ID, "FRAGMENT");
 
     // Shader Program
     program_ID_ = glCreateProgram();
     glAttachShader(program_ID_, v_shader_ID);
     glAttachShader(program_ID_, f_shader_ID);
     glLinkProgram(program_ID_);
-    CheckCompileErrors(program_ID_, "PROGRAM");
 
     // Detach and delete shaders as they're linked into our program now and no longer necessary
     glDetachShader(program_ID_, v_shader_ID);
@@ -126,28 +123,4 @@ Shader *Shader::LoadFromFile(const GLchar *v_shader_file, const GLchar *f_shader
     log_info("Compiling shader with vertex shader \"%s\" and fragment shader \"%s\"", v_shader_file, f_shader_file);
     shader->Compile(vertex_code.c_str(), fragment_code.c_str());
     return shader;
-}
-
-void Shader::CheckCompileErrors(GLuint object, const char * type)
-{
-    GLint success;
-    GLchar infoLog[1024];
-    if (std::strcmp(type, "PROGRAM") != 0)
-    {
-        glGetShaderiv(object, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(object, 1024, NULL, infoLog);
-            log_err("%s shader: compilation: %s", type, infoLog);
-        }
-    }
-    else
-    {
-        glGetProgramiv(object, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            glGetProgramInfoLog(object, 1024, NULL, infoLog);
-            log_err("%s shader: compilation: %s", type, infoLog);
-        }
-    }
 }
