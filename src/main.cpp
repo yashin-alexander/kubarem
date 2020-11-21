@@ -9,16 +9,12 @@
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 700;
 
-void glfwErrorCallback(int error, const char* description)
-{
-    log_err("GLFW Error %d: %s", error, description);
-}
-
 int main()
 {
-    glfwSetErrorCallback(glfwErrorCallback);
+    glfwSetErrorCallback(_glfwErrorCallback);
 
-    assert(glfwInit() == GLFW_TRUE);
+    auto init_result = glfwInit();
+    assert(init_result == GLFW_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -39,6 +35,10 @@ int main()
         log_err("Failed to initialize GLAD");
         return -1;
     }
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(_glMessageCallback, nullptr);
+
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
 //    stbi_set_flip_vertically_on_load(true);
 
@@ -69,6 +69,7 @@ int main()
 //        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
         glfwPollEvents();
+        _flush_log();
     }
 
     kubarem.Shutdown();

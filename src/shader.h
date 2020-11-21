@@ -24,8 +24,5 @@ public:
     void    SetMatrix4  (const GLchar *name, const glm::mat4 &matrix, GLboolean use_shader = false);
 
     static Shader* LoadFromFile(const GLchar *v_shader_file, const GLchar *f_shader_file);
-
-private:
-    void    CheckCompileErrors(GLuint object, const char *type);
 };
 

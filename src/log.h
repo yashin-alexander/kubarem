@@ -1,35 +1,35 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
+#include "glad/glad.h"
 
-/* Log levels */
-typedef enum {
-    KUBAREM_LOG_LEVEL_ERR   = 0x00000001,
-    KUBAREM_LOG_LEVEL_WARN  = 0x00000002,
-    KUBAREM_LOG_LEVEL_INFO  = 0x00000004,
-    KUBAREM_LOG_LEVEL_DEBUG = 0x00000008
-} KubaremLogLevel;
-
-
-static const int MAX_LOG_STR_LENGTH = 512;
-// Any message with log higher that this will be ignored in runtime
-static const KubaremLogLevel MAX_LOG_LEVEL = KUBAREM_LOG_LEVEL_DEBUG;
+// Log levels
+enum KubaremLogLevel : unsigned int
+{
+    kKubaremLogLevelErr = 0x00000001,
+    kKubaremLogLevelWarn = 0x00000002,
+    kKubaremLogLevelInfo = 0x00000004,
+    kKubaremLogLevelDebug = 0x00000008
+};
 
 
 void _log (KubaremLogLevel level, const char * requested_format, ...);
 
+void _glfwErrorCallback(int error, const char* description);
+
+void GLAPIENTRY _glMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                                   GLsizei length, const GLchar* message, const void* userParam);
+
+void _flush_log();
+
 
 #define log_err(...) \
-    _log (KUBAREM_LOG_LEVEL_ERR, __VA_ARGS__)
+    _log (kKubaremLogLevelErr, __VA_ARGS__)
 
 #define log_warn(...) \
-    _log (KUBAREM_LOG_LEVEL_WARN, __VA_ARGS__)
+    _log (kKubaremLogLevelWarn, __VA_ARGS__)
 
 #define log_info(...) \
-    _log (KUBAREM_LOG_LEVEL_INFO, __VA_ARGS__)
+    _log (kKubaremLogLevelInfo, __VA_ARGS__)
 
 #define log_dbg(...) \
-    _log (KUBAREM_LOG_LEVEL_DEBUG, __VA_ARGS__)
-
-
-#endif // LOG_H
+    _log (kKubaremLogLevelDebug, __VA_ARGS__)
