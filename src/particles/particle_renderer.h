@@ -7,7 +7,7 @@
 static const size_t maxQuadCount = 10000;
 static const size_t maxVertexCount = maxQuadCount * 4;
 static const size_t maxIndexCount = maxQuadCount * 6;
-static const size_t instanceDataLength = 16; // only mat4 for ModelView matrix for now
+static const size_t instanceDataLength = 20; // mat4 ModelView matrix + vec4 for colors
 
 class ParticleRenderer
 {
@@ -16,7 +16,7 @@ public:
     ~ParticleRenderer() = default;
 
     void render(Camera *camera, const std::vector<Particle>& particles) ;
-    void updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::mat4 view);
+    void updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::vec4 color, glm::mat4 view);
 
 protected:
         static constexpr GLfloat particle_vertices_[8] = {

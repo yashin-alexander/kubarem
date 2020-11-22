@@ -8,6 +8,7 @@
 struct ParticleParameters {
     glm::vec3 position;
     glm::vec3 velocity;
+    glm::vec4 color;
     GLfloat gravity_effect;
     GLfloat life_length;
     GLfloat rotation;
@@ -27,6 +28,8 @@ public:
     GLfloat getRotation() const;
 
     GLfloat getScale() const;
+
+    glm::vec4 getColor() const;
 
     void update(GLfloat delta_time);
 

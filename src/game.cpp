@@ -30,10 +30,11 @@ void Game::Init()
                                                "src/shaders/particle_fs.glsl");
 
 
-    ParticleParameters particles_parameters{glm::vec3(15, 0, -75),
+    ParticleParameters particles_parameters{glm::vec3(45, 0, -300),
                                              glm::vec3(50, 50, 50),
+                                             glm::vec4(0.1, 0.1, 0.9, 0.9),
                                              13.8f,
-                                             5,
+                                             8,
                                              45,
                                              1.0f};
     particleController = new ParticleController(particles_parameters,  5000, (float)Width / (float)Height, particleShaderProgram);

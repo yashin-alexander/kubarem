@@ -23,6 +23,7 @@ shaderProgram_(shaderProgram)
     createQuadAttributesVBO(2, 4, instanceDataLength, 4);
     createQuadAttributesVBO(3, 4, instanceDataLength, 8);
     createQuadAttributesVBO(4, 4, instanceDataLength, 12);
+    createQuadAttributesVBO(5, 4, instanceDataLength, 16);
 
     glBindVertexArray(this->VAO_);
     glEnableVertexAttribArray(0);
@@ -30,6 +31,7 @@ shaderProgram_(shaderProgram)
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
+    glEnableVertexAttribArray(5);
     glBindVertexArray(0);
 }
 
@@ -42,7 +44,7 @@ void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& parti
     shaderProgram_->SetMatrix4("projectionMatrix", projection);
     for (auto& it : particles) {
         if (it.isActive()) {
-            updateModelViewMatrix(it.getPosition(), it.getRotation(), it.getScale(), camera->GetViewMatrix());
+            updateModelViewMatrix(it.getPosition(), it.getRotation(), it.getScale(), it.getColor(), camera->GetViewMatrix());
         }
     }
     updateQuadAttributesVBO(particles);
@@ -52,7 +54,7 @@ void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& parti
 }
 
 
-void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale,
+void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::vec4 color,
                                              glm::mat4 view) {
     glm::mat4 model = glm::mat4(1);
     model = glm::translate(model, position);
@@ -86,6 +88,11 @@ void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotatio
     vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][1];
     vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][2];
     vboAttributesBuffer[++vboBufferWritePosition] = modelViewMatrix_[3][3];
+
+    vboAttributesBuffer[++vboBufferWritePosition] = color.x;
+    vboAttributesBuffer[++vboBufferWritePosition] = color.y;
+    vboAttributesBuffer[++vboBufferWritePosition] = color.z;
+    vboAttributesBuffer[++vboBufferWritePosition] = color.w;
 }
 
 
@@ -101,7 +108,8 @@ void ParticleRenderer::createQuadAttributesVBO(uint32_t attribute, uint32_t data
     /* VAO structure:
      *
      * positionsVBO:      2f 2f, 2f 2f, 2f 2f, 2f 2f   x, y for each vertex of a quad. Each x, y pair obviously goes for different vertex.
-     * quadAttributesVBO: 4f, 4f, 4f, 4f               ModelViewMatrix mat4 for each quad(!). So, glVertexAttribDivisor is used here.
+     * quadAttributesVBO: 4f, 4f, 4f, 4f, 4f           mat4:ModelViewMatrix, vec4:color for each quad. So glVertexAttribDivisor is used here.
+     *
      * */
     glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
     glBindVertexArray(VAO_);
