@@ -9,7 +9,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <ft2build.h>
-#include <freetype2/freetype/freetype.h>
+#include <freetype/freetype.h>
 
 #include "log.h"
 #include "shader.h"
