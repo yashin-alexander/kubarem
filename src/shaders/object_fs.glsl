@@ -46,8 +46,10 @@ void main()
     vec3 specular = light.specular * (spec * material.specular);
 
     // shadow
-    vec3 normalizedShadowPos = (ShadowPos / ShadowPos.w).rgb/2 + 0.5;
-    normalizedShadowPos.z -= 0.0005; // Add a little shift to avoid near zero errors
+    vec3 normalizedShadowPos = (ShadowPos / ShadowPos.w).rgb/2.0 + 0.5;
+    float bias = 0.0005*tan(acos(diff)); // Points looking perpendcular to the light direction needs larger bias
+    bias = clamp(bias, 0.0, 0.001);
+    normalizedShadowPos.z -= bias; // Add a little shift to avoid near zero errors
     float illumination = texture(light.shadowMap, normalizedShadowPos);
 
     vec3 result = ambient + (diffuse + specular) * illumination;
