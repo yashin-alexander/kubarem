@@ -19,6 +19,7 @@
 
 class ThirdPersonCamera;
 class ThirdPersonCharacter;
+class LightObject;
 
 const unsigned kMaxObjectsAmount = 100;
 
@@ -50,7 +51,8 @@ public:
     ParticleController     *particle_controller_;
     TextRenderer           *text_renderer_;
 
-    ThirdPersonCamera 	   *camera_;
+    ThirdPersonCamera 	   *camera_ = nullptr;
+    LightObject            *light_ = nullptr;
 
     ThirdPersonCharacter   *main_character_ = nullptr;
     ModeledObject          *objects_[kMaxObjectsAmount];

@@ -4,27 +4,19 @@
 
 #include "camera.h"
 
-CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
-                                           Shader * shader_program,
-                                           Camera * camera,
-                                           const glm::vec3 * light_point,
-                                           const char * texture_name,
-                                           glm::vec3 position,
-                                           glm::vec3 size):
-    Object(screen_scale, shader_program, camera, light_point, position, size)
-{
+CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale, Shader *shader_program, Camera *camera,
+                                           const char *texture_name, glm::vec3 position, glm::vec3 size) :
+        Object(screen_scale, shader_program, camera, position, size) {
     CustomGeometryObject::Init(texture_name);
 };
 
 
-void CustomGeometryObject::loadTexture_(char const * path)
-{
+void CustomGeometryObject::loadTexture_(char const *path) {
     glGenTextures(1, &texture);
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
+    if (data) {
         GLenum format;
         if (nrComponents == 1)
             format = GL_RED;
@@ -44,16 +36,14 @@ void CustomGeometryObject::loadTexture_(char const * path)
 
         stbi_image_free(data);
     }
-    else
-    {
+    else {
         log_err("Failed to load texture %s", path);
         stbi_image_free(data);
     }
 }
 
 
-void CustomGeometryObject::Init(char const * path)
-{
+void CustomGeometryObject::Init(char const *path) {
     glGenVertexArrays(1, &VAO_);
     glGenBuffers(1, &VBO_);
 
@@ -63,33 +53,34 @@ void CustomGeometryObject::Init(char const * path)
     glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
     // normales coord attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     // texture
     loadTexture_(path);
     shader_program_->Use();
-    shader_program_->SetInteger("texture1", 0);
+    shader_program_->SetInteger("material.diffuse", 0);
+    shader_program_->SetInteger("light.shadowMap", 1);
 }
 
 
-void CustomGeometryObject::Render()
-{
+void CustomGeometryObject::Render() {
     glUseProgram(shader_program_->program_ID_);
-    shader_program_->SetVector3f("light.position", *light_point_);
     shader_program_->SetVector3f("viewPos", camera_->position_);
 
     // light properties
-    GLfloat time = (float)glfwGetTime();
-    shader_program_->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
-    shader_program_->SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
-    shader_program_->SetVector3f("light.specular", 1.0f, .0f, .0f);
+    GLfloat time = (float) glfwGetTime();
+    shader_program_->SetVector3f("light.ambient", 0.1f, 0.1f, 0.1f);
+
+    glm::vec3 color(0.3f, 0.3f + (cos(2 * time) + 1.0f) * 0.35f, 0.3f + (1.0f + sin(time)) * 0.35f);
+    shader_program_->SetVector3f("light.diffuse", color);
+    shader_program_->SetVector3f("light.specular", color);
 
     // material properties
     shader_program_->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
@@ -105,12 +96,20 @@ void CustomGeometryObject::Render()
     model = glm::scale(model, size);
 
     glm::mat4 view = camera_->GetViewMatrix();
-
     glm::mat4 projection = glm::perspective(glm::radians(camera_->zoom_), screen_scale_, 0.1f, 1200.0f);
 
     shader_program_->SetMatrix4("model", model);
     shader_program_->SetMatrix4("view", view);
     shader_program_->SetMatrix4("projection", projection);
+
+    glm::vec3 eye(250.0f, 500.0f, 700.0f), center(50.0f, 0.0f, 150.0f);
+    glm::mat4 light_view = glm::lookAt(eye, center, camera_->world_up_);
+    glm::mat4 light_projection = glm::ortho(-600.0f, 600.0f, -600.0f, 600.0f, 400.0f, 1500.0f);
+
+    shader_program_->SetMatrix4("lightMVP", light_projection * light_view * model);
+    shader_program_->SetVector3f("light.direction", eye - center);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, camera_->shadow_map_texture_);
 
     glBindVertexArray(VAO_);
     glDrawArrays(GL_TRIANGLES, 0, 36);

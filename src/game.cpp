@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "third_person_character.h"
+#include "objects/light_object.h"
 
 
 Game::Game(GLuint width, GLuint height, Input * input):
@@ -42,6 +43,8 @@ void Game::Init() {
                                                   particle_shader_program_);
 
     camera_ = new ThirdPersonCamera();
+    light_ = new LightObject();
+    camera_->shadow_map_texture_ = light_->GetDepthTexture();
 
     // models load
     Model *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
@@ -57,14 +60,12 @@ void Game::Init() {
     cube_ = new CustomGeometryObject((float) width_ / (float) height_,
                                      object_shader_program_,
                                      camera_,
-                                     &main_character_->position_,
                                      "resources/textures/minecraft_wood.png",
                                      glm::vec3(0, 6, 0),
                                      glm::vec3(16, 16, 16));
     floor_ = new CustomGeometryObject((float) width_ / (float) height_,
                                       object_shader_program_,
                                       camera_,
-                                      &main_character_->position_,
                                       "resources/textures/background.png",
                                       glm::vec3(0, -4.5, 0),
                                       glm::vec3(850, 1, 850));
@@ -73,7 +74,6 @@ void Game::Init() {
                                 object_shader_program_,
                                 cyborgModel,
                                 camera_,
-                                &main_character_->position_,
                                 glm::vec3(4.7f, 6.0f, 4.7f),
                                 glm::vec3(4.7f, 4.7f, 4.7f));
 
@@ -82,7 +82,6 @@ void Game::Init() {
                                         object_shader_program_,
                                         triangleSphereModel,
                                         camera_,
-                                        &main_character_->position_,
                                         glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                         glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -92,7 +91,6 @@ void Game::Init() {
                                         object_shader_program_,
                                         sunModel,
                                         camera_,
-                                        &main_character_->position_,
                                         glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                         glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -101,6 +99,7 @@ void Game::Init() {
 
 void Game::Shutdown()
 {
+    delete light_;
     for(int i = 0; i < 25; ++i)
     {
         delete objects_[i];
@@ -153,6 +152,21 @@ void Game::Update(GLfloat dt)
 
 void Game::Render(GLfloat deltaTime)
 {
+    // Render shadow
+    Object* objects_with_shadow[28];
+    objects_with_shadow[0] = floor_;
+    objects_with_shadow[1] = cube_;
+    objects_with_shadow[2] = cyborg_;
+    for(unsigned i = 0; i < 25; ++i)
+    {
+        objects_with_shadow[i+3] = objects_[i];
+    }
+    light_->Render(objects_with_shadow, 28);
+
+    // Render scene
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, width_, height_);
+
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

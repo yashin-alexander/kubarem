@@ -17,7 +17,6 @@ protected:
     GLfloat screen_scale_;
     Shader * shader_program_;
     Camera * camera_;
-    const glm::vec3 * light_point_;
 
 public:
     glm::vec3 position;
@@ -26,7 +25,6 @@ public:
     Object (GLfloat screen_scale,
             Shader * shader_program,
             Camera * camera,
-            const glm::vec3 * light_point,
             glm::vec3 position,
             glm::vec3 size);
 
@@ -34,6 +32,9 @@ public:
 
     virtual void Render();
     virtual void DoCollisions();
+
+    Shader* GetShader() const;
+    void SetShader(Shader* new_shader);
 };
 
 
@@ -93,7 +94,6 @@ public:
     CustomGeometryObject (GLfloat screen_scale,
                           Shader * shader_program,
                           Camera * camera,
-                          const glm::vec3 * light_point,
                           const char * texture_name,
                           glm::vec3 position,
                           glm::vec3 size);
@@ -116,7 +116,6 @@ public:
                   Shader * shader_program,
                   Model * model,
                   Camera * camera,
-                  const glm::vec3 * light_point,
                   glm::vec3 position,
                   glm::vec3 size);
 

@@ -35,6 +35,8 @@ public:
     float mouse_sensitivity_;
     float zoom_;
 
+    GLuint shadow_map_texture_ = 0;
+
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            float yaw = kYaw, float pitch = kPitch)
            : front_(glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed_(kSpeed), mouse_sensitivity_(kSensitivity),
