@@ -9,10 +9,17 @@
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <soloud.h>
+#include <soloud_wav.h>
+#include <soloud_speech.h>
+
 #include "log.h"
 #include "input.h"
 #include "model.h"
 #include "shader.h"
+#include "camera.h"
+#include "audio/audio.h"
+#include "third_person_character.h"
 #include "text_renderer.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
@@ -58,16 +65,30 @@ public:
     CustomGeometryObject   *cube_ = nullptr;
     CustomGeometryObject   *floor_ = nullptr;
 
+    SoLoud::Soloud soloud_;
+    AudioPositioned *sound_file_;
+    AudioBackground *background_music_;
+    AudioSpeech *speech_phrase_;
+//    SoLoud::Wav sample;    // One sample
+//    SoLoud::Speech speech;
+//    int sound_descriptor;
+//    glm::mat4 translator;
+
+
     std::string gameDescription = "Kubarem";
 
+    void Update(GLfloat dt);
+    void DoCollisions();
+    void ResetLevel();
+
+
     Game(GLuint width, GLuint height, Input * input);
+    ~Game();
 
     void Init();
     void Shutdown();
 
-    void DoCollisions();
     void ProcessInput(GLfloat deltaTime);
-    void Update(GLfloat dt);
     void Render(GLfloat deltaTime);
 
 private:

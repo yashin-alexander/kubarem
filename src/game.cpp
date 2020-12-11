@@ -9,15 +9,21 @@ Game::Game(GLuint width, GLuint height, Input * input):
 {
 }
 
+Game::~Game()
+{
+    soloud_.deinit();
+}
+
 
 void Game::Init() {
     glGenVertexArrays(1, &VAO_);
 
     state_ = GameState::kGameActive;
+    soloud_.init();
 
     text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl",
                                                 "src/shaders/text_fs.glsl");
-    text_renderer_ = new TextRenderer(width_, height_, text_shader_program_);
+    text_renderer_ = new TextRenderer(this->width_, this->height_, text_shader_program_);
     text_renderer_->Load("resources/fonts/default.ttf", 24);
 
     main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl",
@@ -97,6 +103,12 @@ void Game::Init() {
                                         glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
     }
+    sound_file_ = new AudioPositioned(soloud_, "s.mp3", cube_->position, camera_->position_, camera_->front_);
+    background_music_ = new AudioBackground(soloud_, "s.mp3");
+    speech_phrase_ = new AudioSpeech(soloud_, "You will die! I kill you", 530, 10, 0.5, KW_NOISE);
+//    sound_file_->RunPlayback();
+//    background_music_->RunPlayback();
+    speech_phrase_->RunPlayback();
 }
 
 void Game::Shutdown()
@@ -112,6 +124,9 @@ void Game::Shutdown()
     delete camera_;
     delete particle_controller_;
     delete text_renderer_;
+    delete sound_file_;
+    delete background_music_;
+    delete speech_phrase_;
 }
 
 void Game::DoCollisions()
@@ -146,9 +161,12 @@ void Game::ProcessInput(GLfloat deltaTime)
     }
 }
 
-void Game::Update(GLfloat dt)
+void Game::Update(GLfloat deltaTime)
 {
+    sound_file_->UpdatePositioning();
+    background_music_->UpdatePositioning();
 
+    soloud_.update3dAudio();
 }
 
 void Game::Render(GLfloat deltaTime)
@@ -167,7 +185,11 @@ void Game::Render(GLfloat deltaTime)
 
     main_character_->Render(VAO_, glm::vec2(0, 0) - glm::vec2(main_character_->size_), glm::vec2(0, 0));
 
-    for (int i = 0; i < 25; i++){
+    for (int i = 0; i < 25; i++) {
+        objects_[i]->Render();
+    }
+
+    for (int i = 0; i < 24; i++){
         objects_[i]->Render();
     }
 
