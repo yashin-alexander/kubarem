@@ -65,6 +65,7 @@ int main()
 
         kubarem.ProcessInput(deltaTime);
         kubarem.DoCollisions();
+        kubarem.Update(deltaTime);
         kubarem.Render(deltaTime);
 //        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
