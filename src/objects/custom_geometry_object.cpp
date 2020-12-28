@@ -5,26 +5,22 @@
 #include "camera.h"
 
 CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
-                                           Shader * shader_program,
-                                           Camera * camera,
-                                           const glm::vec3 * light_point,
-                                           const char * texture_name,
+                                           Shader *shader_program,
+                                           Camera *camera,
+                                           const char *texture_name,
                                            glm::vec3 position,
-                                           glm::vec3 size):
-    Object(screen_scale, shader_program, camera, light_point, position, size)
-{
+                                           glm::vec3 size) :
+        Object(screen_scale, shader_program, camera, position, size) {
     CustomGeometryObject::Init(texture_name);
 };
 
 
-void CustomGeometryObject::loadTexture_(char const * path)
-{
+void CustomGeometryObject::loadTexture_(char const *path) {
     glGenTextures(1, &texture);
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
+    if (data) {
         GLenum format;
         if (nrComponents == 1)
             format = GL_RED;
@@ -32,6 +28,10 @@ void CustomGeometryObject::loadTexture_(char const * path)
             format = GL_RGB;
         else if (nrComponents == 4)
             format = GL_RGBA;
+        else {
+            log_err("CustomGeometryObject: unable to determine texture format");
+            format = GL_RED;
+        }
 
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -43,17 +43,14 @@ void CustomGeometryObject::loadTexture_(char const * path)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
-    }
-    else
-    {
+    } else {
         log_err("Failed to load texture %s", path);
         stbi_image_free(data);
     }
 }
 
 
-void CustomGeometryObject::Init(char const * path)
-{
+void CustomGeometryObject::Init(char const *path) {
     glGenVertexArrays(1, &VAO_);
     glGenBuffers(1, &VBO_);
 
@@ -63,13 +60,13 @@ void CustomGeometryObject::Init(char const * path)
     glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
     // normales coord attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     // texture
@@ -79,21 +76,10 @@ void CustomGeometryObject::Init(char const * path)
 }
 
 
-void CustomGeometryObject::Render()
-{
+void CustomGeometryObject::Render(glm::vec3 light_point) {
     glUseProgram(shader_program_->program_ID_);
-    shader_program_->SetVector3f("light.position", *light_point_);
+    this->SetupLightning_(light_point);
     shader_program_->SetVector3f("viewPos", camera_->position_);
-
-    // light properties
-    GLfloat time = (float)glfwGetTime();
-    shader_program_->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
-    shader_program_->SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
-    shader_program_->SetVector3f("light.specular", 1.0f, .0f, .0f);
-
-    // material properties
-    shader_program_->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
-    shader_program_->SetFloat("material.shininess", 256.0f);
 
     // bind textures on corresponding texture units
     // bind diffuse map
@@ -116,5 +102,4 @@ void CustomGeometryObject::Render()
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
-void CustomGeometryObject::DoCollisions()
-{}
+void CustomGeometryObject::DoCollisions() {}
