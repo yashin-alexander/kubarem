@@ -2,27 +2,30 @@
 
 
 Object::Object(GLfloat screen_scale,
-               Shader * shader_program,
-               Camera * camera,
-               const glm::vec3 * light_point,
+               Shader *shader_program,
+               Camera *camera,
                glm::vec3 position,
-               glm::vec3 size):
-  screen_scale_(screen_scale),
-  shader_program_(shader_program),
-  camera_(camera),
-  light_point_(light_point),
-  position(position),
-  size(size)
-{}
+               glm::vec3 size) :
+        screen_scale_(screen_scale),
+        shader_program_(shader_program),
+        camera_(camera),
+        position(position),
+        size(size) {}
 
 
-Object::~Object()
-{}
+void Object::DoCollisions() {}
 
 
-void Object::Render()
-{}
+void Object::SetupLightning_(glm::vec3 light_point) {
+    shader_program_->SetVector3f("light.position", light_point);
 
+    // light properties
+    auto time = (GLfloat) glfwGetTime();
+    shader_program_->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
+    shader_program_->SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
+    shader_program_->SetVector3f("light.specular", 1.0f, .0f, .0f);
 
-void Object::DoCollisions()
-{}
+    // material properties
+    shader_program_->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
+    shader_program_->SetFloat("material.shininess", 256.0f);
+}
