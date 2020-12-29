@@ -19,7 +19,6 @@
 #include "shader.h"
 #include "camera.h"
 #include "audio/audio.h"
-#include "third_person_character.h"
 #include "text_renderer.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
@@ -92,9 +91,6 @@ public:
     void Render(GLfloat deltaTime);
 
 private:
-    GLuint 	VAO_;
-    GLuint  light_VAO_;
-
     void InitProjection();
     void InitObjects();
 };

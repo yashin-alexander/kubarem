@@ -1,7 +1,6 @@
 #include "game.h"
 
 #include "camera.h"
-#include "third_person_character.h"
 
 
 Game::Game(GLuint width, GLuint height, Input * input):
@@ -16,8 +15,6 @@ Game::~Game()
 
 
 void Game::Init() {
-    glGenVertexArrays(1, &VAO_);
-
     state_ = GameState::kGameActive;
     soloud_.init();
 
@@ -53,24 +50,23 @@ void Game::Init() {
     Model *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
     Model *sunModel = new Model("resources/objects/sphere/sphere.obj", false);
     Model *triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
+    Model *thirdPersonCharacterModel = new Model("resources/objects/sphere/disco/sphere.obj", false);
 
-    main_character_ = new ThirdPersonCharacter("resources/objects/sphere/disco/sphere.obj",
+    main_character_ = new ThirdPersonCharacter((float) width_ / (float) height_,
                                                main_character_shader_program_,
-                                               (float) width_ / (float) height_,
-                                               glm::vec3(4.f, 4.f, 4.f),
-                                               camera_);
+                                               thirdPersonCharacterModel,
+                                               camera_,
+                                               glm::vec3(4.0f));
 
     cube_ = new CustomGeometryObject((float) width_ / (float) height_,
                                      object_shader_program_,
                                      camera_,
-                                     &main_character_->position_,
                                      "resources/textures/minecraft_wood.png",
-                                     glm::vec3(0, 6, 0),
+                                     glm::vec3(30, 6, 30),
                                      glm::vec3(16, 16, 16));
     floor_ = new CustomGeometryObject((float) width_ / (float) height_,
                                       object_shader_program_,
                                       camera_,
-                                      &main_character_->position_,
                                       "resources/textures/background.png",
                                       glm::vec3(0, -4.5, 0),
                                       glm::vec3(850, 1, 850));
@@ -79,8 +75,7 @@ void Game::Init() {
                                 object_shader_program_,
                                 cyborgModel,
                                 camera_,
-                                &main_character_->position_,
-                                glm::vec3(4.7f, 6.0f, 4.7f),
+                                glm::vec3(0, -2, 50),
                                 glm::vec3(4.7f, 4.7f, 4.7f));
 
     for (int i = 0; i < 15; i++) {
@@ -88,7 +83,6 @@ void Game::Init() {
                                         object_shader_program_,
                                         triangleSphereModel,
                                         camera_,
-                                        &main_character_->position_,
                                         glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                         glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -98,7 +92,6 @@ void Game::Init() {
                                         object_shader_program_,
                                         sunModel,
                                         camera_,
-                                        &main_character_->position_,
                                         glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
                                         glm::vec3(2, 2, 2));
         log_info("Object %d created", i);
@@ -179,18 +172,18 @@ void Game::Render(GLfloat deltaTime)
         input_controller_->MouseOffsetUpdated = false;
     }
 
-    floor_->Render();
-    cube_->Render();
-    cyborg_->Render();
+    floor_->Render(main_character_->position);
+    cube_->Render(main_character_->position);
+    cyborg_->Render(main_character_->position);
 
-    main_character_->Render(VAO_, glm::vec2(0, 0) - glm::vec2(main_character_->size_), glm::vec2(0, 0));
+    main_character_->Render(main_character_->position);
 
     for (int i = 0; i < 25; i++) {
-        objects_[i]->Render();
+        objects_[i]->Render(main_character_->position);
     }
 
     for (int i = 0; i < 24; i++){
-        objects_[i]->Render();
+        objects_[i]->Render(main_character_->position);
     }
 
     particle_controller_->update(deltaTime);
