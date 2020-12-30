@@ -69,3 +69,12 @@ target_include_directories("soloud" PRIVATE "${SOLOUD_DIR}/include")
 
 set(SOLOUD_LIBRARY "soloud")
 set(SOLOUD_INCLUDE_DIR "${SOLOUD_DIR}/include")
+
+# entt
+set(ENTT_DIR "${THIRDPARTY_DIR}/entt/single_include")
+add_library("entt" STATIC "${ENTT_DIR}/entt/entt.hpp")
+set_target_properties("entt" PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories("entt" PRIVATE "${ENTT_DIR}")
+
+set(ENTT_LIBRARY "entt")
+set(ENTT_INCLUDE_DIR "${ENTT_DIR}")
