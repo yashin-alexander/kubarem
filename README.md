@@ -10,7 +10,7 @@ make init
 ```
 
 ### Examples
-Several examples are available. To buld and playback, use the following:
+Several examples are available. To buld and play, use the following:
 ```
 git checkout ${EXAMPLE_HASH}
 make
@@ -19,9 +19,9 @@ make
 
 ## Katamari Damacy clone
 
-To build and playback:
+To build and play:
 ```
-git checkout v0.3
+git checkout v0.3.1
 ```
 
 ## Solar system simulation
