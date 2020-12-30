@@ -14,3 +14,6 @@
 	path = thirdparty/soloud
 	url = https://github.com/yashin-alexander/soloud.git
 	branch = pr-bump-contrib
+[submodule "thirdparty/entt"]
+	path = thirdparty/entt
+	url = https://github.com/skypjack/entt.git
