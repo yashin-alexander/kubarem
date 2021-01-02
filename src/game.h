@@ -22,6 +22,9 @@
 #include "text_renderer.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
+#include "scene/scene.h"
+#include "scene/entity.h"
+#include "scene/components.h"
 
 class ThirdPersonCamera;
 class ThirdPersonCharacter;

@@ -109,8 +109,6 @@ public:
 class ModeledObject : public Object {
 protected:
     Model *model_ = nullptr;
-    glm::mat4 _mainObjectRotation = glm::mat4(0);
-    glm::vec3 stickedToPosition_ = glm::vec3(0, 0, 0);
 
 public:
     ModeledObject(GLfloat screen_scale,
@@ -123,10 +121,6 @@ public:
     void Render(glm::vec3 light_point) override;
 
     void DoCollisions() override;
-
-    virtual void SetMainObjectRotation(glm::mat4 rotation);
-
-    virtual void SetStickedToPosition(glm::vec3 position);
 
     GLboolean isSticked = false;
 };
@@ -208,10 +202,6 @@ private:
 
 class ThirdPersonCharacter : public ModeledObject {
 public:
-    ModeledObject *sticked_[100] = {nullptr};
-    GLint objects_sticked_ = 0;
-
-
     ThirdPersonCharacter(GLfloat screen_scale,
                          Shader *shader_program,
                          Model *model,
@@ -233,10 +223,6 @@ public:
     void ProcessRotation();
 
     GLfloat GetRotationMultiplier();
-
-    void ProcessStickedObjects(glm::mat4 model);
-
-    void DoCollisions(ModeledObject **objects_list, GLint size);
 
 private:
     glm::mat4 model_matrix = glm::mat4(0);

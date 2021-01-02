@@ -10,9 +10,7 @@ ModeledObject::ModeledObject(GLfloat screen_scale,
                              glm::vec3 position,
                              glm::vec3 size) :
         Object(screen_scale, shader_program, camera, position, size),
-        model_(model) {
-    _mainObjectRotation = glm::mat4(1.0f);
-}
+        model_(model) {}
 
 
 void ModeledObject::Render(glm::vec3 light_point) {
@@ -21,8 +19,6 @@ void ModeledObject::Render(glm::vec3 light_point) {
 
     glm::mat4 model = glm::mat4(1.0f);
 
-    model = glm::translate(model, stickedToPosition_);
-    model *= _mainObjectRotation;
     model = glm::translate(model, position);
     model = glm::scale(model, size);
 
@@ -33,16 +29,6 @@ void ModeledObject::Render(glm::vec3 light_point) {
     shader_program_->SetMatrix4("projection", projection);
 
     model_->Draw(*shader_program_);
-}
-
-
-void ModeledObject::SetMainObjectRotation(glm::mat4 rotation) {
-    this->_mainObjectRotation = rotation;
-}
-
-
-void ModeledObject::SetStickedToPosition(glm::vec3 position) {
-    this->stickedToPosition_ = position;
 }
 
 
