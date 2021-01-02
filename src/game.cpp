@@ -124,7 +124,6 @@ void Game::Shutdown()
 
 void Game::DoCollisions()
 {
-    main_character_->DoCollisions(objects_, 24);
 }
 
 void Game::ProcessInput(GLfloat deltaTime)
@@ -190,7 +189,7 @@ void Game::Render(GLfloat deltaTime)
     particle_controller_->renderParticles(camera_);
 
     text_renderer_->RenderText(
-            std::string("Items collected: ") + std::to_string(main_character_->objects_sticked_),
+            std::string("Items collected: 0"),
             glm::vec2(5.0f, 5.0f), 1.0f);
     text_renderer_->RenderText(
             std::string("FPS: ") + std::to_string(int(1 / deltaTime)),

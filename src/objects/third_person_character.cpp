@@ -98,7 +98,6 @@ void ThirdPersonCharacter::ProcessRotation() {
         model_matrix = rotation_keeper_.GetLastModelMatrix();
     }
 
-    this->ProcessStickedObjects(model_matrix);
     rotation_keeper_.FlushDirections();
 
     model_matrix = glm::scale(model_matrix, size);
@@ -112,45 +111,5 @@ GLfloat ThirdPersonCharacter::GetRotationMultiplier() {
     GLfloat old_time = time_;
     time_ = (float) glfwGetTime();
     return 9 * (time_ - old_time);
-}
-
-void ThirdPersonCharacter::ProcessStickedObjects(glm::mat4 model) {
-    for (int i = 0; i < objects_sticked_; i++) {
-        sticked_[i]->SetStickedToPosition(position);
-        sticked_[i]->SetMainObjectRotation(model);
-    }
-}
-
-void ThirdPersonCharacter::DoCollisions(ModeledObject **objects_list, GLint size) {
-    ModeledObject *current_object = nullptr;
-    GLfloat distance;
-
-    for (int i = 0; i <= size; i++) {
-        current_object = objects_list[i];
-        distance = glm::distance(current_object->position, position);
-        if (!current_object->isSticked
-            && distance <= (this->size[0] + current_object->size[0])) {
-            log_info("New object found!");
-            log_info("Distance to object: %f", distance);
-
-            this->sticked_[objects_sticked_] = current_object;
-            objects_sticked_++;
-            current_object->isSticked = true;
-            glm::vec3 new_object_position = position - current_object->position;
-
-            glm::mat4 r = glm::mat4(1);
-            r = glm::rotate(r, glm::radians(90.0f), glm::vec3(0, 1.0, 0));
-
-            new_object_position = glm::vec3(model_matrix * glm::vec4(glm::normalize(new_object_position), 1.0f));
-            log_info("New object position %f %f %f", new_object_position[0], new_object_position[1],
-                     new_object_position[2]);
-            new_object_position = glm::vec3(r * glm::vec4(new_object_position, 1.0f));
-            log_info("New object position %f %f %f", new_object_position[0], new_object_position[1],
-                     new_object_position[2]);
-
-            current_object->position = new_object_position;
-        } else {
-        }
-    }
 }
 
