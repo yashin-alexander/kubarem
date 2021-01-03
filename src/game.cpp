@@ -3,9 +3,10 @@
 #include "camera.h"
 
 
-Game::Game(GLuint width, GLuint height, Input * input):
-        state_(GameState::kGameMenu), width_(width), height_ (height), input_controller_(input)
+Game::Game(GLuint width, GLuint height, GLFWwindow* window):
+        state_(GameState::kGameMenu), width_(width), height_ (height), window_(window)
 {
+    scene_ = new kubarem::Scene();
 }
 
 Game::~Game()
@@ -18,20 +19,18 @@ void Game::Init() {
     state_ = GameState::kGameActive;
     soloud_.init();
 
-    text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl",
-                                                "src/shaders/text_fs.glsl");
+    Shader * text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl",
+                                                         "src/shaders/text_fs.glsl");
     text_renderer_ = new TextRenderer(this->width_, this->height_, text_shader_program_);
     text_renderer_->Load("resources/fonts/default.ttf", 24);
 
-    main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl",
+    Shader * main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl",
                                                           "src/shaders/main_fs.glsl");
-
-    object_shader_program_ = Shader::LoadFromFile("src/shaders/object_vs.glsl",
+    Shader * object_shader_program_ = Shader::LoadFromFile("src/shaders/object_vs.glsl",
                                                   "src/shaders/object_fs.glsl");
-
-    lamp_shader_program_ = Shader::LoadFromFile("src/shaders/lamp_vs.glsl",
+    Shader * lamp_shader_program_ = Shader::LoadFromFile("src/shaders/lamp_vs.glsl",
                                                 "src/shaders/lamp_fs.glsl");
-    particle_shader_program_ = Shader::LoadFromFile("src/shaders/particle_vs.glsl",
+    Shader * particle_shader_program_ = Shader::LoadFromFile("src/shaders/particle_vs.glsl",
                                                     "src/shaders/particle_fs.glsl");
 
     ParticleParameters particles_parameters{glm::vec3(45, 0, -300),
@@ -44,20 +43,27 @@ void Game::Init() {
     particle_controller_ = new ParticleController(particles_parameters, 5000, (float) width_ / (float) height_,
                                                   particle_shader_program_);
 
-    camera_ = new ThirdPersonCamera();
-
     // models load
-    Model *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
-    Model *sunModel = new Model("resources/objects/sphere/sphere.obj", false);
-    Model *triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
-    Model *thirdPersonCharacterModel = new Model("resources/objects/sphere/disco/sphere.obj", false);
+    auto *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
+    auto *sphereModel = new Model("resources/objects/sphere/sphere.obj", false);
+    auto *triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
+    auto *thirdPersonCharacterModel = new Model("resources/objects/sphere/disco/sphere.obj", false);
 
-    main_character_ = new ThirdPersonCharacter((float) width_ / (float) height_,
-                                               main_character_shader_program_,
-                                               thirdPersonCharacterModel,
-                                               camera_,
-                                               glm::vec3(4.0f));
+    std::map<std::string, Model> models_map = {
+        {std::string("resources/objects/cyborg/cyborg.obj"), *cyborgModel},
+        {std::string("resources/objects/sphere/sphere.obj"), *sphereModel},
+        {std::string("resources/objects/sphere/triangle/sphere.obj"), *triangleSphereModel},
+        {std::string("resources/objects/sphere/disco/sphere.obj"), *thirdPersonCharacterModel}
+    };
+    std::map<std::string, Shader> shaders_map = {
+            {std::string("src/shaders/text_vs.glsl"), *text_shader_program_},
+            {std::string("src/shaders/main_vs.glsl"), *main_character_shader_program_},
+            {std::string("src/shaders/object_vs.glsl"), *object_shader_program_},
+            {std::string("src/shaders/lamp_vs.glsl"), *lamp_shader_program_},
+            {std::string("src/shaders/particle_vs.glsl"), *particle_shader_program_}
+    };
 
+    /*
     cube_ = new CustomGeometryObject((float) width_ / (float) height_,
                                      object_shader_program_,
                                      camera_,
@@ -70,87 +76,56 @@ void Game::Init() {
                                       "resources/textures/background.png",
                                       glm::vec3(0, -4.5, 0),
                                       glm::vec3(850, 1, 850));
+                                      */
 
-    cyborg_ = new ModeledObject((float) width_ / (float) height_,
-                                object_shader_program_,
-                                cyborgModel,
-                                camera_,
-                                glm::vec3(0, -2, 50),
-                                glm::vec3(4.7f, 4.7f, 4.7f));
-
-    for (int i = 0; i < 15; i++) {
-        objects_[i] = new ModeledObject((float) width_ / (float) height_,
-                                        object_shader_program_,
-                                        triangleSphereModel,
-                                        camera_,
-                                        glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
-                                        glm::vec3(2, 2, 2));
-        log_info("Object %d created", i);
-    }
-    for (int i = 15; i < 25; i++) {
-        objects_[i] = new ModeledObject((float) width_ / (float) height_,
-                                        object_shader_program_,
-                                        sunModel,
-                                        camera_,
-                                        glm::vec3(cos(i) * 60.0f, cos(i) * 2, sin(i) - 10.0f * i),
-                                        glm::vec3(2, 2, 2));
-        log_info("Object %d created", i);
-    }
-    sound_file_ = new AudioPositioned(soloud_, "s.mp3", cube_->position, camera_->position_, camera_->front_);
+    sound_file_ = new AudioPositioned(soloud_, "s.mp3", glm::vec3(0), glm::vec3(0), glm::vec3(0));
     background_music_ = new AudioBackground(soloud_, "s.mp3");
     speech_phrase_ = new AudioSpeech(soloud_, "You will die! I kill you", 530, 10, 0.5, KW_NOISE);
 //    sound_file_->RunPlayback();
 //    background_music_->RunPlayback();
     speech_phrase_->RunPlayback();
+
+    kubarem::Entity cameraController = scene_->CreateEntity("CameraController");
+    cameraController.addComponent<kubarem::CameraComponent>(40.f, 5.f);
+    cameraController.addComponent<kubarem::InputComponent>(window_);
+    cameraController.addComponent<kubarem::ScreenScaleComponent>((float) width_ / (float) height_);
+    cameraController.addComponent<kubarem::ModelsCacheComponent>(models_map);
+    cameraController.addComponent<kubarem::ShadersCacheComponent>(shaders_map);
+
+    kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
+    cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
+    cyborgEntity.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
+    cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
+    cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+
+    kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
+    tpc.addComponent<kubarem::ThirdPersonCharacterComponent>();
+    tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
+    tpc.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
+    tpc.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0,0), glm::vec3(4));
+    tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
+
+
+    for (int i = 0; i < 525; i++) {
+        std::string name = std::string("Ball") + std::to_string(i);
+        glm::vec3 position = glm::vec3(cos(i) * 60.0f, cos(2*i) * 10, sin(i) - 20.0f * i);
+
+        kubarem::Entity ballEntity = scene_->CreateEntity(name);
+        ballEntity.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
+        ballEntity.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
+        ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(1));
+        ballEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+    }
 }
 
 void Game::Shutdown()
 {
-    for(int i = 0; i < 25; ++i)
-    {
-        delete objects_[i];
-    }
-    delete cyborg_;
-    delete floor_;
-    delete cube_;
-    delete main_character_;
-    delete camera_;
     delete particle_controller_;
     delete text_renderer_;
     delete sound_file_;
     delete background_music_;
     delete speech_phrase_;
-}
-
-void Game::DoCollisions()
-{
-}
-
-void Game::ProcessInput(GLfloat deltaTime)
-{
-    if (state_ == GameState::kGameMenu){
-        if (this->input_controller_->Keys[GLFW_KEY_SPACE])
-        {
-            this->state_ = GameState::kGameActive;
-            this->input_controller_->Keys[GLFW_KEY_SPACE] = GL_FALSE;
-            log_dbg("Game is in active state");
-        }
-    }
-    if (this->state_ == GameState::kGameActive)
-    {
-        if (this->input_controller_->Keys[GLFW_KEY_W]){
-            main_character_->ProcessKeyboard(CameraMovement::kForward, deltaTime);
-        }
-        if (this->input_controller_->Keys[GLFW_KEY_S]){
-            main_character_->ProcessKeyboard(CameraMovement::kBackward, deltaTime);
-        }
-        if (this->input_controller_->Keys[GLFW_KEY_A]){
-            main_character_->ProcessKeyboard(CameraMovement::kLeft, deltaTime);
-        }
-        if (this->input_controller_->Keys[GLFW_KEY_D]){
-            main_character_->ProcessKeyboard(CameraMovement::kRight, deltaTime);
-        }
-    }
+    delete scene_;
 }
 
 void Game::Update(GLfloat deltaTime)
@@ -161,53 +136,25 @@ void Game::Update(GLfloat deltaTime)
     soloud_.update3dAudio();
 }
 
-void Game::Render(GLfloat deltaTime)
+void Game::Render(GLfloat deltaTime) const
 {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.3f, 0.f, .0f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (input_controller_->MouseOffsetUpdated){
-        camera_->ProcessMouseMovement(input_controller_->MouseOffsets[X_OFFSET], input_controller_->MouseOffsets[Y_OFFSET]);
-        input_controller_->MouseOffsetUpdated = false;
-    }
+//    floor_->Render(main_character_->position);
+//    cube_->Render(main_character_->position);
 
-    floor_->Render(main_character_->position);
-    cube_->Render(main_character_->position);
-    cyborg_->Render(main_character_->position);
+//    particle_controller_->update(deltaTime);
+//    particle_controller_->renderParticles(camera_);
 
-    main_character_->Render(main_character_->position);
-
-    for (int i = 0; i < 25; i++) {
-        objects_[i]->Render(main_character_->position);
-    }
-
-    for (int i = 0; i < 24; i++){
-        objects_[i]->Render(main_character_->position);
-    }
-
-    particle_controller_->update(deltaTime);
-    particle_controller_->renderParticles(camera_);
-
+/*
     text_renderer_->RenderText(
             std::string("Items collected: 0"),
             glm::vec2(5.0f, 5.0f), 1.0f);
     text_renderer_->RenderText(
             std::string("FPS: ") + std::to_string(int(1 / deltaTime)),
             glm::vec2(this->width_ - 110.f, 5.0f), 1.0f);
+*/
+    scene_->OnRenderRuntime(deltaTime);
 }
 
-void Game::InitProjection()
-{
-    glUseProgram(object_shader_program_->program_ID_);
-    glm::mat4 projection = glm::perspective(45.0f, (GLfloat)width_ / (GLfloat)height_, 0.1f, 100.0f);
-    this->object_shader_program_->SetMatrix4("projection", projection);
-
-    glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
-    this->object_shader_program_->SetMatrix4("view", projection);
-}
-
-
-void Game::InitObjects()
-{
-
-}

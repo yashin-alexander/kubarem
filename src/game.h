@@ -26,6 +26,8 @@
 #include "scene/entity.h"
 #include "scene/components.h"
 
+using namespace kubarem;
+
 class ThirdPersonCamera;
 class ThirdPersonCharacter;
 
@@ -48,52 +50,29 @@ class Game
 public:
     GameState              state_;
     GLuint                 width_, height_;
-    GLuint                 lives_;
-    Input                  *input_controller_;
-    Shader 				   *object_shader_program_;
-    Shader 				   *main_character_shader_program_;
-    Shader 				   *lamp_shader_program_;
-    Shader                 *text_shader_program_;
-    Shader                 *particle_shader_program_;
+    GLFWwindow             *window_;
 
     ParticleController     *particle_controller_;
     TextRenderer           *text_renderer_;
 
-    ThirdPersonCamera 	   *camera_;
-
-    ThirdPersonCharacter   *main_character_ = nullptr;
-    ModeledObject          *objects_[kMaxObjectsAmount];
-    ModeledObject          *cyborg_ = nullptr;
-    CustomGeometryObject   *cube_ = nullptr;
-    CustomGeometryObject   *floor_ = nullptr;
+    kubarem::Scene *scene_;
 
     SoLoud::Soloud soloud_;
     AudioPositioned *sound_file_;
     AudioBackground *background_music_;
     AudioSpeech *speech_phrase_;
-//    SoLoud::Wav sample;    // One sample
-//    SoLoud::Speech speech;
-//    int sound_descriptor;
-//    glm::mat4 translator;
-
 
     std::string gameDescription = "Kubarem";
 
     void Update(GLfloat dt);
-    void DoCollisions();
-    void ResetLevel();
 
-
-    Game(GLuint width, GLuint height, Input * input);
+    Game(GLuint width, GLuint height, GLFWwindow* window);
     ~Game();
 
     void Init();
     void Shutdown();
 
-    void ProcessInput(GLfloat deltaTime);
-    void Render(GLfloat deltaTime);
+    void Render(GLfloat deltaTime) const;
 
 private:
-    void InitProjection();
-    void InitObjects();
 };
