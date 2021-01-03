@@ -5,6 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "log.h"
+#include "input.h"
 
 enum class CameraMovement {
     kForward,
@@ -116,25 +117,23 @@ class ThirdPersonCamera: public Camera
 public:
 
     glm::vec3 main_character_position_;
-    GLfloat spring_arm_length_ = 40.f;
+    GLfloat spring_arm_length_;
     glm::vec3 spring_arm_offset_;
 
-    ThirdPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)) : Camera(position)
+    ThirdPersonCamera(GLfloat spring_arm_length = 40.f,  glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)) : Camera(position), spring_arm_length_(spring_arm_length)
     {
         pitch_ = -20.0f;
         spring_arm_offset_ = glm::vec3(0.0f, -pitch_, spring_arm_length_);
-        main_character_position_ = position;
-        SetMainCharacterPosition(position);
-//        log_dbg("Camera position = %f %f %f", position[0], position[1], position[2]);
+        this->main_character_position_ = position;
+        this->position_ = this->main_character_position_ + spring_arm_offset_;
         UpdateCameraVectors();
     }
 
 
-    virtual void ProcessMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true) override
+    void ProcessMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true) override
     {
         x_offset *= mouse_sensitivity_;
         y_offset *= mouse_sensitivity_;
-
 
         if (abs(x_offset) > 0.000001 || abs(y_offset) > 0.000001){
             yaw_   += x_offset;
@@ -158,12 +157,6 @@ public:
     }
 
 
-    void SetMainCharacterPosition(glm::vec3 position){
-        this->main_character_position_ = position;
-        this->position_ = this->main_character_position_ + spring_arm_offset_;
-        UpdateCameraVectors();
-    }
-
     glm::vec3 FrontXZ()
     {
         return glm::vec3(this->front_[0], 0.0f, this->front_[2]);
@@ -172,6 +165,34 @@ public:
     glm::vec3 RightXZ()
     {
         return glm::vec3(this->right_[0], 0.0f, this->right_[2]);
+    }
+
+
+    glm::vec3 GetFront() const{
+        return glm::vec3(front_[0], 0.0f, front_[2]);
+    }
+
+    glm::vec3 GetRight() const{
+        return right_;
+    }
+
+    glm::vec3 ProcessKeyboard(CameraMovement direction, float delta_time, GLfloat speed, glm::vec3 position) {
+        float velocity = delta_time * speed * 120;
+        glm::vec3 new_position;
+
+        if (direction == CameraMovement::kForward)
+            new_position = position + this->GetFront() * velocity;
+        if (direction == CameraMovement::kBackward)
+            new_position = position - this->GetFront() * velocity;
+        if (direction == CameraMovement::kLeft)
+            new_position = position - this->GetRight() * velocity;
+        if (direction == CameraMovement::kRight)
+            new_position = position + this->GetRight() * velocity;
+
+        main_character_position_ = new_position;
+        position_ = main_character_position_ + spring_arm_offset_;
+        UpdateCameraVectors();
+        return main_character_position_;
     }
 
 protected:

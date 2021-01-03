@@ -27,8 +27,7 @@ int main()
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Input input_controller = Input(window);
-    Game kubarem = Game(SCR_WIDTH, SCR_HEIGHT, &input_controller);
+    Game kubarem = Game(SCR_WIDTH, SCR_HEIGHT, window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -63,11 +62,9 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        kubarem.ProcessInput(deltaTime);
-        kubarem.DoCollisions();
         kubarem.Update(deltaTime);
         kubarem.Render(deltaTime);
-//        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
+        glfwSetWindowTitle(window, kubarem.gameDescription.c_str());
         glfwSwapBuffers(window);
         glfwPollEvents();
         _flush_log();
