@@ -19,19 +19,14 @@ void Game::Init() {
     state_ = GameState::kGameActive;
     soloud_.init();
 
-    Shader * text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl",
-                                                         "src/shaders/text_fs.glsl");
+    Shader * text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl", "src/shaders/text_fs.glsl");
     text_renderer_ = new TextRenderer(this->width_, this->height_, text_shader_program_);
     text_renderer_->Load("resources/fonts/default.ttf", 24);
 
-    Shader * main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl",
-                                                          "src/shaders/main_fs.glsl");
-    Shader * object_shader_program_ = Shader::LoadFromFile("src/shaders/object_vs.glsl",
-                                                  "src/shaders/object_fs.glsl");
-    Shader * lamp_shader_program_ = Shader::LoadFromFile("src/shaders/lamp_vs.glsl",
-                                                "src/shaders/lamp_fs.glsl");
-    Shader * particle_shader_program_ = Shader::LoadFromFile("src/shaders/particle_vs.glsl",
-                                                    "src/shaders/particle_fs.glsl");
+    Shader * main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl", "src/shaders/main_fs.glsl");
+    Shader * object_shader_program_ = Shader::LoadFromFile("src/shaders/object_vs.glsl", "src/shaders/object_fs.glsl");
+    Shader * lamp_shader_program_ = Shader::LoadFromFile("src/shaders/lamp_vs.glsl", "src/shaders/lamp_fs.glsl");
+    Shader * particle_shader_program_ = Shader::LoadFromFile("src/shaders/particle_vs.glsl", "src/shaders/particle_fs.glsl");
 
     ParticleParameters particles_parameters{glm::vec3(45, 0, -300),
                                             glm::vec3(50, 50, 50),
@@ -63,21 +58,6 @@ void Game::Init() {
             {std::string("src/shaders/particle_vs.glsl"), *particle_shader_program_}
     };
 
-    /*
-    cube_ = new CustomGeometryObject((float) width_ / (float) height_,
-                                     object_shader_program_,
-                                     camera_,
-                                     "resources/textures/minecraft_wood.png",
-                                     glm::vec3(30, 6, 30),
-                                     glm::vec3(16, 16, 16));
-    floor_ = new CustomGeometryObject((float) width_ / (float) height_,
-                                      object_shader_program_,
-                                      camera_,
-                                      "resources/textures/background.png",
-                                      glm::vec3(0, -4.5, 0),
-                                      glm::vec3(850, 1, 850));
-                                      */
-
     sound_file_ = new AudioPositioned(soloud_, "s.mp3", glm::vec3(0), glm::vec3(0), glm::vec3(0));
     background_music_ = new AudioBackground(soloud_, "s.mp3");
     speech_phrase_ = new AudioSpeech(soloud_, "You will die! I kill you", 530, 10, 0.5, KW_NOISE);
@@ -85,26 +65,24 @@ void Game::Init() {
 //    background_music_->RunPlayback();
     speech_phrase_->RunPlayback();
 
-    kubarem::Entity cameraController = scene_->CreateEntity("CameraController");
-    cameraController.addComponent<kubarem::CameraComponent>(40.f, 5.f);
-    cameraController.addComponent<kubarem::InputComponent>(window_);
-    cameraController.addComponent<kubarem::ScreenScaleComponent>((float) width_ / (float) height_);
-    cameraController.addComponent<kubarem::ModelsCacheComponent>(models_map);
-    cameraController.addComponent<kubarem::ShadersCacheComponent>(shaders_map);
-
-    kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
-    cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
-    cyborgEntity.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
-    cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
-    cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+    kubarem::Entity sceneContext = scene_->CreateEntity("SceneContext");
+    sceneContext.addComponent<kubarem::CameraComponent>(40.f, 1.f);
+    sceneContext.addComponent<kubarem::InputComponent>(window_);
+    sceneContext.addComponent<kubarem::ScreenScaleComponent>((float) width_ / (float) height_);
+    sceneContext.addComponent<kubarem::ModelsCacheComponent>(models_map);
+    sceneContext.addComponent<kubarem::ShadersCacheComponent>(shaders_map);
+    auto light_sources = sceneContext.addComponent<kubarem::IlluminateCacheComponent>(std::vector<glm::vec3>({1}));
 
     kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
     tpc.addComponent<kubarem::ThirdPersonCharacterComponent>();
     tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
-    tpc.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
-    tpc.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0,0), glm::vec3(4));
+    tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2,3), glm::vec3(4));
     tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
 
+    kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
+    cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
+    cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
+    cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 
     for (int i = 0; i < 525; i++) {
         std::string name = std::string("Ball") + std::to_string(i);
@@ -112,10 +90,19 @@ void Game::Init() {
 
         kubarem::Entity ballEntity = scene_->CreateEntity(name);
         ballEntity.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
-        ballEntity.addComponent<kubarem::IlluminatedComponent>(glm::vec3(0, 0, 0));
         ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(1));
         ballEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
     }
+
+    kubarem::Entity cubeEntity = scene_->CreateEntity("Cube");
+    cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
+    cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
+    cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+
+    kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
+    floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
+    floorEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, -5, 0), glm::vec3(400, 0.3, 400));
+    floorEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 }
 
 void Game::Shutdown()
@@ -140,9 +127,6 @@ void Game::Render(GLfloat deltaTime) const
 {
     glClearColor(0.3f, 0.f, .0f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//    floor_->Render(main_character_->position);
-//    cube_->Render(main_character_->position);
 
 //    particle_controller_->update(deltaTime);
 //    particle_controller_->renderParticles(camera_);
