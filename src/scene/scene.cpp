@@ -15,72 +15,62 @@ namespace kubarem {
 
     void Scene::OnUpdateRuntime(float ts) {
         // update all necessary data
-        auto renderStepView = registry_.view<CameraComponent, InputComponent, ScreenScaleComponent>();
-        for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
-
-            auto [camera, input, screen_scale] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent>(renderStepEntity);
-
-            /*
-            if (input.input.Keys[GLFW_KEY_W]){
-                ->ProcessKeyboard(CameraMovement::kForward, deltaTime);
-            }
-            if (input.input.Keys[GLFW_KEY_S]){
-                main_character_->ProcessKeyboard(CameraMovement::kBackward, deltaTime);
-            }
-            if (input.input.Keys[GLFW_KEY_A]){
-                main_character_->ProcessKeyboard(CameraMovement::kLeft, deltaTime);
-            }
-            if (input.input.Keys[GLFW_KEY_D]){
-                main_character_->ProcessKeyboard(CameraMovement::kRight, deltaTime);
-            }
-             */
-        }
     }
 
     void Scene::OnRenderRuntime(float ts) {
-        auto renderStepView = registry_.view<CameraComponent, InputComponent, ScreenScaleComponent>();
-        auto renderDataView = registry_.view<ShaderProgramComponent, IlluminatedComponent, ModelComponent, TransformComponent>();
+        auto renderStepView = registry_.view<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent, ShadersCacheComponent>();
+        auto renderDataView = registry_.view<ShaderProgramComponent, IlluminatedComponent, ModelComponent, TransformComponent>(
+                entt::exclude<kubarem::ThirdPersonCharacterComponent>);
+        auto renderTpcDataView = registry_.view<ShaderProgramComponent, IlluminatedComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>();
 
         for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
-            auto [camera, input, screen_scale] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent>(renderStepEntity);
+            auto[camera, input, screen_scale, models_cache, shaders_cache] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent, ShadersCacheComponent>(
+                    renderStepEntity);
 
-//            log_info("==== %d", input.input.MouseOffsetUpdated);
-            for (auto renderDataEntity : renderDataView ) {
-//                log_info("==== %d", &input.input.MouseOffsetUpdated);
-                auto [shader, light, model, transform] = renderDataView.get<ShaderProgramComponent, IlluminatedComponent, ModelComponent, TransformComponent>(renderDataEntity);
-                glUseProgram(shader.shader.program_ID_);
-//                log_info("Shader program ID = %d", shader.shader.program_ID_);
-//                log_info("====posi %f %f %f", transform.position[0], transform.position[1], transform.position[2]);
-//                log_info("====size %f %f %f", transform.size[0], transform.size[1], transform.size[2]);
-//                log_info("====camera zoom %f", camera.camera.zoom_);
-//                log_info("Screen Scale! %f", screen_scale.screen_scale);
-//                log_info("Draw indicies meshes size %d", model.model.meshes[0].indices.size());
+            for (auto renderDataEntity : renderDataView) {
+                auto[shader_path, model_path, light, transform] = renderDataView.get<ShaderProgramComponent, ModelComponent, IlluminatedComponent, TransformComponent>(
+                        renderDataEntity);
 
-                shader.shader.SetVector3f("light.position", light.light_point);
+                // pull shader and model from entt cache
+                auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
+                auto shader = shader_unpack->second;
 
-                // light properties
-                auto time = (GLfloat) glfwGetTime();
-                shader.shader.SetVector3f("light.ambient", 1.f, 1.f, 1.f);
-                shader.shader.SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
-                shader.shader.SetVector3f("light.specular", 1.0f, .0f, .0f);
+                auto model_unpack = models_cache.cache.find(model_path.model_path);
+                auto model = model_unpack->second;
 
-                // material properties
-                shader.shader.SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
-                shader.shader.SetFloat("material.shininess", 256.0f);
+                renderer.Render(&camera.camera, screen_scale.screen_scale, &model, &shader, light.light_point,
+                                transform.position, transform.size);
+            }
 
-                glm::mat4 mod_matrix = glm::mat4(1.0f);
+            for (auto renderTpcEntity : renderTpcDataView) {
+                auto[shader_path, model_path, light, transform, tpc] = renderTpcDataView.get<ShaderProgramComponent, ModelComponent, IlluminatedComponent, TransformComponent, ThirdPersonCharacterComponent>(
+                        renderTpcEntity);
 
-//                mod_matrix = glm::translate(mod_matrix, transform.position);
-                mod_matrix = glm::translate(mod_matrix, glm::vec3(transform.position[0], transform.position[1], sin(time) * transform.position[2]));
-                mod_matrix = glm::scale(mod_matrix, transform.size);
+                if (input.input.Keys[GLFW_KEY_W]){
+                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kForward, ts, camera.input_speed, transform.position);
+                }
+                if (input.input.Keys[GLFW_KEY_S]){
+                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kBackward, ts, camera.input_speed, transform.position);
+                }
+                if (input.input.Keys[GLFW_KEY_A]){
+                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kLeft, ts, camera.input_speed, transform.position);
+                }
+                if (input.input.Keys[GLFW_KEY_D]){
+                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kRight, ts, camera.input_speed, transform.position);
+                }
 
-                shader.shader.SetMatrix4("model", mod_matrix);
-                glm::mat4 view = camera.camera.GetViewMatrix();
-                shader.shader.SetMatrix4("view", view);
-                glm::mat4 projection = glm::perspective(glm::radians(camera.camera.zoom_), screen_scale.screen_scale, 0.1f, 1200.0f);
-                shader.shader.SetMatrix4("projection", projection);
+                if (input.input.MouseOffsetUpdated){
+                    camera.camera.ProcessMouseMovement(input.input.MouseOffsets[X_OFFSET], input.input.MouseOffsets[Y_OFFSET]);
+                    input.input.MouseOffsetUpdated = false;
+                }
 
-                model.model.Draw(shader.shader);
+                auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
+                auto shader = shader_unpack->second;
+
+                auto model_unpack = models_cache.cache.find(model_path.model_path);
+                auto model = model_unpack->second;
+
+                renderer.RenderThirdPersonCharacter(&camera.camera, screen_scale.screen_scale, &model, &shader, light.light_point, transform.position, transform.size);
             }
         }
     }
