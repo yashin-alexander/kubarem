@@ -8,11 +8,11 @@ class Camera;
 class ParticleController{
 
 public:
-    ParticleController(ParticleParameters parameters, uint32_t particles_number, GLfloat screenScale, Shader *shaderProgram);
+    ParticleController(ParticleParameters parameters, uint32_t particles_number);
     ~ParticleController();
 
     void update(GLfloat deltaTime);
-    void renderParticles(Camera *camera);
+    void renderParticles(Camera *camera, Shader * shader, GLfloat screen_scale);
 
 private:
     ParticleParameters randomizeParticleParameters();
