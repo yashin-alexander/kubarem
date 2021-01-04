@@ -1,14 +1,7 @@
 #include "renderer/renderer.h"
 
-void
-Renderer::Render(ThirdPersonCamera *camera,
-                 GLfloat screen_scale,
-                 Model *model,
-                 Shader *shader,
-                 glm::vec3 light_point,
-                 glm::vec3 position,
-                 glm::vec3 size) {
-    glUseProgram(shader->program_ID_);
+
+void Renderer::SetupLightning_(glm::vec3 light_point, Shader * shader) {
     shader->SetVector3f("light.position", light_point);
 
     // light properties
@@ -20,6 +13,19 @@ Renderer::Render(ThirdPersonCamera *camera,
     // material properties
     shader->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
     shader->SetFloat("material.shininess", 256.0f);
+}
+
+
+void Renderer::Render(ThirdPersonCamera *camera,
+                 GLfloat screen_scale,
+                 Model *model,
+                 Shader *shader,
+                 glm::vec3 light_point,
+                 glm::vec3 position,
+                 glm::vec3 size) {
+    glUseProgram(shader->program_ID_);
+
+    this->SetupLightning_(light_point, shader);
 
     glm::mat4 mod_matrix = glm::mat4(1.0f);
 
@@ -46,17 +52,7 @@ void Renderer::Render(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *m
 
 void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size) {
     glUseProgram(shader->program_ID_);
-    shader->SetVector3f("light.position", light_point);
-
-    // light properties
-    auto time = (GLfloat) glfwGetTime();
-    shader->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
-    shader->SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
-    shader->SetVector3f("light.specular", 1.0f, .0f, .0f);
-
-    // material properties
-    shader->SetVector3f("material.specular", 0.5f, 0.5f, 0.5f);
-    shader->SetFloat("material.shininess", 256.0f);
+    this->SetupLightning_(light_point, shader);
 
     shader->SetVector3f("viewPos", ((ThirdPersonCamera *) camera)->position_);
 
@@ -74,4 +70,32 @@ void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat scr
 
 //    glBindVertexArray(VAO_);
     model->Draw(*shader);
+}
+
+
+void Renderer::RenderCube(ThirdPersonCamera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader,
+                          glm::vec3 light_point, glm::vec3 position, glm::vec3 size) {
+    glUseProgram(shader->program_ID_);
+    this->SetupLightning_(light_point, shader);
+    shader->SetVector3f("viewPos", camera->position_);
+
+    // bind textures on corresponding texture units
+    // bind diffuse map
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, position);
+    model = glm::scale(model, size);
+
+    glm::mat4 view = camera->GetViewMatrix();
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_), screen_scale, 0.1f, 1200.0f);
+
+    shader->SetMatrix4("model", model);
+    shader->SetMatrix4("view", view);
+    shader->SetMatrix4("projection", projection);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
