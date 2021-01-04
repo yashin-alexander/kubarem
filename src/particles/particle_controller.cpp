@@ -2,10 +2,10 @@
 #include "particles/particle_controller.h"
 
 
-ParticleController::ParticleController(ParticleParameters parameters, uint32_t particles_number, GLfloat screenScale, Shader *shaderProgram):
+ParticleController::ParticleController(ParticleParameters parameters, uint32_t particles_number):
 referenceParameters(parameters)
 {
-    renderer = new ParticleRenderer(screenScale, shaderProgram);
+    renderer = new ParticleRenderer();
 
     for(uint32_t i = 0; i < particles_number; i++){
         particles.emplace_back(randomizeParticleParameters());
@@ -50,6 +50,6 @@ inline ParticleParameters ParticleController::randomizeParticleParameters() {
     return randomized_params;
 }
 
-void ParticleController::renderParticles(Camera *camera) {
-    renderer->render(camera, particles);
+void ParticleController::renderParticles(Camera *camera, Shader * shader, GLfloat screen_scale) {
+    renderer->render(camera, particles, shader, screen_scale);
 }

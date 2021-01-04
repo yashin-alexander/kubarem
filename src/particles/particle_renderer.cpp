@@ -4,8 +4,7 @@
 #include "shader.h"
 
 
-ParticleRenderer::ParticleRenderer(GLfloat screenScale, Shader *shaderProgram) : screenScale_(screenScale),
-shaderProgram_(shaderProgram)
+ParticleRenderer::ParticleRenderer()
 {
     glGenVertexArrays(1, &this->VAO_);
 
@@ -37,12 +36,12 @@ shaderProgram_(shaderProgram)
 }
 
 
-void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& particles) {
-    shaderProgram_->Use();
+void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) {
+    shader->Use();
 
     vboBufferWritePosition = -1;
-    glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_), screenScale_, 0.1f, 1200.0f);
-    shaderProgram_->SetMatrix4("projectionMatrix", projection);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_), screen_scale, 0.1f, 1200.0f);
+    shader->SetMatrix4("projectionMatrix", projection);
     for (auto& it : particles) {
         if (it.isActive()) {
             updateModelViewMatrix(it.getPosition(), it.getRotation(), it.getScale(), it.getColor(), camera->GetViewMatrix());

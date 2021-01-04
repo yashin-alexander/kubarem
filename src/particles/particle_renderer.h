@@ -15,10 +15,10 @@ static const size_t instanceDataLength = 20; // mat4 ModelView matrix + vec4 for
 class ParticleRenderer
 {
 public:
-    ParticleRenderer(GLfloat screenScale, Shader *shaderProgram);
+    ParticleRenderer();
     ~ParticleRenderer() = default;
 
-    void render(Camera *camera, const std::vector<Particle>& particles) ;
+    void render(Camera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) ;
     void updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::vec4 color, glm::mat4 view);
 
 protected:
@@ -33,9 +33,7 @@ protected:
     void createQuadAttributesVBO(uint32_t attribute, uint32_t dataSize, uint32_t instancedDataLength, uint32_t offset) const;
     void updateQuadAttributesVBO(const std::vector<Particle>& particles);
 
-    Shader *shaderProgram_;
     glm::mat4 modelViewMatrix_;
-    GLfloat screenScale_;
     GLuint VAO_;
     GLuint vertexPositionsVBO_;
     GLuint quadAttributesVBO_;
