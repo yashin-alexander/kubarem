@@ -11,9 +11,12 @@ class Renderer {
 public:
     Renderer() = default;
     ~Renderer() = default;
+
+    void SetupLightning_(glm::vec3 light_point, Shader * shader);
     void Render(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size);
     void Render(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size, GLfloat delta_time);
     void RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size);
+    void RenderCube(ThirdPersonCamera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size);
 
 private:
 };
