@@ -9,13 +9,17 @@
 #include "shader.h"
 #include "camera.h"
 #include "input.h"
+#include "objects/object.h"
 
 
 namespace kubarem {
     struct TagComponent {
         std::string tag;
+
         TagComponent() = default;
+
         TagComponent(const TagComponent &) = default;
+
         explicit TagComponent(const std::string &tag)
                 : tag(tag) {}
     };
@@ -24,9 +28,7 @@ namespace kubarem {
         glm::vec3 position;
         glm::vec3 size;
 
-        TransformComponent(glm::vec3 position, glm::vec3 size) : position(position), size(size) {
-            log_warn("%f", position[0]);
-        };
+        TransformComponent(glm::vec3 position, glm::vec3 size) : position(position), size(size) {};
 
 //        TransformComponent(const TransformComponent &) = default;
 
@@ -43,17 +45,16 @@ namespace kubarem {
     };
 
     struct ShaderProgramComponent {
-        Shader shader;
-        ShaderProgramComponent(const char *v_shader_path, const char *f_shader_path) {
-            shader = *Shader::LoadFromFile(v_shader_path, f_shader_path);
-        };
+        std::string v_shader_path;
+
+        explicit ShaderProgramComponent(const char *v_shader_path) : v_shader_path(v_shader_path) {};
     };
 
 
     struct ModelComponent {
-        ModelComponent(string const &path, bool gamma, string const texturePath) :
-                model(path, gamma, texturePath) {}
-        Model model;
+        explicit ModelComponent(const char * path) :
+                model_path(std::string(path)) {}
+        std::string model_path;
     };
 
     struct IlluminatedComponent {
@@ -63,8 +64,10 @@ namespace kubarem {
 
 
     struct CameraComponent {
-        ThirdPersonCamera camera = ThirdPersonCamera();
-        explicit CameraComponent() = default;
+        ThirdPersonCamera camera;
+        GLfloat input_speed;
+
+        explicit CameraComponent(GLfloat spring_arm_length, GLfloat input_speed) : camera(spring_arm_length), input_speed(input_speed) {}
     };
 
     struct InputComponent {
@@ -74,11 +77,24 @@ namespace kubarem {
 
     struct ScreenScaleComponent {
         GLfloat screen_scale;
+
         explicit ScreenScaleComponent(GLfloat screen_scale) : screen_scale(screen_scale) {};
     };
 
-    struct LoadedModelsComponent {
-        std::map<std::string, Model> models_loaded;
-        explicit LoadedModelsComponent(std::map<string, Model> models) : models_loaded(std::move(models)) {};
+    struct ModelsCacheComponent {
+        std::map<std::string, Model> cache;
+
+        explicit ModelsCacheComponent(std::map<string, Model> models) : cache(std::move(models)) {};
+    };
+
+    struct ShadersCacheComponent {
+        std::map<std::string, Shader> cache;
+
+        explicit ShadersCacheComponent(std::map<string, Shader> shaders) : cache(std::move(shaders)) {};
+    };
+
+    struct ThirdPersonCharacterComponent {
+        bool is_third_person_char = true;
+        explicit ThirdPersonCharacterComponent() = default;
     };
 }
