@@ -35,8 +35,6 @@ void Game::Init() {
                                             8,
                                             45,
                                             1.0f};
-    particle_controller_ = new ParticleController(particles_parameters, 5000, (float) width_ / (float) height_,
-                                                  particle_shader_program_);
 
     // models load
     auto *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
@@ -103,11 +101,14 @@ void Game::Init() {
     floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
     floorEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, -5, 0), glm::vec3(400, 0.3, 400));
     floorEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+
+    kubarem::Entity particlesEmitterEntity = scene_->CreateEntity("ParticleEmitter");
+    particlesEmitterEntity.addComponent<kubarem::ParticlesComponent>(particles_parameters, (uint32_t)1000);
+    particlesEmitterEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/particle_vs.glsl");
 }
 
 void Game::Shutdown()
 {
-    delete particle_controller_;
     delete text_renderer_;
     delete sound_file_;
     delete background_music_;
@@ -128,17 +129,12 @@ void Game::Render(GLfloat deltaTime) const
     glClearColor(0.3f, 0.f, .0f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    particle_controller_->update(deltaTime);
-//    particle_controller_->renderParticles(camera_);
-
-/*
     text_renderer_->RenderText(
             std::string("Items collected: 0"),
             glm::vec2(5.0f, 5.0f), 1.0f);
     text_renderer_->RenderText(
             std::string("FPS: ") + std::to_string(int(1 / deltaTime)),
             glm::vec2(this->width_ - 110.f, 5.0f), 1.0f);
-*/
     scene_->OnRenderRuntime(deltaTime);
 }
 

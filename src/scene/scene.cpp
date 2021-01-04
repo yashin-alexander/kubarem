@@ -23,6 +23,7 @@ namespace kubarem {
                 entt::exclude<kubarem::ThirdPersonCharacterComponent>);
         auto renderTpcDataView = registry_.view<ShaderProgramComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>();
         auto renderCubeDataView = registry_.view<ShaderProgramComponent, TransformComponent, CubeObjectComponent>();
+        auto renderParticlesDataView = registry_.view<ParticlesComponent, ShaderProgramComponent>();
 
         for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
             auto[camera, input, screen_scale, models_cache, shaders_cache, lights_cache] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent,
@@ -91,6 +92,17 @@ namespace kubarem {
 
                 renderer.RenderCube(&camera.camera, screen_scale.screen_scale, cube.VAO_, cube.texture, &shader,
                                     lights_cache.light_sources[0], transform.position, transform.size);
+            }
+
+            // render particles
+            for (auto renderParticleEntity : renderParticlesDataView) {
+                auto [particle_controller, shader_path] = renderParticlesDataView.get<ParticlesComponent, ShaderProgramComponent>(renderParticleEntity);
+
+                auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
+                auto shader = shader_unpack->second;
+
+                particle_controller.controller.update(ts);
+                particle_controller.controller.renderParticles((Camera *)&camera.camera, &shader, screen_scale.screen_scale);
             }
         }
     }

@@ -52,7 +52,6 @@ public:
     GLuint                 width_, height_;
     GLFWwindow             *window_;
 
-    ParticleController     *particle_controller_;
     TextRenderer           *text_renderer_;
 
     kubarem::Scene *scene_;

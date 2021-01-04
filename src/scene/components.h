@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "input.h"
 #include "objects/object.h"
+#include "particles/particle_controller.h"
 
 
 namespace kubarem {
@@ -206,5 +207,11 @@ namespace kubarem {
                 stbi_image_free(data);
             }
         }
+    };
+
+    struct ParticlesComponent {
+        ParticleController controller;
+
+        ParticlesComponent(ParticleParameters parameters, uint32_t particles_number) : controller(parameters, particles_number) {}
     };
 }
