@@ -214,10 +214,6 @@ public:
 
     glm::vec3 GetRight() const;
 
-    void ProcessKeyboard(CameraMovement direction, float delta_time);
-
-    void MoveEvent(glm::vec3 new_position);
-
     void Render(glm::vec3 light_point) override;
 
     void ProcessRotation();

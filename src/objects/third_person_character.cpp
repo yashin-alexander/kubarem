@@ -25,35 +25,6 @@ glm::vec3 ThirdPersonCharacter::GetRight() const{
 }
 
 
-void ThirdPersonCharacter::ProcessKeyboard(CameraMovement direction, float delta_time) {
-    float velocity = delta_time * speed_ * 120;
-    glm::vec3 new_position;
-
-    if (direction == CameraMovement::kForward) {
-        new_position = position + this->GetFront() * velocity;
-        rotation_keeper_.SetMoveForward();
-    }
-    if (direction == CameraMovement::kBackward) {
-        new_position = position - this->GetFront() * velocity;
-        rotation_keeper_.SetMoveBackward();
-    }
-    if (direction == CameraMovement::kLeft) {
-        new_position = position - this->GetRight() * velocity;
-        rotation_keeper_.SetMoveLeft();
-    }
-    if (direction == CameraMovement::kRight) {
-        new_position = position + this->GetRight() * velocity;
-        rotation_keeper_.SetMoveRight();
-    }
-
-    this->MoveEvent(new_position);
-}
-
-void ThirdPersonCharacter::MoveEvent(glm::vec3 new_position) {
-    this->position = new_position;
-    ((ThirdPersonCamera *) this->camera_)->SetMainCharacterPosition(position);
-}
-
 void ThirdPersonCharacter::Render(glm::vec3 light_point) {
     glUseProgram(shader_program_->program_ID_);
     this->SetupLightning_(light_point);
