@@ -1,4 +1,7 @@
 #pragma once
+
+#include "renderer/renderer.h"
+
 #include <entt/entt.hpp>
 
 namespace kubarem {
@@ -12,9 +15,10 @@ namespace kubarem {
         Entity CreateEntity(const std::string& name = std::string());
         void OnUpdateRuntime(float ts);
         void OnRenderRuntime(float ts);
-//        void DestroyEntity(Entity entity);
+        void InputUpdate();
     private:
         entt::registry registry_;
+        Renderer renderer;
         friend class Entity;
     };
 }
