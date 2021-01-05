@@ -57,9 +57,6 @@ public:
     kubarem::Scene *scene_;
 
     SoLoud::Soloud soloud_;
-    AudioPositioned *sound_file_;
-    AudioBackground *background_music_;
-    AudioSpeech *speech_phrase_;
 
     std::string gameDescription = "Kubarem";
 

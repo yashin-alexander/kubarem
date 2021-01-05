@@ -24,6 +24,9 @@ namespace kubarem {
         auto renderTpcDataView = registry_.view<ShaderProgramComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>();
         auto renderCubeDataView = registry_.view<ShaderProgramComponent, TransformComponent, CubeObjectComponent>();
         auto renderParticlesDataView = registry_.view<ParticlesComponent, ShaderProgramComponent>();
+        auto playbackBackgroundSoundsView = registry_.view<AudioBackgroundComponent>();
+        auto playbackPositionedSoundsView = registry_.view<AudioPositionedComponent, TransformComponent>();
+        auto playbackSpeechSoundsView = registry_.view<AudioSpeechComponent>();
 
         for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
             auto[camera, input, screen_scale, models_cache, shaders_cache, lights_cache] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent,
@@ -103,6 +106,34 @@ namespace kubarem {
 
                 particle_controller.controller.update(ts);
                 particle_controller.controller.renderParticles((Camera *)&camera.camera, &shader, screen_scale.screen_scale);
+            }
+
+            // playback background audio
+            for (auto audioEntity : playbackBackgroundSoundsView) {
+                auto& audio = playbackBackgroundSoundsView.get(audioEntity);
+                if (! audio.is_playing) {
+                    audio.audio.RunPlayback();
+                    audio.is_playing = true;
+                }
+            }
+
+            // playback positioned audio
+            for (auto audioEntity : playbackPositionedSoundsView) {
+                auto [audio, transform] = playbackPositionedSoundsView.get<AudioPositionedComponent, TransformComponent>(audioEntity);
+                if (! audio.is_playing) {
+                    audio.audio.RunPlayback(transform.position);
+                    audio.is_playing = true;
+                }
+                audio.audio.UpdatePositioning(transform.position, camera.camera.position_, camera.camera.front_);
+            }
+
+            // playback speech audio
+            for (auto audioEntity : playbackSpeechSoundsView) {
+                auto& audio = playbackSpeechSoundsView.get<AudioSpeechComponent>(audioEntity);
+                if (! audio.is_playing) {
+                    audio.audio.RunPlayback();
+                    audio.is_playing = true;
+                }
             }
         }
     }
