@@ -56,13 +56,6 @@ void Game::Init() {
             {std::string("src/shaders/particle_vs.glsl"), *particle_shader_program_}
     };
 
-    sound_file_ = new AudioPositioned(soloud_, "s.mp3", glm::vec3(0), glm::vec3(0), glm::vec3(0));
-    background_music_ = new AudioBackground(soloud_, "s.mp3");
-    speech_phrase_ = new AudioSpeech(soloud_, "You will die! I kill you", 530, 10, 0.5, KW_NOISE);
-//    sound_file_->RunPlayback();
-//    background_music_->RunPlayback();
-    speech_phrase_->RunPlayback();
-
     kubarem::Entity sceneContext = scene_->CreateEntity("SceneContext");
     sceneContext.addComponent<kubarem::CameraComponent>(40.f, 1.f);
     sceneContext.addComponent<kubarem::InputComponent>(window_);
@@ -96,6 +89,7 @@ void Game::Init() {
     cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
     cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
     cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+    cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
 
     kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
     floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
@@ -105,22 +99,22 @@ void Game::Init() {
     kubarem::Entity particlesEmitterEntity = scene_->CreateEntity("ParticleEmitter");
     particlesEmitterEntity.addComponent<kubarem::ParticlesComponent>(particles_parameters, (uint32_t)1000);
     particlesEmitterEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/particle_vs.glsl");
+
+    kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
+    audioBackground.addComponent<kubarem::AudioBackgroundComponent>(&soloud_, "s.mp3");
+
+    kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
+    audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you", (unsigned int)530, (float)10, (float)0.5, (int)KW_NOISE);
 }
 
 void Game::Shutdown()
 {
     delete text_renderer_;
-    delete sound_file_;
-    delete background_music_;
-    delete speech_phrase_;
     delete scene_;
 }
 
 void Game::Update(GLfloat deltaTime)
 {
-    sound_file_->UpdatePositioning();
-    background_music_->UpdatePositioning();
-
     soloud_.update3dAudio();
 }
 
