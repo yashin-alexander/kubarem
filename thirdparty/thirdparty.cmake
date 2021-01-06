@@ -78,3 +78,41 @@ target_include_directories("entt" PRIVATE "${ENTT_DIR}")
 
 set(ENTT_LIBRARY "entt")
 set(ENTT_INCLUDE_DIR "${ENTT_DIR}")
+
+# imgui
+set(IMGUI_DIR "${THIRDPARTY_DIR}/imgui")
+
+message("${IMGUI_DIR}/backends/imgui_impl_glfw.cpp")
+message("${IMGUI_DIR}/imgui_impl_glfw.cpp")
+configure_file(${IMGUI_DIR}/backends/imgui_impl_glfw.cpp ${IMGUI_DIR}/imgui_impl_glfw.cpp COPYONLY)
+configure_file(${IMGUI_DIR}/backends/imgui_impl_glfw.h ${IMGUI_DIR}/imgui_impl_glfw.h COPYONLY)
+configure_file(${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp ${IMGUI_DIR}/imgui_impl_opengl3.cpp COPYONLY)
+configure_file(${IMGUI_DIR}/backends/imgui_impl_opengl3.h ${IMGUI_DIR}/imgui_impl_opengl3.h COPYONLY)
+
+add_library("imgui" STATIC
+	"${IMGUI_DIR}/imconfig.h"
+	"${IMGUI_DIR}/imgui.cpp"
+	"${IMGUI_DIR}/imgui_demo.cpp"
+	"${IMGUI_DIR}/imgui_draw.cpp"
+	"${IMGUI_DIR}/imgui.h"
+	"${IMGUI_DIR}/imgui_internal.h"
+	"${IMGUI_DIR}/imgui_tables.cpp"
+	"${IMGUI_DIR}/imgui_widgets.cpp"
+	"${IMGUI_DIR}/imstb_rectpack.h"
+	"${IMGUI_DIR}/imstb_textedit.h"
+	"${IMGUI_DIR}/imstb_truetype.h"
+	"${IMGUI_DIR}/imgui_impl_opengl3.h"
+	"${IMGUI_DIR}/imgui_impl_opengl3.cpp"
+	"${IMGUI_DIR}/imgui_impl_glfw.h"
+	"${IMGUI_DIR}/imgui_impl_glfw.cpp"
+)
+
+target_include_directories("imgui" PRIVATE "${IMGUI_DIR}")
+set_target_properties("imgui" PROPERTIES LINKER_LANGUAGE CXX)
+
+target_include_directories(imgui PUBLIC "${GLAD_INCLUDE_DIR}")
+target_link_libraries(imgui "${GLAD_LIBRARY}")
+
+set(IMGUI_LIBRARY "imgui")
+set(IMGUI_INCLUDE_DIR "${IMGUI_DIR}")
+

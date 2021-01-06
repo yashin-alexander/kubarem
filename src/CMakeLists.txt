@@ -11,9 +11,7 @@ file(GLOB_RECURSE KUBAREM_HEADER_FILES
 add_library(kubarem_lib ${KUBAREM_SOURCE_FILES} ${KUBAREM_HEADER_FILES})
 set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
-target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(${TARGET_NAME} PRIVATE ${kubarem_SOURCE_DIR}/src)
-
+target_include_directories(${TARGET_NAME} PUBLIC ${kubarem_SOURCE_DIR}/src)
 target_include_directories(${TARGET_NAME} PUBLIC "${FREETYPE_INCLUDE_DIR}")
 target_include_directories(${TARGET_NAME} PUBLIC "${GLFW_INCLUDE_DIR}")
 target_include_directories(${TARGET_NAME} PUBLIC "${GLAD_INCLUDE_DIR}")
@@ -32,6 +30,7 @@ target_link_libraries(${TARGET_NAME} "${GLFW_LIBRARY}")
 target_link_libraries(${TARGET_NAME} "${CMAKE_DL_LIBS}")
 target_link_libraries(${TARGET_NAME} "${GLAD_LIBRARY}")
 target_link_libraries(${TARGET_NAME} "${ASSIMP_LIBRARY}")
+target_link_libraries(${TARGET_NAME} "${IMGUI_LIBRARY}")
 target_link_libraries(${TARGET_NAME} "${STB_IMAGE_LIBRARY}")
 target_link_libraries(${TARGET_NAME} "${SOLOUD_LIBRARY}")
 target_link_libraries(${TARGET_NAME} "${ENTT_LIBRARY}")
