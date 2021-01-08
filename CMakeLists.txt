@@ -7,3 +7,4 @@ include(thirdparty/thirdparty.cmake)
 
 add_subdirectory(src)
 add_subdirectory(app)
+add_subdirectory(tools)
