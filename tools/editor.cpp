@@ -33,7 +33,7 @@ namespace kubarem {
         assert(window != nullptr);
         glfwMakeContextCurrent(window);
 
-//        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
             log_err("Failed to initialize GLAD");
@@ -99,7 +99,7 @@ namespace kubarem {
         };
 
         kubarem::Entity sceneContext = scene_->CreateEntity("SceneContext");
-        sceneContext.addComponent<kubarem::CameraComponent>(40.f, 1.f);
+        sceneContext.addComponent<kubarem::CameraComponent>(1.f);
         sceneContext.addComponent<kubarem::InputComponent>(window);
         sceneContext.addComponent<kubarem::ScreenScaleComponent>((float) SCR_WIDTH / (float) SCR_HEIGHT);
         sceneContext.addComponent<kubarem::ModelsCacheComponent>(models_map);
@@ -107,7 +107,7 @@ namespace kubarem {
         auto light_sources = sceneContext.addComponent<kubarem::IlluminateCacheComponent>(std::vector<glm::vec3>({1}));
 
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
-        tpc.addComponent<kubarem::ThirdPersonCharacterComponent>();
+        tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
         tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2, 3), glm::vec3(4));
         tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");

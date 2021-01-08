@@ -37,29 +37,40 @@ namespace kubarem {
                         renderTpcEntity);
 
                 // process input
-                if (input.input.Keys[GLFW_KEY_W]) {
-                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kForward, ts, camera.input_speed,
-                                                                       transform.position);
-                }
-                if (input.input.Keys[GLFW_KEY_S]) {
-                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kBackward, ts,
-                                                                       camera.input_speed, transform.position);
-                }
-                if (input.input.Keys[GLFW_KEY_A]) {
-                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kLeft, ts, camera.input_speed,
-                                                                       transform.position);
-                }
-                if (input.input.Keys[GLFW_KEY_D]) {
-                    transform.position = camera.camera.ProcessKeyboard(CameraMovement::kRight, ts, camera.input_speed,
-                                                                       transform.position);
-                }
+                if (!input.input.IsCursorVisible()) {
+                    if (input.input.Keys[GLFW_KEY_W]) {
+                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kForward, ts,
+                                                                           camera.input_speed,
+                                                                           transform.position);
+                    }
+                    if (input.input.Keys[GLFW_KEY_S]) {
+                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kBackward, ts,
+                                                                           camera.input_speed, transform.position);
+                    }
+                    if (input.input.Keys[GLFW_KEY_A]) {
+                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kLeft, ts,
+                                                                           camera.input_speed,
+                                                                           transform.position);
+                    }
+                    if (input.input.Keys[GLFW_KEY_D]) {
+                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kRight, ts,
+                                                                           camera.input_speed,
+                                                                           transform.position);
+                    }
+                    if (input.input.Keys[GLFW_KEY_F5]) {
+                        input.input.SetCursorVisible();
+                    }
 
-                lights_cache.light_sources[0] = transform.position;
+                    lights_cache.light_sources[0] = transform.position;
 
-                if (input.input.MouseOffsetUpdated) {
-                    camera.camera.ProcessMouseMovement(input.input.MouseOffsets[X_OFFSET],
-                                                       input.input.MouseOffsets[Y_OFFSET]);
-                    input.input.MouseOffsetUpdated = false;
+                    if (input.input.MouseOffsetUpdated) {
+                        camera.camera.ProcessMouseMovement(input.input.MouseOffsets[X_OFFSET],
+                                                           input.input.MouseOffsets[Y_OFFSET]);
+                        input.input.MouseOffsetUpdated = false;
+                    }
+                }
+                if (input.input.Keys[GLFW_KEY_F6]) {
+                    input.input.SetCursorInvisible();
                 }
 
                 auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
@@ -68,7 +79,8 @@ namespace kubarem {
                 auto model_unpack = models_cache.cache.find(model_path.model_path);
                 auto model = model_unpack->second;
 
-                renderer.RenderThirdPersonCharacter(&camera.camera, screen_scale.screen_scale, &model, &shader,
+                if (tpc.is_third_person_char)
+                    renderer.RenderThirdPersonCharacter(&camera.camera, screen_scale.screen_scale, &model, &shader,
                                                     lights_cache.light_sources[0], transform.position, transform.size);
             }
             // render models

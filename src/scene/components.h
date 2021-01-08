@@ -62,10 +62,17 @@ namespace kubarem {
 
 
     struct CameraComponent {
+        Camera camera;
+        GLfloat input_speed;
+
+        explicit CameraComponent(GLfloat input_speed) : camera(), input_speed(input_speed) {}
+    };
+
+    struct ThirdPersonCameraComponent {
         ThirdPersonCamera camera;
         GLfloat input_speed;
 
-        explicit CameraComponent(GLfloat spring_arm_length, GLfloat input_speed) : camera(spring_arm_length),
+        explicit ThirdPersonCameraComponent(GLfloat spring_arm_length, GLfloat input_speed) : camera(spring_arm_length),
                                                                                    input_speed(input_speed) {}
     };
 
@@ -103,7 +110,7 @@ namespace kubarem {
     struct ThirdPersonCharacterComponent {
         bool is_third_person_char = true;
 
-        explicit ThirdPersonCharacterComponent() = default;
+        explicit ThirdPersonCharacterComponent(bool is_tpc) : is_third_person_char(is_tpc) {};
     };
 
     struct CubeObjectComponent {
