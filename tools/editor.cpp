@@ -1,7 +1,4 @@
-#include "log.h"
-#include "utils.h"
 #include "editor.h"
-#include "utils.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -16,6 +13,12 @@ const unsigned int SCR_HEIGHT = 700;
 
 namespace kubarem {
     Editor::Editor() {
+        this->OpenglSetup();
+        this->CreateSceneLayout();
+        this->ImGuiSetup();
+    }
+
+    void Editor::OpenglSetup() {
         glfwSetErrorCallback(_glfwErrorCallback);
 
         auto init_result = glfwInit();
@@ -26,13 +29,11 @@ namespace kubarem {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "kubarem", nullptr, nullptr);
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Kubarem Editor", nullptr, nullptr);
         assert(window != nullptr);
         glfwMakeContextCurrent(window);
 
 //        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        kubarem = new Game(SCR_WIDTH, SCR_HEIGHT, window);
 
         if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
             log_err("Failed to initialize GLAD");
@@ -50,17 +51,108 @@ namespace kubarem {
         glEnable(GL_DEPTH_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        kubarem->Init();
-
         FramebufferSpecification spec = FramebufferSpecification();
-        spec.Width = 1280;
-        spec.Height = 720;
+        spec.Width = SCR_WIDTH;
+        spec.Height = SCR_HEIGHT;
         framebuffer = new Framebuffer(spec);
-
-        this->ImguiSetup();
     }
 
-    void Editor::ImguiSetup() {
+    void Editor::CreateSceneLayout() {
+        soloud_.init();
+        scene_ = new kubarem::Scene();
+
+        Shader *text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl", "src/shaders/text_fs.glsl");
+        Shader *main_character_shader_program_ = Shader::LoadFromFile("src/shaders/main_vs.glsl",
+                                                                      "src/shaders/main_fs.glsl");
+        Shader *object_shader_program_ = Shader::LoadFromFile("src/shaders/object_vs.glsl",
+                                                              "src/shaders/object_fs.glsl");
+        Shader *lamp_shader_program_ = Shader::LoadFromFile("src/shaders/lamp_vs.glsl", "src/shaders/lamp_fs.glsl");
+        Shader *particle_shader_program_ = Shader::LoadFromFile("src/shaders/particle_vs.glsl",
+                                                                "src/shaders/particle_fs.glsl");
+
+        ParticleParameters particles_parameters{glm::vec3(45, 0, -300),
+                                                glm::vec3(50, 50, 50),
+                                                glm::vec4(0.1, 0.1, 0.9, 0.9),
+                                                13.8f,
+                                                8,
+                                                45,
+                                                1.0f};
+
+        // models load
+        auto *cyborgModel = new Model("resources/objects/cyborg/cyborg.obj", false);
+        auto *sphereModel = new Model("resources/objects/sphere/sphere.obj", false);
+        auto *triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
+        auto *thirdPersonCharacterModel = new Model("resources/objects/sphere/disco/sphere.obj", false);
+
+        std::map<std::string, Model> models_map = {
+                {std::string("resources/objects/cyborg/cyborg.obj"),          *cyborgModel},
+                {std::string("resources/objects/sphere/sphere.obj"),          *sphereModel},
+                {std::string("resources/objects/sphere/triangle/sphere.obj"), *triangleSphereModel},
+                {std::string("resources/objects/sphere/disco/sphere.obj"),    *thirdPersonCharacterModel}
+        };
+        std::map<std::string, Shader> shaders_map = {
+                {std::string("src/shaders/text_vs.glsl"),     *text_shader_program_},
+                {std::string("src/shaders/main_vs.glsl"),     *main_character_shader_program_},
+                {std::string("src/shaders/object_vs.glsl"),   *object_shader_program_},
+                {std::string("src/shaders/lamp_vs.glsl"),     *lamp_shader_program_},
+                {std::string("src/shaders/particle_vs.glsl"), *particle_shader_program_},
+        };
+
+        kubarem::Entity sceneContext = scene_->CreateEntity("SceneContext");
+        sceneContext.addComponent<kubarem::CameraComponent>(40.f, 1.f);
+        sceneContext.addComponent<kubarem::InputComponent>(window);
+        sceneContext.addComponent<kubarem::ScreenScaleComponent>((float) SCR_WIDTH / (float) SCR_HEIGHT);
+        sceneContext.addComponent<kubarem::ModelsCacheComponent>(models_map);
+        sceneContext.addComponent<kubarem::ShadersCacheComponent>(shaders_map);
+        auto light_sources = sceneContext.addComponent<kubarem::IlluminateCacheComponent>(std::vector<glm::vec3>({1}));
+
+        kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
+        tpc.addComponent<kubarem::ThirdPersonCharacterComponent>();
+        tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
+        tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2, 3), glm::vec3(4));
+        tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
+
+        kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
+        cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
+        cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
+        cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+
+        for (int i = 0; i < 525; i++) {
+            std::string name = std::string("Ball") + std::to_string(i);
+            glm::vec3 position = glm::vec3(cos(i) * 60.0f, cos(2 * i) * 10, sin(i) - 20.0f * i);
+
+            kubarem::Entity ballEntity = scene_->CreateEntity(name);
+            ballEntity.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
+            ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(1));
+            ballEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+        }
+
+        kubarem::Entity cubeEntity = scene_->CreateEntity("Cube");
+        cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
+        cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
+        cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+//        cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
+
+        kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
+        floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
+        floorEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, -5, 0), glm::vec3(400, 0.3, 400));
+        floorEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
+
+        kubarem::Entity particlesEmitterEntity = scene_->CreateEntity("ParticleEmitter");
+        particlesEmitterEntity.addComponent<kubarem::ParticlesComponent>(particles_parameters, (uint32_t) 1000);
+        particlesEmitterEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/particle_vs.glsl");
+
+//        kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
+//        audioBackground.addComponent<kubarem::AudioBackgroundComponent>(&soloud_, "s.mp3");
+
+//        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
+//        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you",
+//                                                                (unsigned int) 530, (float) 10, (float) 0.5,
+//                                                                (int) KW_NOISE);
+    }
+
+
+    void Editor::ImGuiSetup() {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -78,7 +170,6 @@ namespace kubarem {
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
-
         // Setup Platform/Renderer bindings
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         const char *glsl_version = "#version 130";
@@ -95,7 +186,8 @@ namespace kubarem {
             lastFrame = currentFrame;
 
             this->OnUpdate(deltaTime);
-            this->OnImGuiRender();
+            this->OnOpenglRender(deltaTime);
+            this->OnImGuiRender(deltaTime);
 
             _flush_log();
         }
@@ -103,16 +195,21 @@ namespace kubarem {
     }
 
     void Editor::OnUpdate(float ts) {
+        soloud_.update3dAudio();
+        scene_->OnUpdateRuntime(ts);
+    }
+
+    void Editor::OnOpenglRender(float ts) {
         framebuffer->Bind();
-        kubarem->Update(ts);
-        kubarem->Render(ts);
-        glfwSetWindowTitle(window, kubarem->gameDescription.c_str());
+        glClearColor(0.3f, 0.f, .0f, 0.1f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        scene_->OnRenderRuntime(ts);
         glfwSwapBuffers(window);
         glfwPollEvents();
         framebuffer->Unbind();
     }
 
-    void Editor::OnImGuiRender() {
+    void Editor::OnImGuiRender(float ts) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -183,6 +280,18 @@ namespace kubarem {
         ImGui::Text("Vertices: %d", 1);
         ImGui::Text("Indices: %d", 1);
 
+        ImGui::End();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+        ImGui::Begin("Viewport");
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+        if (viewport_size.x != viewportPanelSize.x or viewport_size.y != viewportPanelSize.y) {
+            framebuffer->Resize((uint32_t) viewportPanelSize.x, (uint32_t) viewportPanelSize.y);
+            viewport_size = {viewportPanelSize.x, viewportPanelSize.y};
+
+//            m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
+        }
+
         uint32_t textureID = framebuffer->GetColorAttachmentRendererID();
 
         // for now original texture is mirrored
@@ -190,9 +299,10 @@ namespace kubarem {
         // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples#about-texture-coordinates
         ImVec2 uv0 = ImVec2(0.0, 1.0); // upper-left portion of the texture
         ImVec2 uv1 = ImVec2(1.0, 0.0); // bottom-right portion of the texture
-        ImGui::Image(reinterpret_cast<void *>(textureID), ImVec2{1280, 720}, uv0, uv1);
+        ImGui::Image(reinterpret_cast<void *>(textureID), ImVec2{viewport_size.x, viewport_size.y}, uv0, uv1);
 
         ImGui::End();
+        ImGui::PopStyleVar();
         ImGui::End();
 
         // Rendering
@@ -212,18 +322,15 @@ namespace kubarem {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
-
-        kubarem->Shutdown();
-
+        delete scene_;
         glfwDestroyWindow(window);
         glfwTerminate();
-
         log_info("Bye");
     }
 }
 
 int main() {
-    Editor editor = Editor();
+    kubarem::Editor editor = kubarem::Editor();
     editor.Run();
     return 0;
 }
