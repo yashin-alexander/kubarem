@@ -53,7 +53,7 @@ public:
         return glm::lookAt(position_, position_ + front_, up_);
     }
 
-    void ProcessKeyboard(CameraMovement direction, float delta_time)
+    glm::vec3 ProcessKeyboard(CameraMovement direction, float delta_time, GLfloat speed, glm::vec3 position)
     {
         float velocity = movement_speed_ * delta_time;
         if (direction == CameraMovement::kForward)
@@ -64,6 +64,7 @@ public:
             position_ -= right_ * velocity;
         if (direction == CameraMovement::kRight)
             position_ += right_ * velocity;
+        return position_;
     }
 
     virtual void ProcessMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true)

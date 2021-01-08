@@ -62,18 +62,34 @@ namespace kubarem {
 
 
     struct CameraComponent {
+        GLfloat input_speed;
+        bool is_tpc;
         Camera camera;
-        GLfloat input_speed;
+        ThirdPersonCamera tpc_camera;
 
-        explicit CameraComponent(GLfloat input_speed) : camera(), input_speed(input_speed) {}
-    };
+        explicit CameraComponent(GLfloat input_speed) : camera(), input_speed(input_speed), is_tpc(false) {};
+        explicit CameraComponent(GLfloat spring_arm_length, GLfloat input_speed) : tpc_camera(spring_arm_length), input_speed(input_speed), is_tpc(true) {};
 
-    struct ThirdPersonCameraComponent {
-        ThirdPersonCamera camera;
-        GLfloat input_speed;
+        glm::vec3 ProcessKeyboard(CameraMovement direction, float delta_time, GLfloat speed, glm::vec3 position) {
+            if (is_tpc)
+                return tpc_camera.ProcessKeyboard(direction, delta_time, speed, position);
+            else
+                return camera.ProcessKeyboard(direction, delta_time, speed, position);
+        }
 
-        explicit ThirdPersonCameraComponent(GLfloat spring_arm_length, GLfloat input_speed) : camera(spring_arm_length),
-                                                                                   input_speed(input_speed) {}
+        void ProcessMouseMovement(float x_offset, float y_offset, GLboolean constrain_pitch = true) {
+            if (is_tpc)
+                tpc_camera.ProcessMouseMovement(x_offset, y_offset, constrain_pitch);
+            else
+                camera.ProcessMouseMovement(x_offset, y_offset, constrain_pitch);
+        }
+
+        Camera * GetCamera(){
+            if (is_tpc)
+                return (Camera *)&tpc_camera;
+            else
+                return &camera;
+        }
     };
 
     struct InputComponent {
