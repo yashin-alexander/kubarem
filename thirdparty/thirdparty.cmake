@@ -89,6 +89,14 @@ configure_file(${IMGUI_DIR}/backends/imgui_impl_glfw.h ${IMGUI_DIR}/imgui_impl_g
 configure_file(${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp ${IMGUI_DIR}/imgui_impl_opengl3.cpp COPYONLY)
 configure_file(${IMGUI_DIR}/backends/imgui_impl_opengl3.h ${IMGUI_DIR}/imgui_impl_opengl3.h COPYONLY)
 
+
+file(READ ${IMGUI_DIR}/imconfig.h _TMP)
+string(FIND "${_TMP}" "#define IMGUI_IMPL_OPENGL_LOADER_GLAD\n" match)
+if(${match} EQUAL -1)
+	message("ImGui: Config: Appending opengl backend info")
+	file(APPEND "${IMGUI_DIR}/imconfig.h" "#define IMGUI_IMPL_OPENGL_LOADER_GLAD\n")
+endif ()
+
 add_library("imgui" STATIC
 	"${IMGUI_DIR}/imconfig.h"
 	"${IMGUI_DIR}/imgui.cpp"
