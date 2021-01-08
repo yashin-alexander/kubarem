@@ -45,4 +45,24 @@ namespace kubarem {
         glfwSetCharCallback(window, TextInputCb);
         glfwSetCursorPosCallback(window, MouseMoveCb);
     }
+
+    void Input::SetCursorVisible() {
+        if (!this->_cursorVisible){
+            glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            this->_cursorVisible = true;
+            log_info("Cursor is enabled");
+        }
+    }
+
+    void Input::SetCursorInvisible() {
+        if (this->_cursorVisible){
+            glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            this->_cursorVisible = false;
+            log_info("Cursor is disabled");
+        }
+    }
+
+    bool Input::IsCursorVisible() const {
+        return this->_cursorVisible;
+    }
 }

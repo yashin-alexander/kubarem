@@ -39,21 +39,21 @@ namespace kubarem {
                 // process input
                 if (!input.input.IsCursorVisible()) {
                     if (input.input.Keys[GLFW_KEY_W]) {
-                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kForward, ts,
+                        transform.position = camera.ProcessKeyboard(CameraMovement::kForward, ts,
                                                                            camera.input_speed,
                                                                            transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_S]) {
-                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kBackward, ts,
+                        transform.position = camera.ProcessKeyboard(CameraMovement::kBackward, ts,
                                                                            camera.input_speed, transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_A]) {
-                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kLeft, ts,
+                        transform.position = camera.ProcessKeyboard(CameraMovement::kLeft, ts,
                                                                            camera.input_speed,
                                                                            transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_D]) {
-                        transform.position = camera.camera.ProcessKeyboard(CameraMovement::kRight, ts,
+                        transform.position = camera.ProcessKeyboard(CameraMovement::kRight, ts,
                                                                            camera.input_speed,
                                                                            transform.position);
                     }
@@ -64,8 +64,8 @@ namespace kubarem {
                     lights_cache.light_sources[0] = transform.position;
 
                     if (input.input.MouseOffsetUpdated) {
-                        camera.camera.ProcessMouseMovement(input.input.MouseOffsets[X_OFFSET],
-                                                           input.input.MouseOffsets[Y_OFFSET]);
+                        camera.ProcessMouseMovement(input.input.MouseOffsets[X_OFFSET],
+                                                    input.input.MouseOffsets[Y_OFFSET]);
                         input.input.MouseOffsetUpdated = false;
                     }
                 }
@@ -80,7 +80,7 @@ namespace kubarem {
                 auto model = model_unpack->second;
 
                 if (tpc.is_third_person_char)
-                    renderer.RenderThirdPersonCharacter(&camera.camera, screen_scale.screen_scale, &model, &shader,
+                    renderer.RenderThirdPersonCharacter((ThirdPersonCamera *)camera.GetCamera(), screen_scale.screen_scale, &model, &shader,
                                                     lights_cache.light_sources[0], transform.position, transform.size);
             }
             // render models
@@ -93,7 +93,7 @@ namespace kubarem {
                 auto model_unpack = models_cache.cache.find(model_path.model_path);
                 auto model = model_unpack->second;
 
-                renderer.Render(&camera.camera, screen_scale.screen_scale, &model, &shader,
+                renderer.Render(camera.GetCamera(), screen_scale.screen_scale, &model, &shader,
                                 lights_cache.light_sources[0],
                                 transform.position, transform.size);
             }
@@ -105,7 +105,7 @@ namespace kubarem {
                 auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
                 auto shader = shader_unpack->second;
 
-                renderer.RenderCube(&camera.camera, screen_scale.screen_scale, cube.VAO_, cube.texture, &shader,
+                renderer.RenderCube(camera.GetCamera(), screen_scale.screen_scale, cube.VAO_, cube.texture, &shader,
                                     lights_cache.light_sources[0], transform.position, transform.size);
             }
 
@@ -117,7 +117,7 @@ namespace kubarem {
                 auto shader = shader_unpack->second;
 
                 particle_controller.controller.update(ts);
-                particle_controller.controller.renderParticles((Camera *)&camera.camera, &shader, screen_scale.screen_scale);
+                particle_controller.controller.renderParticles(camera.GetCamera(), &shader, screen_scale.screen_scale);
             }
 
             // playback background audio
@@ -136,7 +136,7 @@ namespace kubarem {
                     audio.audio.RunPlayback(transform.position);
                     audio.is_playing = true;
                 }
-                audio.audio.UpdatePositioning(transform.position, camera.camera.position_, camera.camera.front_);
+                audio.audio.UpdatePositioning(transform.position, camera.GetCamera()->position_, camera.camera.front_);
             }
 
             // playback speech audio

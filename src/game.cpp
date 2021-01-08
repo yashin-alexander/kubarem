@@ -65,7 +65,7 @@ void Game::Init() {
     auto light_sources = sceneContext.addComponent<kubarem::IlluminateCacheComponent>(std::vector<glm::vec3>({1}));
 
     kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
-    tpc.addComponent<kubarem::ThirdPersonCharacterComponent>();
+    tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(true);
     tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
     tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2,3), glm::vec3(4));
     tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
