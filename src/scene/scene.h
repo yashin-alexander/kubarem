@@ -16,8 +16,8 @@ namespace kubarem {
         void OnUpdateRuntime(float ts);
         void OnRenderRuntime(float ts);
         void InputUpdate();
+        entt::registry registry;
     private:
-        entt::registry registry_;
         Renderer renderer;
         friend class Entity;
     };
