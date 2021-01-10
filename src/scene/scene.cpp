@@ -5,7 +5,7 @@
 
 namespace kubarem {
     Entity Scene::CreateEntity(const std::string &name) {
-        Entity entity = {registry_.create(), this};
+        Entity entity = {registry.create(), this};
 //        entity.addComponent<TransformComponent>(glm::vec3());
         auto &tag = entity.addComponent<TagComponent>();
         tag.tag = name.empty() ? "Noname entity" : name;
@@ -18,15 +18,15 @@ namespace kubarem {
     }
 
     void Scene::OnRenderRuntime(float ts) {
-        auto renderStepView = registry_.view<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent, ShadersCacheComponent, IlluminateCacheComponent>();
-        auto renderModelsDataView = registry_.view<ShaderProgramComponent, ModelComponent, TransformComponent>(
+        auto renderStepView = registry.view<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent, ShadersCacheComponent, IlluminateCacheComponent>();
+        auto renderModelsDataView = registry.view<ShaderProgramComponent, ModelComponent, TransformComponent>(
                 entt::exclude<kubarem::ThirdPersonCharacterComponent>);
-        auto renderTpcDataView = registry_.view<ShaderProgramComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>();
-        auto renderCubeDataView = registry_.view<ShaderProgramComponent, TransformComponent, CubeObjectComponent>();
-        auto renderParticlesDataView = registry_.view<ParticlesComponent, ShaderProgramComponent>();
-        auto playbackBackgroundSoundsView = registry_.view<AudioBackgroundComponent>();
-        auto playbackPositionedSoundsView = registry_.view<AudioPositionedComponent, TransformComponent>();
-        auto playbackSpeechSoundsView = registry_.view<AudioSpeechComponent>();
+        auto renderTpcDataView = registry.view<ShaderProgramComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>();
+        auto renderCubeDataView = registry.view<ShaderProgramComponent, TransformComponent, CubeObjectComponent>();
+        auto renderParticlesDataView = registry.view<ParticlesComponent, ShaderProgramComponent>();
+        auto playbackBackgroundSoundsView = registry.view<AudioBackgroundComponent>();
+        auto playbackPositionedSoundsView = registry.view<AudioPositionedComponent, TransformComponent>();
+        auto playbackSpeechSoundsView = registry.view<AudioSpeechComponent>();
 
         for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
             auto[camera, input, screen_scale, models_cache, shaders_cache, lights_cache] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent,
