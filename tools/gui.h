@@ -7,6 +7,8 @@
 #include <imgui_impl_opengl3.h>
 
 #include "scene/scene.h"
+#include "scene/entity.h"
+#include "scene/components.h"
 #include "renderer/framebuffer.h"
 
 
@@ -24,6 +26,8 @@ public:
     void Close();
 
 private:
+    void RenderComponentsTree_();
+
     glm::vec2 viewport_size;
     bool viewport_focused = false;
     bool viewport_hovered = false;

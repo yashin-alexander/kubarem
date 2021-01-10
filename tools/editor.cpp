@@ -117,8 +117,8 @@ namespace kubarem {
         cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
         cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 
-        for (int i = 0; i < 525; i++) {
-            std::string name = std::string("Ball") + std::to_string(i);
+        for (int i = 0; i < 10; i++) {
+            std::string name = std::string("Ball_") + std::to_string(i);
             glm::vec3 position = glm::vec3(cos(i) * 60.0f, cos(2 * i) * 10, sin(i) - 20.0f * i);
 
             kubarem::Entity ballEntity = scene_->CreateEntity(name);
