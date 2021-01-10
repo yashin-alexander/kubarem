@@ -26,7 +26,8 @@ public:
     void Close();
 
 private:
-    void RenderComponentsTree_();
+    void renderComponentsTree_();
+    void renderEntityNode(kubarem::Entity entity);
 
     glm::vec2 viewport_size;
     bool viewport_focused = false;
@@ -35,4 +36,6 @@ private:
     GLFWwindow * window_;
     kubarem::Framebuffer *framebuffer_;
     kubarem::Scene * scene_;
+
+    kubarem::Entity selection_context_;
 };

@@ -42,6 +42,20 @@ namespace kubarem {
                 log_err("%s does not exist %s in entity %d", typeid(T).name(), entityHandle_);
             scene_->registry.remove_if_exists<T>(entityHandle_);
         }
+
+        bool operator==(const Entity& other) const
+        {
+            return entityHandle_ == other.entityHandle_ && scene_ == other.scene_;
+        }
+
+        bool operator!=(const Entity& other) const
+        {
+            return !(*this == other);
+        }
+
+        uint64_t getHandle (){
+            return (uint64_t)this->entityHandle_;
+        }
     private:
         entt::entity entityHandle_{0};
         Scene* scene_ = nullptr;
