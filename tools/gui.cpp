@@ -119,7 +119,9 @@ void Gui::onRender() {
     ImGui::PopStyleVar();
     ImGui::End();
 
-//        ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
+
+    RenderComponentsTree_();
 
     // Rendering
     ImGui::Render();
@@ -132,6 +134,28 @@ void Gui::onRender() {
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
+}
+
+
+void Gui::RenderComponentsTree_() {
+    ImGui::Begin("Components tree");
+
+    static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    auto components_view = this->scene_->registry.view<kubarem::TagComponent, kubarem::TransformComponent>();
+
+    for (auto entity : components_view) {
+        auto [tag, transform] = components_view.get<kubarem::TagComponent, kubarem::TransformComponent>(entity);
+
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+        bool open = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.tag.c_str());
+        if (open){
+            ImGui::InputFloat3("Position", glm::value_ptr(transform.position));
+            ImGui::InputFloat3("Size", glm::value_ptr(transform.size));
+            ImGui::TreePop();
+        }
+    }
+    ImGui::End();
 }
 
 
