@@ -35,9 +35,9 @@ inline ParticleParameters ParticleController::randomizeParticleParameters() {
 
     randomized_params.color = glm::vec4(
             // 0.7 is used to make it particles lighter
-            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.x) + 0.7,
-            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.y) + 0.7,
-            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.z) + 0.1,
+            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.x),
+            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.y),
+            static_cast<float>(rand()) / static_cast<float>(RAND_MAX / referenceParameters.color.z),
             referenceParameters.color.w
     );
     randomized_params.velocity = glm::vec3(

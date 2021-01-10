@@ -14,10 +14,10 @@ public:
     void update(GLfloat deltaTime);
     void renderParticles(Camera *camera, Shader * shader, GLfloat screen_scale);
 
+    ParticleParameters referenceParameters;
 private:
     ParticleParameters randomizeParticleParameters();
 
-    ParticleParameters referenceParameters;
     ParticleRenderer *renderer;
     std::vector<Particle> particles;
 };
