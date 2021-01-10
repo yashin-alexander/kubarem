@@ -121,7 +121,7 @@ void Gui::onRender() {
 
     ImGui::ShowDemoWindow();
 
-    RenderComponentsTree_();
+    renderComponentsTree_();
 
     // Rendering
     ImGui::Render();
@@ -137,25 +137,46 @@ void Gui::onRender() {
 }
 
 
-void Gui::RenderComponentsTree_() {
+void Gui::renderComponentsTree_() {
     ImGui::Begin("Components tree");
 
     static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 
     auto components_view = this->scene_->registry.view<kubarem::TagComponent, kubarem::TransformComponent>();
 
-    for (auto entity : components_view) {
-        auto [tag, transform] = components_view.get<kubarem::TagComponent, kubarem::TransformComponent>(entity);
+    this->scene_->registry.each([&](auto entity_handle){
+        kubarem::Entity entity{ entity_handle , scene_ };
+        renderEntityNode(entity);
+    });
 
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-        bool open = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.tag.c_str());
-        if (open){
+    ImGui::End();
+}
+
+
+void Gui::renderEntityNode(kubarem::Entity entity) {
+    auto& tag = entity.getComponent<kubarem::TagComponent>();
+
+    ImGuiTreeNodeFlags flags = ((selection_context_ == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+    bool open = ImGui::TreeNodeEx((void *)entity.getHandle(), flags, tag.tag.c_str());
+    if (ImGui::IsItemClicked())
+    {
+        selection_context_ = entity;
+    }
+
+    if (open){
+        if (entity.hasComponent<kubarem::TransformComponent>()){
+            auto& transform = entity.getComponent<kubarem::TransformComponent>();
             ImGui::InputFloat3("Position", glm::value_ptr(transform.position));
             ImGui::InputFloat3("Size", glm::value_ptr(transform.size));
-            ImGui::TreePop();
         }
+        if (entity.hasComponent<kubarem::ParticlesComponent>()){
+            auto& particles_component = entity.getComponent<kubarem::ParticlesComponent>();
+            ImGui::ColorEdit4("Color", glm::value_ptr(particles_component.controller.referenceParameters.color));
+            ImGui::InputFloat3("Position", glm::value_ptr(particles_component.controller.referenceParameters.position));
+        }
+        ImGui::TreePop();
     }
-    ImGui::End();
+
 }
 
 
