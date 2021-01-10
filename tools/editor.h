@@ -26,6 +26,7 @@
 #include "scene/components.h"
 #include "renderer/framebuffer.h"
 #include "particles/particle_controller.h"
+#include "gui.h"
 
 
 namespace kubarem {
@@ -36,20 +37,19 @@ namespace kubarem {
 
         void OpenglSetup();
         void CreateSceneLayout();
-        void ImGuiSetup();
 
         void Run();
         void OnUpdate(float ts);
-        void OnImGuiRender(float ts);
         void OnOpenglRender(float ts);
-
     private:
+
+        void FramebufferSetup();
         void Close();
 
-        GLFWwindow* window;
+        GLFWwindow* window_;
         kubarem::Scene *scene_;
-        Framebuffer *framebuffer;
-        glm::vec2 viewport_size;
+        Framebuffer *framebuffer_;
         SoLoud::Soloud soloud_;
+        Gui *gui_;
     };
 }
