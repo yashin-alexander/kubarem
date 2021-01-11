@@ -124,3 +124,12 @@ target_link_libraries(imgui "${GLAD_LIBRARY}")
 set(IMGUI_LIBRARY "imgui")
 set(IMGUI_INCLUDE_DIR "${IMGUI_DIR}")
 
+
+# yaml-cpp
+set(YAML_CPP_DIR "${THIRDPARTY_DIR}/yaml-cpp")
+
+add_subdirectory("${YAML_CPP_DIR}")
+find_library(YAML_CPP_LIBRARY "yaml-cpp" "${THIRDPARTY_DIR}/yaml-cpp")
+
+set(YAML_CPP_LIBRARY "yaml-cpp")
+set(YAML_CPP_INCLUDE_DIR "${YAML_CPP_DIR}/include")
