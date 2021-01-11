@@ -1,6 +1,16 @@
 #include "gui.h"
 
 
+static int InputTextCallback(ImGuiInputTextCallbackData* data){
+    // Resize string callback
+    std::string* str = (std::string*)data->UserData;
+//    IM_ASSERT(data->Buf == str->c_str());
+//    str->resize(data->BufTextLen);
+    data->Buf = (char*)str->c_str();
+    log_err("str %s", str->c_str());
+}
+
+
 void Gui::ImGuiSetup() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -168,12 +178,48 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
             auto& transform = entity.getComponent<kubarem::TransformComponent>();
             ImGui::InputFloat3("Position", glm::value_ptr(transform.position));
             ImGui::InputFloat3("Size", glm::value_ptr(transform.size));
+
+            if (entity.hasComponent<kubarem::AudioPositionedComponent>()) {
+                auto &audio  = entity.getComponent<kubarem::AudioPositionedComponent>();
+                static char file_name[256];
+                strcpy(file_name, audio.audio.GetSoundName().c_str());
+                if (ImGui::InputText("File name", file_name, 256 ))
+                    audio.audio.SetSoundName(file_name);
+                if (ImGui::Button("Run playback"))
+                    audio.audio.RunPlayback(transform.position);
+                if (ImGui::Button("Stop playback"))
+                    audio.audio.StopPlayback();
+            }
         }
         if (entity.hasComponent<kubarem::ParticlesComponent>()){
             auto& particles_component = entity.getComponent<kubarem::ParticlesComponent>();
             ImGui::ColorEdit4("Color", glm::value_ptr(particles_component.controller.referenceParameters.color));
             ImGui::InputFloat3("Position", glm::value_ptr(particles_component.controller.referenceParameters.position));
         }
+
+        if (entity.hasComponent<kubarem::AudioSpeechComponent>()){
+            auto &audio = entity.getComponent<kubarem::AudioSpeechComponent>();
+
+            static char text_to_speak[256];
+            strcpy(text_to_speak, audio.audio.GetTextToSpeak().c_str());
+            if (ImGui::InputText("Text to speech", text_to_speak, 256 ))
+                audio.audio.SetTextToSpeak(text_to_speak);
+            if (ImGui::Button("Playback sound"))
+                audio.audio.RunPlayback();
+        }
+
+        if (entity.hasComponent<kubarem::AudioBackgroundComponent>()) {
+            auto &audio = entity.getComponent<kubarem::AudioBackgroundComponent>();
+            static char file_name[256];
+            strcpy(file_name, audio.audio.GetSoundName().c_str());
+            if (ImGui::InputText("File name", file_name, 256 ))
+                audio.audio.SetSoundName(file_name);
+            if (ImGui::Button("Run playback"))
+                audio.audio.RunPlayback();
+            if (ImGui::Button("Stop playback"))
+                audio.audio.StopPlayback();
+        }
+
         ImGui::TreePop();
     }
 

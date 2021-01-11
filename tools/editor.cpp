@@ -131,7 +131,7 @@ namespace kubarem {
         cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
         cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
         cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
-//        cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
+        cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
 
         kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
         floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
@@ -142,13 +142,13 @@ namespace kubarem {
         particlesEmitterEntity.addComponent<kubarem::ParticlesComponent>(particles_parameters, (uint32_t) 1000);
         particlesEmitterEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/particle_vs.glsl");
 
-//        kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
-//        audioBackground.addComponent<kubarem::AudioBackgroundComponent>(&soloud_, "s.mp3");
+        kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
+        audioBackground.addComponent<kubarem::AudioBackgroundComponent>(&soloud_, "s.mp3");
 
-//        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
-//        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you",
-//                                                                (unsigned int) 530, (float) 10, (float) 0.5,
-//                                                                (int) KW_NOISE);
+        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
+        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "",
+                                                                (unsigned int) 530, (float) 10, (float) 0.5,
+                                                                (int) KW_NOISE);
     }
 
     void Editor::Run() {
