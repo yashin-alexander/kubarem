@@ -35,11 +35,27 @@ AudioPositioned::AudioPositioned(SoLoud::Soloud * soloud_core,
                              const char * file_path):
     _Sound(soloud_core)
 {
+    this->file_name = file_path;
     this->sample.load(file_path);
 }
 
 
+void AudioPositioned::SetSoundName(std::string sound_name) {
+    this->file_name = sound_name;
+    log_dbg("New sound name = %s", sound_name.c_str());
+}
+
+
+std::string AudioPositioned::GetSoundName() {
+    return this->file_name;
+}
+
+
 void AudioPositioned::RunPlayback(glm::vec3 source_position){
+    this->StopPlayback();
+    this->sample = SoLoud::Wav();
+    this->sample.load(file_name.c_str());
+    log_dbg("Exec sound name = %s", file_name.c_str());
     this->_soundHandler = this->_soloudCore->play3d(
             this->sample,
             source_position.x,
@@ -50,7 +66,7 @@ void AudioPositioned::RunPlayback(glm::vec3 source_position){
 
 
 void AudioPositioned::StopPlayback(){
-    this->_soloudCore->stop(this->_soundHandler);
+    this->_soloudCore->stopAll();
 }
 
 
@@ -60,6 +76,9 @@ AudioBackground::AudioBackground(SoLoud::Soloud * soloud_core, const char * file
 
 
 void AudioBackground::RunPlayback() {
+    this->StopPlayback();
+    this->sample = SoLoud::Wav();
+    this->sample.load(file_name.c_str());
     this->_soundHandler = _soloudCore->play(this->sample);
 }
 
@@ -71,14 +90,25 @@ AudioSpeech::AudioSpeech(SoLoud::Soloud *soloud_core,
                          int wave_form):
 _Sound(soloud_core)
 {
-    speech.setText(text_to_speak);
+    this->SetTextToSpeak(text_to_speak);
     speech.setParams(frequency, speed, declination, wave_form);
 }
 
 void AudioSpeech::RunPlayback() {
+    log_dbg("Run text speech = %s", this->text_to_speak.c_str());
     this->_soundHandler = this->_soloudCore->play(speech);
 }
 
 void AudioSpeech::StopPlayback() {
     this->_soloudCore->stop(this->_soundHandler);
+}
+
+std::string AudioSpeech::GetTextToSpeak() {
+    return this->text_to_speak;
+}
+
+void AudioSpeech::SetTextToSpeak(const char * text_to_speak) {
+    speech.stop();
+    this->text_to_speak = std::string(text_to_speak);
+    speech.setText(text_to_speak);
 }

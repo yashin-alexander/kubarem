@@ -123,18 +123,19 @@ namespace kubarem {
             // playback background audio
             for (auto audioEntity : playbackBackgroundSoundsView) {
                 auto& audio = playbackBackgroundSoundsView.get(audioEntity);
-                if (! audio.is_playing) {
+                if (audio.audio.start_playback) {
                     audio.audio.RunPlayback();
-                    audio.is_playing = true;
+                    audio.audio.start_playback = false;
                 }
             }
 
             // playback positioned audio
             for (auto audioEntity : playbackPositionedSoundsView) {
                 auto [audio, transform] = playbackPositionedSoundsView.get<AudioPositionedComponent, TransformComponent>(audioEntity);
-                if (! audio.is_playing) {
+                if (audio.audio.start_playback) {
                     audio.audio.RunPlayback(transform.position);
-                    audio.is_playing = true;
+                    log_err("AUTOSTART");
+                    audio.audio.start_playback = false;
                 }
                 audio.audio.UpdatePositioning(transform.position, camera.GetCamera()->position_, camera.camera.front_);
             }
@@ -142,9 +143,9 @@ namespace kubarem {
             // playback speech audio
             for (auto audioEntity : playbackSpeechSoundsView) {
                 auto& audio = playbackSpeechSoundsView.get<AudioSpeechComponent>(audioEntity);
-                if (! audio.is_playing) {
+                if (audio.audio.start_playback) {
                     audio.audio.RunPlayback();
-                    audio.is_playing = true;
+                    audio.audio.start_playback = false;
                 }
             }
         }
