@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <soloud.h>
 
 #include <map>
 #include <iostream>
@@ -22,8 +23,11 @@
 namespace kubarem {
     struct UuidComponent {
         std::string uuid;
-        UuidComponent() {
-            this->uuid = UUID::generate_uuid_v4();
+        explicit UuidComponent(const std::string &uuid) {
+            if (uuid.empty())
+                this->uuid = UUID::generate_uuid_v4();
+            else
+                this->uuid = uuid;
         }
     };
 
@@ -108,6 +112,12 @@ namespace kubarem {
         kubarem::Input input;
 
         explicit InputComponent(GLFWwindow *window) : input(window) {};
+    };
+
+    struct AudioCoreComponent {
+        SoLoud::Soloud soloud;
+
+        explicit AudioCoreComponent(SoLoud::Soloud soloud) : soloud(soloud) {};
     };
 
     struct ScreenScaleComponent {
