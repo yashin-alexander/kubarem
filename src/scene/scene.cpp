@@ -4,12 +4,12 @@
 
 
 namespace kubarem {
-    Entity Scene::CreateEntity(const std::string &name) {
+    Entity Scene::CreateEntity(const std::string &name, const std::string &uuid) {
         Entity entity = {registry.create(), this};
         auto &tag = entity.addComponent<TagComponent>();
         tag.tag = name.empty() ? "Noname entity" : name;
-        auto &uuid = entity.addComponent<UuidComponent>();
-        log_dbg("Scene: created entity with uuid %s", uuid.uuid.c_str());
+        auto &generated_uuid = entity.addComponent<UuidComponent>(uuid);
+        log_dbg("Scene: created entity with uuid %s", generated_uuid.uuid.c_str());
         return entity;
     }
 
@@ -134,7 +134,6 @@ namespace kubarem {
                 auto [audio, transform] = playbackPositionedSoundsView.get<AudioPositionedComponent, TransformComponent>(audioEntity);
                 if (audio.audio.start_playback) {
                     audio.audio.RunPlayback(transform.position);
-                    log_err("AUTOSTART");
                     audio.audio.start_playback = false;
                 }
                 audio.audio.UpdatePositioning(transform.position, camera.GetCamera()->position_, camera.camera.front_);
