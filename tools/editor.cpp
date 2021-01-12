@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "scene/scene_serializer.h"
+
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 700;
 
@@ -104,8 +106,11 @@ namespace kubarem {
         sceneContext.addComponent<kubarem::ScreenScaleComponent>((float) SCR_WIDTH / (float) SCR_HEIGHT);
         sceneContext.addComponent<kubarem::ModelsCacheComponent>(models_map);
         sceneContext.addComponent<kubarem::ShadersCacheComponent>(shaders_map);
-        auto light_sources = sceneContext.addComponent<kubarem::IlluminateCacheComponent>(std::vector<glm::vec3>({1}));
+        sceneContext.addComponent<kubarem::IlluminateCacheComponent>(
+                std::vector<glm::vec3>{glm::vec3(1), glm::vec3(2)}
+        );
 
+        /*
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
         tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
@@ -149,6 +154,11 @@ namespace kubarem {
         audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "",
                                                                 (unsigned int) 530, (float) 10, (float) 0.5,
                                                                 (int) KW_NOISE);
+//                                                                */
+
+        SceneSerializer serializer(scene_);
+//        serializer.Serialize("example.yaml");
+        serializer.Deserialize("scene.yaml", &soloud_);
     }
 
     void Editor::Run() {
