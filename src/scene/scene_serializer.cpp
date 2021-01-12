@@ -5,7 +5,7 @@
 
 #include "entity.h"
 #include "components.h"
-
+#include "particles/particle.h"
 
 namespace YAML {
     template<>
@@ -120,6 +120,9 @@ namespace kubarem {
             out << YAML::Key << "CameraComponent";
             out << YAML::BeginMap;
             out << YAML::Key << "is_tpc" << YAML::Value << c.is_tpc;
+            out << YAML::Key << "input_speed" << YAML::Value << c.input_speed;
+            if (c.is_tpc)
+                out << YAML::Key << "spring_arm_length" << YAML::Value << c.tpc_camera.spring_arm_length_;
             out << YAML::EndMap;
         }
 
@@ -129,7 +132,7 @@ namespace kubarem {
             out << YAML::Key << "IlluminateCacheComponent";
             out << YAML::Flow;
             out << YAML::BeginSeq;
-            for (auto const& value: c.light_sources){
+            for (auto const &value: c.light_sources) {
                 out << value;
             }
             out << YAML::EndSeq;
@@ -158,13 +161,14 @@ namespace kubarem {
 
             out << YAML::Key << "ParticlesComponent";
             out << YAML::BeginMap;
-            out << YAML::Key << "position" << YAML::Value <<  c.controller.referenceParameters.position;
+            out << YAML::Key << "position" << YAML::Value << c.controller.referenceParameters.position;
             out << YAML::Key << "color" << YAML::Value << c.controller.referenceParameters.color;
             out << YAML::Key << "life_length" << YAML::Value << c.controller.referenceParameters.life_length;
             out << YAML::Key << "rotation" << YAML::Value << c.controller.referenceParameters.rotation;
             out << YAML::Key << "velocity" << YAML::Value << c.controller.referenceParameters.velocity;
             out << YAML::Key << "scale" << YAML::Value << c.controller.referenceParameters.scale;
             out << YAML::Key << "gravity_effect" << YAML::Value << c.controller.referenceParameters.gravity_effect;
+            out << YAML::Key << "particles_number" << YAML::Value << c.controller.getParticlesNumber();
             out << YAML::EndMap;
         }
 
@@ -195,18 +199,18 @@ namespace kubarem {
             out << YAML::EndMap;
         }
 
-       /*
-        * TODO: Think about macro
-        *
-        if (entity.hasComponent<>()) {
-            auto &c = entity.getComponent<>();
+        /*
+         * TODO: Think about macro
+         *
+         if (entity.hasComponent<>()) {
+             auto &c = entity.getComponent<>();
 
-            out << YAML::Key << "";
-            out << YAML::BeginMap;
-            out << YAML::Key << "" << YAML::Value << c.;
-            out << YAML::EndMap;
-        }
-        */
+             out << YAML::Key << "";
+             out << YAML::BeginMap;
+             out << YAML::Key << "" << YAML::Value << c.;
+             out << YAML::EndMap;
+         }
+         */
 
         out << YAML::EndMap;
     }
@@ -232,7 +236,183 @@ namespace kubarem {
         assert(false);
     }
 
-    bool SceneSerializer::Deserialize(const std::string &filepath) {
+    bool SceneSerializer::Deserialize(const std::string &filepath,  SoLoud::Soloud * soloud_core) { // TODO: remove soloud pass
+        std::ifstream stream(filepath);
+        std::stringstream strStream;
+        strStream << stream.rdbuf();
+
+        YAML::Node data = YAML::Load(strStream.str());
+        log_info("Starting scene desirialization");
+        if (!data["scene"])
+            return false;
+
+        std::string scene_name = data["scene"].as<std::string>();
+        log_info("Deserializing scene: %s", scene_name.c_str());
+
+        auto entities = data["entities"];
+        if (entities) {
+            for (auto entity : entities) {
+                std::string uuid = entity["entity"].as<std::string>();
+                std::string name = entity["TagComponent"]["tag"].as<std::string>();
+                Entity deserializedEntity = scene->CreateEntity(name, uuid);
+                log_dbg("Pulling components:");
+
+                {
+                    auto transformComponent = entity["TransformComponent"];
+                    if (transformComponent) {
+                        log_dbg("\ttransform component");
+                        auto position = transformComponent["position"].as<glm::vec3>();
+                        auto size = transformComponent["size"].as<glm::vec3>();
+                        auto &c = deserializedEntity.addComponent<TransformComponent>(position, size);
+                    }
+                }
+
+                {
+                    auto shader_program_component = entity["ShaderProgramComponent"];
+                    if (shader_program_component) {
+                        log_dbg("\tshader program component");
+                        auto v_shader_path = shader_program_component["v_shader_path"].as<std::string>();
+                        auto &c = deserializedEntity.addComponent<ShaderProgramComponent>(v_shader_path.c_str());
+                    }
+                }
+
+                {
+                    auto model_component = entity["ModelComponent"];
+                    if (model_component) {
+                        log_dbg("\tmodel component");
+                        auto model_path = model_component["model_path"].as<std::string>();
+                        auto &c = deserializedEntity.addComponent<ModelComponent>(model_path.c_str());
+                    }
+                }
+
+                {
+                    auto camera_component = entity["CameraComponent"];
+                    if (camera_component) {
+                        log_dbg("\tcamera component");
+                        auto is_tpc = camera_component["is_tpc"].as<bool>();
+                        auto input_speed = camera_component["input_speed"].as<float>();
+                        if (is_tpc) {
+                            log_dbg("\t\tThird person camera component setting up");
+                            auto spring_arm_length = camera_component["spring_arm_length"].as<float>();
+                            auto &c = deserializedEntity.addComponent<CameraComponent>(spring_arm_length, input_speed);
+                        } else {
+                            log_dbg("\t\tCamera component setting up");
+                            auto &c = deserializedEntity.addComponent<CameraComponent>(input_speed);
+                        }
+                    }
+                }
+
+                {
+                    auto tpc_component = entity["ThirdPersonCharacterComponent"];
+                    if (tpc_component) {
+                        log_dbg("\tTPC component");
+                        auto is_third_person_char = tpc_component["is_third_person_char"].as<bool>();
+                        auto &c = deserializedEntity.addComponent<ThirdPersonCharacterComponent>(is_third_person_char);
+                    }
+                }
+
+                {
+                    auto cube_component = entity["CubeObjectComponent"];
+                    if (cube_component) {
+                        log_dbg("\tcube component");
+                        auto texture_path = cube_component["texture_path"].as<std::string>();
+                        auto &c = deserializedEntity.addComponent<CubeObjectComponent>(texture_path.c_str());
+                    }
+                }
+
+                {
+                    auto particles_component = entity["ParticlesComponent"];
+                    if (particles_component) {
+                        log_dbg("\tparticles component");
+                        auto position = particles_component["position"].as<glm::vec3>();
+                        auto color = particles_component["color"].as<glm::vec4>();
+                        auto life_length = particles_component["life_length"].as<float>();
+                        auto rotation = particles_component["rotation"].as<float>();
+                        auto velocity = particles_component["velocity"].as<glm::vec3>();
+                        auto scale = particles_component["scale"].as<float>();
+                        auto gravity_effect = particles_component["gravity_effect"].as<float>();
+                        auto particles_number = particles_component["particles_number"].as<int>();
+                        ParticleParameters particles_parameters{position,
+                                                                velocity,
+                                                                color,
+                                                                gravity_effect,
+                                                                life_length,
+                                                                rotation,
+                                                                scale};
+
+                        auto &c = deserializedEntity.addComponent<ParticlesComponent>(particles_parameters, (uint32_t)particles_number);
+                    }
+                }
+
+                {
+                    auto audio_positioned_component = entity["AudioPositionedComponent"];
+                    if (audio_positioned_component) {
+                        log_dbg("\taudio positioned component");
+                        auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
+                        deserializedEntity.addComponent<AudioPositionedComponent>(soloud_core, sound_name.c_str());
+                    }
+                }
+
+                {
+                    auto audio_positioned_component = entity["AudioBackgroundComponent"];
+                    if (audio_positioned_component) {
+                        log_dbg("\taudio background component");
+                        auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
+                        deserializedEntity.addComponent<AudioBackgroundComponent>(soloud_core, sound_name.c_str());
+                    }
+                }
+
+                {
+                    auto audio_speech_component = entity["AudioSpeechComponent"];
+                    if (audio_speech_component) {
+                        log_dbg("\taudio speech component");
+                        auto text_to_speak = audio_speech_component["text_to_speak"].as<std::string>();
+                        deserializedEntity.addComponent<AudioSpeechComponent>(soloud_core,
+                                                                                        text_to_speak.c_str(),
+                                                                                        (unsigned int) 530,
+                                                                                        (float) 10,
+                                                                                        (float) 0.5,
+                                                                                        (int) KW_NOISE);
+                    }
+                }
+                /*
+                auto serialized_component = entity[""];
+                if (serialized_component) {
+                    auto &c = deserializedEntity.getComponent<>();
+                }
+                 */
+
+                /*
+                auto cameraComponent = entity["ShaderProgramComponent"];
+                if (cameraComponent) {
+                    auto &cc = deserializedEntity.AddComponent<CameraComponent>();
+
+                    auto &cameraProps = cameraComponent["Camera"];
+                    cc.Camera.SetProjectionType((SceneCamera::ProjectionType) cameraProps["ProjectionType"].as<int>());
+
+                    cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+                    cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+                    cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+
+                    cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+                    cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+                    cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+
+                    cc.Primary = cameraComponent["Primary"].as<bool>();
+                    cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+                }
+
+                auto spriteRendererComponent = entity["SpriteRendererComponent"];
+                if (spriteRendererComponent) {
+                    auto &src = deserializedEntity.addComponent<SpriteRendererComponent>();
+                    src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+                }
+                 */
+                log_info("Deserialized entity with ID = %s, name = %s", uuid.c_str(), name.c_str());
+                log_dbg("====================================================");
+            }
+        }
+
         return true;
     }
 
