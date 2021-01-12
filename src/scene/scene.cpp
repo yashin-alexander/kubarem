@@ -6,10 +6,10 @@
 namespace kubarem {
     Entity Scene::CreateEntity(const std::string &name) {
         Entity entity = {registry.create(), this};
-//        entity.addComponent<TransformComponent>(glm::vec3());
         auto &tag = entity.addComponent<TagComponent>();
         tag.tag = name.empty() ? "Noname entity" : name;
-
+        auto &uuid = entity.addComponent<UuidComponent>();
+        log_dbg("Scene: created entity with uuid %s", uuid.uuid.c_str());
         return entity;
     }
 

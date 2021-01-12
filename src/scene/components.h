@@ -6,17 +6,27 @@
 
 #include <map>
 #include <iostream>
+#include <random>
+#include <sstream>
 
 #include "model.h"
+#include "input.h"
 #include "shader.h"
 #include "camera.h"
-#include "input.h"
+#include "uuid.h"
 #include "audio/audio.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
 
 
 namespace kubarem {
+    struct UuidComponent {
+        std::string uuid;
+        UuidComponent() {
+            this->uuid = UUID::generate_uuid_v4();
+        }
+    };
+
     struct TagComponent {
         std::string tag;
 
@@ -120,7 +130,8 @@ namespace kubarem {
 
     struct IlluminateCacheComponent {
         explicit IlluminateCacheComponent(std::vector<glm::vec3> light_sources) : light_sources(
-                std::move(light_sources)) {};
+                std::move(light_sources)) {
+        };
 
         std::vector<glm::vec3> light_sources;
     };
@@ -179,8 +190,9 @@ namespace kubarem {
         GLuint VBO_ = 0;
         GLuint VAO_ = 0;
         GLuint texture = 0;
+        std::string texture_path;
 
-        explicit CubeObjectComponent(const char *texture_path) {
+        explicit CubeObjectComponent(const char *texture_path) : texture_path(texture_path) {
             glGenVertexArrays(1, &VAO_);
             glGenBuffers(1, &VBO_);
 
