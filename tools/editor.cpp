@@ -110,7 +110,7 @@ namespace kubarem {
                 std::vector<glm::vec3>{glm::vec3(1), glm::vec3(2)}
         );
 
-        /*
+//        /*
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
         tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
@@ -137,6 +137,7 @@ namespace kubarem {
         cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
         cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
         cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
+        cubeEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.cube_blueprint");
 
         kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
         floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
@@ -157,8 +158,8 @@ namespace kubarem {
 //                                                                */
 
         SceneSerializer serializer(scene_);
-//        serializer.Serialize("example.yaml");
-        serializer.Deserialize("scene.yaml", &soloud_);
+        serializer.Serialize("scene.yaml");
+//        serializer.Deserialize("scene.yaml", &soloud_);
     }
 
     void Editor::Run() {

@@ -12,6 +12,7 @@
 #include <soloud.h>
 #include <soloud_wav.h>
 #include <soloud_speech.h>
+#include <pybind11/embed.h>
 
 #include "log.h"
 #include "input.h"
@@ -51,5 +52,6 @@ namespace kubarem {
         Framebuffer *framebuffer_;
         SoLoud::Soloud soloud_;
         Gui *gui_;
+
     };
 }
