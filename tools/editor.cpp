@@ -122,12 +122,13 @@ namespace kubarem {
         cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
         cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 65; i++) {
             std::string name = std::string("Ball_") + std::to_string(i);
-            glm::vec3 position = glm::vec3(cos(i) * 60.0f, cos(2 * i) * 10, sin(i) - 20.0f * i);
+            glm::vec3 position = glm::vec3(-5 * i, cos(2 * i) * 10, -160);
 
             kubarem::Entity ballEntity = scene_->CreateEntity(name);
             ballEntity.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
+            ballEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.ball_blueprint");
             ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(1));
             ballEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
         }
