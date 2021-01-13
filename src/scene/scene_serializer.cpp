@@ -199,6 +199,15 @@ namespace kubarem {
             out << YAML::EndMap;
         }
 
+        if (entity.hasComponent<PyScriptComponent>()) {
+            auto &c = entity.getComponent<PyScriptComponent>();
+
+            out << YAML::Key << "PyScriptComponent";
+            out << YAML::BeginMap;
+            out << YAML::Key << "script_path" << YAML::Value << c.script_path;
+            out << YAML::EndMap;
+        }
+
         /*
          * TODO: Think about macro
          *
@@ -373,6 +382,16 @@ namespace kubarem {
                                                                                         (float) 10,
                                                                                         (float) 0.5,
                                                                                         (int) KW_NOISE);
+                    }
+                }
+
+
+                {
+                    auto py_script_component = entity["PyScriptComponent"];
+                    if (py_script_component) {
+                        log_dbg("\tpy script component");
+                        auto script_name = py_script_component["script_path"].as<std::string>();
+                        deserializedEntity.addComponent<PyScriptComponent>(script_name.c_str());
                     }
                 }
 
