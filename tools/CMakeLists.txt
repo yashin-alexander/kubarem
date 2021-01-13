@@ -11,6 +11,7 @@ file(GLOB_RECURSE KUBAREM_EDITOR_HEADER_FILES
         *.hpp)
 
 add_executable(${EDITOR_APP_NAME} ${KUBAREM_EDITOR_SOURCE_FILES} ${KUBAREM_EDITOR_HEADER_FILES})
-target_link_libraries(${EDITOR_APP_NAME} kubarem_lib)
+target_link_libraries(${EDITOR_APP_NAME} PRIVATE pybind11::embed)
+target_link_libraries(${EDITOR_APP_NAME} PRIVATE kubarem_lib)
 set_property(TARGET ${EDITOR_APP_NAME} PROPERTY CXX_STANDARD 17)
 set_target_properties(${EDITOR_APP_NAME} PROPERTIES LINKER_LANGUAGE CXX)

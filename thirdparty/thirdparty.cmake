@@ -133,3 +133,16 @@ find_library(YAML_CPP_LIBRARY "yaml-cpp" "${THIRDPARTY_DIR}/yaml-cpp")
 
 set(YAML_CPP_LIBRARY "yaml-cpp")
 set(YAML_CPP_INCLUDE_DIR "${YAML_CPP_DIR}/include")
+
+
+# pybind11
+set(PYBIND11_DIR "${THIRDPARTY_DIR}/pybind11")
+
+add_subdirectory("${PYBIND11_DIR}")
+#find_library(PYBIND11_LIBRARY "pybind11" "${PYBIND11_DIR}" "${PYBIND11_DIR}")
+#include_directories("${PYBIND11_DIR}/pybind11/include" /usr/include/python3.7)
+
+#find_path(PYBIND_INCLUDE_DIR "${PYBIND11_DIR}/pybind11/include" "/usr/include" "/usr/local/include")
+
+set(PYBIND11_LIBRARY "pybind11")
+set(PYBIND11_INCLUDE_DIR "${PYBIND_DIR}/include")
