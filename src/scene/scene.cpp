@@ -7,6 +7,7 @@
 namespace kubarem {
     Entity Scene::CreateEntity(const std::string &name, const std::string &uuid) {
         Entity entity = {registry.create(), this};
+        auto &state = entity.addComponent<StateComponent>();
         auto &tag = entity.addComponent<TagComponent>();
         tag.tag = name.empty() ? "Noname entity" : name;
         auto &generated_uuid = entity.addComponent<UuidComponent>(uuid);
@@ -15,17 +16,40 @@ namespace kubarem {
     }
 
     void Scene::OnUpdateRuntime(float ts) {
-        auto scriptedPositionView = registry.view<PyScriptComponent, TransformComponent>();
+        auto scriptedPositionView = registry.view<PyScriptComponent, TransformComponent, StateComponent>();
+        auto stateView = registry.view<StateComponent>();
 
-        for (auto pyScriptEntity : scriptedPositionView) {
-            auto[py_script, transform] = scriptedPositionView.get<PyScriptComponent, TransformComponent>(pyScriptEntity);
+        // load script logic
+        for (const auto pyScriptEntity : scriptedPositionView) {
+            auto[py_script, transform, state] = scriptedPositionView.get<PyScriptComponent, TransformComponent, StateComponent>(pyScriptEntity);
             py::module_ calc = py::module_::import(py_script.script_path.c_str());
             auto kubarem = py::module::import("kubarem");
 
             auto py_trans = calc.attr("DerivedPyTransformComponent")(transform.position, transform.size);
-            py_trans.attr("on_update")(ts);
-            const auto &cpp_trans = py_trans.cast<const PyTransformComponent &>();
-            transform = static_cast<kubarem::TransformComponent>(cpp_trans);
+
+            if (state.create_flag) {
+                py_trans.attr("on_create")();
+            }
+            {
+                py_trans.attr("on_update")(ts);
+                const auto &cpp_trans = py_trans.cast<const PyTransformComponent &>();
+                transform = static_cast<kubarem::TransformComponent>(cpp_trans);
+            }
+            if (state.destroy_flag) {
+                py_trans.attr("on_destroy")();
+            }
+        }
+
+        // manage object states
+        for (const auto entity : stateView) {
+            auto & state = stateView.get<StateComponent>(entity);
+            if (state.create_flag){
+                state.create_flag = false;
+            }
+            if (state.destroy_flag){
+                state.destroy_flag = false;
+                registry.destroy(entity);
+            }
         }
     }
 

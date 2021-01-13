@@ -31,6 +31,11 @@ namespace kubarem {
         }
     };
 
+    struct StateComponent {
+        bool create_flag = true;
+        bool destroy_flag = false;
+    };
+
     struct TagComponent {
         std::string tag;
 
