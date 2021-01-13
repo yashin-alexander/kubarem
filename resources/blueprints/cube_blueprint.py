@@ -13,3 +13,8 @@ class DerivedPyTransformComponent(PyTransformComponent):
         self.position.x += math.sin(time.time())
         self.position.z += math.cos(time.time())
 
+    def on_create(self):
+        pass
+
+    def on_destroy(self):
+        pass
