@@ -151,6 +151,7 @@ namespace kubarem {
             cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
             cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
             cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
+            cubeEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.cube_blueprint");
 
             kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
             floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
@@ -190,7 +191,7 @@ namespace kubarem {
                 style.WindowRounding = 0.0f;
                 style.Colors[ImGuiCol_WindowBg].w = 1.0f;
             }
-            // Setup Platform/Renderer bindings
+            // Setup Platform/Renderer embeddings
             ImGui_ImplGlfw_InitForOpenGL(window, true);
             const char *glsl_version = "#version 130";
             ImGui_ImplOpenGL3_Init(glsl_version);
