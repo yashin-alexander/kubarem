@@ -3,6 +3,9 @@
 #include "renderer/renderer.h"
 
 #include <entt/entt.hpp>
+#include <pybind11/embed.h>
+
+namespace py = pybind11;
 
 namespace kubarem {
     class Entity;
@@ -20,5 +23,6 @@ namespace kubarem {
     private:
         Renderer renderer;
         friend class Entity;
+        py::scoped_interpreter guard{};
     };
 }

@@ -1,6 +1,7 @@
 #include "scene/scene.h"
 #include "scene/components.h"
 #include "scene/entity.h"
+#include "embeddings/embeddings.h"
 
 
 namespace kubarem {
@@ -14,7 +15,18 @@ namespace kubarem {
     }
 
     void Scene::OnUpdateRuntime(float ts) {
-        // update all necessary data
+        auto scriptedPositionView = registry.view<PyScriptComponent, TransformComponent>();
+
+        for (auto pyScriptEntity : scriptedPositionView) {
+            auto[py_script, transform] = scriptedPositionView.get<PyScriptComponent, TransformComponent>(pyScriptEntity);
+            py::module_ calc = py::module_::import(py_script.script_path.c_str());
+            auto kubarem = py::module::import("kubarem");
+
+            auto py_trans = calc.attr("DerivedPyTransformComponent")(transform.position, transform.size);
+            py_trans.attr("on_update")(ts);
+            const auto &cpp_trans = py_trans.cast<const PyTransformComponent &>();
+            transform = static_cast<kubarem::TransformComponent>(cpp_trans);
+        }
     }
 
     void Scene::OnRenderRuntime(float ts) {
