@@ -45,21 +45,9 @@ namespace kubarem {
     struct TransformComponent {
         glm::vec3 position;
         glm::vec3 size;
+        float x = 0.01;
 
         TransformComponent(glm::vec3 position, glm::vec3 size) : position(position), size(size) {};
-
-//        TransformComponent(const TransformComponent &) = default;
-
-//        explicit TransformComponent(const glm::vec3 &translation)
-//                : Translation(translation) {}
-
-//        glm::mat4 GetTransform() const {
-//            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
-//
-//            return glm::translate(glm::mat4(1.0f), Translation)
-//                   * rotation
-//                   * glm::scale(glm::mat4(1.0f), Scale);
-//        }
     };
 
     struct ShaderProgramComponent {
@@ -288,5 +276,11 @@ namespace kubarem {
         AudioSpeechComponent(SoLoud::Soloud *soloud_core, const char *text_to_speak, unsigned int frequency,
                              float speed, float declination, int wave_form) :
                 audio(soloud_core, text_to_speak, frequency, speed, declination, wave_form) {};
+    };
+
+    struct PyScriptComponent {
+        std::string script_path;
+
+        explicit PyScriptComponent(const char * script_path) : script_path(script_path) {};
     };
 }
