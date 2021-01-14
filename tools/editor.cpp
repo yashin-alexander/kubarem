@@ -33,7 +33,7 @@ namespace kubarem {
         assert(window_ != nullptr);
         glfwMakeContextCurrent(window_);
 
-        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
             log_err("Failed to initialize GLAD");
@@ -111,7 +111,7 @@ namespace kubarem {
         );
         sceneContext.addComponent<kubarem::PyScriptComponent>("resources.blueprints.scene_blueprint");
 
-//        /*
+        /*
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
         tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
@@ -160,8 +160,8 @@ namespace kubarem {
 //                                                                */
 
         SceneSerializer serializer(scene_);
-        serializer.Serialize("scene.yaml");
-//        serializer.Deserialize("scene.yaml", &soloud_);
+//        serializer.Serialize("scene.yaml");
+//        serializer.Deserialize("scene.yaml");
     }
 
     void Editor::Run() {
