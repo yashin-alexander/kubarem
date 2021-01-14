@@ -54,7 +54,7 @@ namespace kubarem {
 
     class Input : public _BaseInput {
     private:
-        bool _cursorVisible = false;
+        bool _cursorVisible = true;
         GLFWwindow *_window;
 
         virtual void _KeysSetupCb(GLFWwindow *window, int key, int scancode, int action, int mode) override;

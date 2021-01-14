@@ -18,6 +18,7 @@ namespace kubarem {
     void Scene::OnUpdateRuntime(float ts) {
         auto allEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, StateComponent>();
         auto scriptedEntityView = registry.view<PyScriptComponent, UuidComponent, TagComponent, TransformComponent, StateComponent>();
+        auto scriptedParticleSystemView = registry.view<PyScriptComponent, UuidComponent, TagComponent, StateComponent, ParticlesComponent>();
         auto stateView = registry.view<StateComponent>();
 
         std::vector<PyEntity> scene_entities;
@@ -27,55 +28,93 @@ namespace kubarem {
             scene_entities.emplace(scene_entities.end(), PyEntity(uuid, tag, transform));
         }
 
-        for (const auto pyScriptEntity : scriptedEntityView) {
-            auto[py_script, uuid, tag, transform, state] = scriptedEntityView.get<PyScriptComponent, UuidComponent, TagComponent, TransformComponent, StateComponent>(
-                    pyScriptEntity);
-            auto scene_entity = scriptedEntityView.get<UuidComponent, TagComponent, TransformComponent>(pyScriptEntity);
+        // objects scripts processing
+        {
+            for (const auto pyScriptEntity : scriptedEntityView) {
+                auto[py_script, uuid, tag, transform, state] = scriptedEntityView.get<PyScriptComponent, UuidComponent, TagComponent, TransformComponent, StateComponent>(
+                        pyScriptEntity);
+                auto scene_entity = scriptedEntityView.get<UuidComponent, TagComponent, TransformComponent>(
+                        pyScriptEntity);
 
-            py::module_ module = py::module_::import(py_script.script_path.c_str());
-            if (state.reload_script_flag) {
-                py_script.script_path = py_script._script_input_path;
-                log_info("Reloading script %s", py_script.script_path.c_str());
-                state.reload_script_flag = false;
-                module.reload();
+                py::module_ module = py::module_::import(py_script.script_path.c_str());
+                if (state.reload_script_flag) {
+                    py_script.script_path = py_script._script_input_path;
+                    log_info("Reloading script %s", py_script.script_path.c_str());
+                    state.reload_script_flag = false;
+                    module.reload();
+                }
+
+                auto py_entity = module.attr("DerivedPyEntity")(uuid, tag, transform);
+
+                if (state.create_flag) {
+                    py_entity.attr("on_create")();
+                }
+                {
+                    py_entity.attr("on_update")(ts);
+                    const auto &cpp_entity = py_entity.cast<const PyEntity &>();
+                    transform = static_cast<kubarem::TransformComponent>(cpp_entity.transform);
+                }
+                if (state.destroy_flag) {
+                    py_entity.attr("on_destroy")();
+                }
             }
+        }
 
-            auto py_entity = module.attr("DerivedPyEntity")(uuid, tag, transform);
+        // scene scripts processing
+        {
+            auto scriptedSceneView = registry.view<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>();
 
-            if (state.create_flag) {
-                py_entity.attr("on_create")();
-            }
-            {
+            for (const auto pyScriptScene : scriptedSceneView) {
+                auto[py_script, uuid, tag, state, input] = scriptedSceneView.get<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>(
+                        pyScriptScene);
+                py::module_ module = py::module_::import(py_script.script_path.c_str());
+                auto py_entity = module.attr("DerivedPyScene")(scene_entities);
+
                 py_entity.attr("on_update")(ts);
-                const auto &cpp_entity = py_entity.cast<const PyEntity &>();
-                transform = static_cast<kubarem::TransformComponent>(cpp_entity.transform);
-            }
-            if (state.destroy_flag) {
-                py_entity.attr("on_destroy")();
+                const auto &cpp_entity = py_entity.cast<const PyScene>();
             }
         }
 
-        auto scriptedSceneView = registry.view<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>();
 
-        for (const auto pyScriptScene : scriptedSceneView){
-            auto[py_script, uuid, tag, state, input] = scriptedSceneView.get<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>(pyScriptScene);
-            py::module_ module = py::module_::import(py_script.script_path.c_str());
-            auto py_entity = module.attr("DerivedPyScene")(scene_entities);
+        // particle systems scripts processing
+        {
+            for (const auto pyScriptParticleSystem : scriptedParticleSystemView) {
+                auto[py_script, uuid, tag, state, particles] = scriptedParticleSystemView.get<PyScriptComponent, UuidComponent, TagComponent, StateComponent, ParticlesComponent>(
+                        pyScriptParticleSystem);
+                py::module_ module = py::module_::import(py_script.script_path.c_str());
+                if (state.reload_script_flag) {
+                    py_script.script_path = py_script._script_input_path;
+                    log_info("Reloading script %s", py_script.script_path.c_str());
+                    state.reload_script_flag = false;
+                    module.reload();
+                }
+                auto py_entity = module.attr("DerivedPyParticleSystem")(particles.controller.referenceParameters, particles.controller.getParticlesNumber());
 
-            py_entity.attr("on_update")(ts);
-            const auto &cpp_entity = py_entity.cast<const PyScene>();
+                if (state.create_flag) {
+                    py_entity.attr("on_create")();
+                }
+                {
+                    py_entity.attr("on_update")(ts);
+                    const auto &cpp_entity = py_entity.cast<const PyParticleSystem &>();
+                    particles.controller.referenceParameters = static_cast<ParticleParameters>(cpp_entity.parameters);
+                }
+                if (state.destroy_flag) {
+                    py_entity.attr("on_destroy")();
+                }
+            }
         }
-
 
         // manage object states
-        for (const auto entity : stateView) {
-            auto &state = stateView.get<StateComponent>(entity);
-            if (state.create_flag) {
-                state.create_flag = false;
-            }
-            if (state.destroy_flag) {
-                state.destroy_flag = false;
-                registry.destroy(entity);
+        {
+            for (const auto entity : stateView) {
+                auto &state = stateView.get<StateComponent>(entity);
+                if (state.create_flag) {
+                    state.create_flag = false;
+                }
+                if (state.destroy_flag) {
+                    state.destroy_flag = false;
+                    registry.destroy(entity);
+                }
             }
         }
     }
