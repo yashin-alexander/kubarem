@@ -34,6 +34,9 @@ namespace kubarem {
     struct StateComponent {
         bool create_flag = true;
         bool destroy_flag = false;
+        bool reload_script_flag = true;
+
+        StateComponent() = default;
     };
 
     struct TagComponent {
@@ -285,7 +288,8 @@ namespace kubarem {
 
     struct PyScriptComponent {
         std::string script_path;
+        std::string _script_input_path;
 
-        explicit PyScriptComponent(const char * script_path) : script_path(script_path) {};
+        explicit PyScriptComponent(const char * script_path) : script_path(script_path), _script_input_path(script_path) {};
     };
 }
