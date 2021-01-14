@@ -2,6 +2,7 @@
 
 #include <soloud.h>
 #include "scene.h"
+#include "audio/audio.h"
 
 
 namespace kubarem {
@@ -17,5 +18,8 @@ namespace kubarem {
         bool DeserializeRuntime(const std::string& filepath);
     private:
         Scene * scene;
+        AudioPositioned * audioPositioned;
+        AudioBackground * audioBackground;
+        AudioSpeech * audioSpeech;
     };
 }

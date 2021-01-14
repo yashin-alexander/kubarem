@@ -105,10 +105,10 @@ void Gui::onRender() {
         ImGui::EndMenuBar();
     }
 
-    ImGui::Begin("Light settings");
-    static float col4[4] = {};
-    ImGui::ColorEdit4("Color", col4);
-    ImGui::End();
+//    ImGui::Begin("Light settings");
+//    static float col4[4] = {};
+//    ImGui::ColorEdit4("Color", col4);
+//    ImGui::End();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
     ImGui::Begin("Game Viewport    ");
@@ -140,7 +140,7 @@ void Gui::onRender() {
     ImGui::PopStyleVar();
     ImGui::End();
 
-    ImGui::ShowDemoWindow();
+//    ImGui::ShowDemoWindow();
 
     renderComponentsTree_();
 
