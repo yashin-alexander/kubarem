@@ -354,40 +354,36 @@ namespace kubarem {
                     }
                 }
 
-                /*
                 {
                     auto audio_positioned_component = entity["AudioPositionedComponent"];
                     if (audio_positioned_component) {
+                        audioPositioned = new AudioPositioned("s.mp3");
                         log_dbg("\taudio positioned component");
                         auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
-                        deserializedEntity.addComponent<AudioPositionedComponent>(sound_name.c_str());
+                        deserializedEntity.addComponent<AudioPositionedComponent>(audioPositioned);
                     }
                 }
 
                 {
                     auto audio_positioned_component = entity["AudioBackgroundComponent"];
                     if (audio_positioned_component) {
+                        audioBackground = new AudioBackground("s.mp3");
                         log_dbg("\taudio background component");
                         auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
-                        deserializedEntity.addComponent<AudioBackgroundComponent>(sound_name.c_str());
+                        deserializedEntity.addComponent<AudioBackgroundComponent>(audioBackground);
                     }
                 }
 
                 {
                     auto audio_speech_component = entity["AudioSpeechComponent"];
                     if (audio_speech_component) {
+                        audioSpeech = new AudioSpeech("", (unsigned int) 530, (float) 10, (float) 0.5,
+                                                            (int) KW_NOISE);
                         log_dbg("\taudio speech component");
                         auto text_to_speak = audio_speech_component["text_to_speak"].as<std::string>();
-                        deserializedEntity.addComponent<AudioSpeechComponent>(
-                                text_to_speak.c_str(),
-                                (unsigned int) 530,
-                                (float) 10,
-                                (float) 0.5,
-                                (int) KW_NOISE);
+                        deserializedEntity.addComponent<AudioSpeechComponent>(audioSpeech);
                     }
                 }
-                 */
-
 
                 {
                     auto py_script_component = entity["PyScriptComponent"];

@@ -5,8 +5,8 @@
 
 #include "scene/scene_serializer.h"
 
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 700;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 950;
 
 
 namespace kubarem {
@@ -115,7 +115,6 @@ namespace kubarem {
         );
         sceneContext.addComponent<kubarem::PyScriptComponent>("resources.blueprints.scene_blueprint");
 
-//        /*
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
         tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
