@@ -1,49 +1,72 @@
 #pragma once
 
 #include <pybind11/embed.h>
+#include <pybind11/stl.h>
 #include <iostream>
 #include <string>
 
+#include "log.h"
 #include "scene/components.h"
 
 namespace py = pybind11;
 
 
-class PyTransformComponent final : public kubarem::TransformComponent {
+class PyEntity {
 public:
-    using kubarem::TransformComponent::TransformComponent;
-    void on_create(){ PYBIND11_OVERRIDE_PURE(void, kubarem::TransformComponent, on_create); }
-    void on_update(float delta_time){ PYBIND11_OVERRIDE_PURE(void, kubarem::TransformComponent, on_update); }
-    void on_destroy(){ PYBIND11_OVERRIDE_PURE(void, kubarem::TransformComponent, on_destroy); }
+    kubarem::TagComponent tag;
+    kubarem::UuidComponent uuid;
+    kubarem::TransformComponent transform;
+    PyEntity(kubarem::UuidComponent uuid, kubarem::TagComponent tag, kubarem::TransformComponent transform) : uuid(uuid), tag(tag), transform(transform) {};
+
+    void on_destroy(){
+        log_dbg("On destroy event called on entity '%s'", this->tag.tag.c_str());
+    }
+
+    void on_update(float delta_time){}
+
+    void on_create(){
+        log_dbg("On create event called on entity '%s'", this->tag.tag.c_str());
+    };
 };
 
 
-//class PyAudioSpeechComponent final : public kubarem::AudioSpeechComponent {
-//public:
-//    using kubarem::AudioSpeechComponent::AudioSpeechComponent;
-//
-//    PyAudioSpeechComponent(std::string text_to_speak) : kubarem::AudioSpeechComponent(text_to_speak) {};
-//
-//    void on_update(float delta_time){ PYBIND11_OVERRIDE_PURE(void, kubarem::AudioSpeechComponent, on_update); }
-//};
+class PyScene {
+public:
+    std::vector<PyEntity> entities;
+    explicit PyScene(std::vector<PyEntity> entities) : entities(entities){};
+};
 
 
 PYBIND11_EMBEDDED_MODULE(kubarem, module) {
     py::class_<glm::vec3>(module, "Vec3", py::dynamic_attr())
-            .def(py::init<>())
+            .def(py::init<float, float, float>())
             .def_readwrite("x", &glm::vec3::x)
             .def_readwrite("y", &glm::vec3::y)
             .def_readwrite("z", &glm::vec3::z);
 
-    py::class_<PyTransformComponent>(module, "PyTransformComponent", py::dynamic_attr())
+    py::class_<kubarem::TransformComponent>(module, "TransformComponent", py::dynamic_attr())
             .def(py::init<glm::vec3, glm::vec3>())
-            .def("on_create", &PyTransformComponent::on_create)
-            .def("on_update", &PyTransformComponent::on_update)
-            .def("on_destroy", &PyTransformComponent::on_destroy)
-            .def_readwrite("position", &PyTransformComponent::position)
-            .def_readwrite("size", &PyTransformComponent::size);
+            .def_readwrite("position", &kubarem::TransformComponent::position)
+            .def_readwrite("size", &kubarem::TransformComponent::size);
 
-//    py::class_<PyAudioSpeechComponent>(module, "PyAudioSpeechComponent", py::dynamic_attr())
-//            .def(py::init<std::string>())
-//            .def("on_update", &PyAudioSpeechComponent::on_update);
+    py::class_<kubarem::TagComponent>(module, "TagComponent", py::dynamic_attr())
+            .def(py::init<std::string>())
+            .def_readwrite("tag", &kubarem::TagComponent::tag);
+
+    py::class_<kubarem::UuidComponent>(module, "UuidComponent", py::dynamic_attr())
+            .def(py::init<std::string>())
+            .def_readonly("uuid", &kubarem::UuidComponent::uuid);
+
+    py::class_<PyEntity>(module, "PyEntity", py::dynamic_attr())
+            .def(py::init<kubarem::UuidComponent, kubarem::TagComponent, kubarem::TransformComponent>())
+            .def("on_create", &PyEntity::on_create)
+            .def("on_update", &PyEntity::on_update)
+            .def("on_destroy", &PyEntity::on_destroy)
+            .def_readonly("uuid", &PyEntity::uuid)
+            .def_readonly("tag", &PyEntity::tag)
+            .def_readwrite("transform", &PyEntity::transform);
+
+    py::class_<PyScene>(module, "PyScene", py::dynamic_attr())
+            .def(py::init<std::vector<PyEntity>>())
+            .def_readwrite("entities", &PyScene::entities);
 }

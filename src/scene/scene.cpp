@@ -7,7 +7,7 @@
 namespace kubarem {
     Entity Scene::CreateEntity(const std::string &name, const std::string &uuid) {
         Entity entity = {registry.create(), this};
-        auto &state = entity.addComponent<StateComponent>();
+        entity.addComponent<StateComponent>();
         auto &tag = entity.addComponent<TagComponent>();
         tag.tag = name.empty() ? "Noname entity" : name;
         auto &generated_uuid = entity.addComponent<UuidComponent>(uuid);
@@ -16,37 +16,64 @@ namespace kubarem {
     }
 
     void Scene::OnUpdateRuntime(float ts) {
-        auto scriptedPositionView = registry.view<PyScriptComponent, TransformComponent, StateComponent>();
+        auto allEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, StateComponent>();
+        auto scriptedEntityView = registry.view<PyScriptComponent, UuidComponent, TagComponent, TransformComponent, StateComponent>();
         auto stateView = registry.view<StateComponent>();
 
-        // load script logic
-        for (const auto pyScriptEntity : scriptedPositionView) {
-            auto[py_script, transform, state] = scriptedPositionView.get<PyScriptComponent, TransformComponent, StateComponent>(pyScriptEntity);
-            py::module_ calc = py::module_::import(py_script.script_path.c_str());
-            auto kubarem = py::module::import("kubarem");
+        std::vector<PyEntity> scene_entities;
 
-            auto py_trans = calc.attr("DerivedPyTransformComponent")(transform.position, transform.size);
+        for (const auto commonEntity : allEntitiesView) {
+            auto[uuid, tag, transform, state] = allEntitiesView.get<UuidComponent, TagComponent, TransformComponent, StateComponent>(commonEntity);
+            scene_entities.emplace(scene_entities.end(), PyEntity(uuid, tag, transform));
+        }
+
+        for (const auto pyScriptEntity : scriptedEntityView) {
+            auto[py_script, uuid, tag, transform, state] = scriptedEntityView.get<PyScriptComponent, UuidComponent, TagComponent, TransformComponent, StateComponent>(
+                    pyScriptEntity);
+            auto scene_entity = scriptedEntityView.get<UuidComponent, TagComponent, TransformComponent>(pyScriptEntity);
+
+            py::module_ module = py::module_::import(py_script.script_path.c_str());
+            if (state.reload_script_flag) {
+                py_script.script_path = py_script._script_input_path;
+                log_info("Reloading script %s", py_script.script_path.c_str());
+                state.reload_script_flag = false;
+                module.reload();
+            }
+
+            auto py_entity = module.attr("DerivedPyEntity")(uuid, tag, transform);
 
             if (state.create_flag) {
-                py_trans.attr("on_create")();
+                py_entity.attr("on_create")();
             }
             {
-                py_trans.attr("on_update")(ts);
-                const auto &cpp_trans = py_trans.cast<const PyTransformComponent &>();
-                transform = static_cast<kubarem::TransformComponent>(cpp_trans);
+                py_entity.attr("on_update")(ts);
+                const auto &cpp_entity = py_entity.cast<const PyEntity &>();
+                transform = static_cast<kubarem::TransformComponent>(cpp_entity.transform);
             }
             if (state.destroy_flag) {
-                py_trans.attr("on_destroy")();
+                py_entity.attr("on_destroy")();
             }
         }
 
+        auto scriptedSceneView = registry.view<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>();
+
+        for (const auto pyScriptScene : scriptedSceneView){
+            auto[py_script, uuid, tag, state, input] = scriptedSceneView.get<PyScriptComponent, UuidComponent, TagComponent, StateComponent, InputComponent>(pyScriptScene);
+            py::module_ module = py::module_::import(py_script.script_path.c_str());
+            auto py_entity = module.attr("DerivedPyScene")(scene_entities);
+
+            py_entity.attr("on_update")(ts);
+            const auto &cpp_entity = py_entity.cast<const PyScene>();
+        }
+
+
         // manage object states
         for (const auto entity : stateView) {
-            auto & state = stateView.get<StateComponent>(entity);
-            if (state.create_flag){
+            auto &state = stateView.get<StateComponent>(entity);
+            if (state.create_flag) {
                 state.create_flag = false;
             }
-            if (state.destroy_flag){
+            if (state.destroy_flag) {
                 state.destroy_flag = false;
                 registry.destroy(entity);
             }
@@ -66,7 +93,7 @@ namespace kubarem {
 
         for (auto renderStepEntity : renderStepView) {  // single renderStepEntity will be unpacked
             auto[camera, input, screen_scale, models_cache, shaders_cache, lights_cache] = renderStepView.get<CameraComponent, InputComponent, ScreenScaleComponent, ModelsCacheComponent,
-            ShadersCacheComponent, IlluminateCacheComponent>(renderStepEntity);
+                    ShadersCacheComponent, IlluminateCacheComponent>(renderStepEntity);
 
             for (auto renderTpcEntity : renderTpcDataView) {
                 auto[shader_path, model_path, transform, tpc] = renderTpcDataView.get<ShaderProgramComponent, ModelComponent, TransformComponent, ThirdPersonCharacterComponent>(
@@ -76,22 +103,22 @@ namespace kubarem {
                 if (!input.input.IsCursorVisible()) {
                     if (input.input.Keys[GLFW_KEY_W]) {
                         transform.position = camera.ProcessKeyboard(CameraMovement::kForward, ts,
-                                                                           camera.input_speed,
-                                                                           transform.position);
+                                                                    camera.input_speed,
+                                                                    transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_S]) {
                         transform.position = camera.ProcessKeyboard(CameraMovement::kBackward, ts,
-                                                                           camera.input_speed, transform.position);
+                                                                    camera.input_speed, transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_A]) {
                         transform.position = camera.ProcessKeyboard(CameraMovement::kLeft, ts,
-                                                                           camera.input_speed,
-                                                                           transform.position);
+                                                                    camera.input_speed,
+                                                                    transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_D]) {
                         transform.position = camera.ProcessKeyboard(CameraMovement::kRight, ts,
-                                                                           camera.input_speed,
-                                                                           transform.position);
+                                                                    camera.input_speed,
+                                                                    transform.position);
                     }
                     if (input.input.Keys[GLFW_KEY_F5]) {
                         input.input.SetCursorVisible();
@@ -116,8 +143,10 @@ namespace kubarem {
                 auto model = model_unpack->second;
 
                 if (tpc.is_third_person_char)
-                    renderer.RenderThirdPersonCharacter((ThirdPersonCamera *)camera.GetCamera(), screen_scale.screen_scale, &model, &shader,
-                                                    lights_cache.light_sources[0], transform.position, transform.size);
+                    renderer.RenderThirdPersonCharacter((ThirdPersonCamera *) camera.GetCamera(),
+                                                        screen_scale.screen_scale, &model, &shader,
+                                                        lights_cache.light_sources[0], transform.position,
+                                                        transform.size);
             }
             // render models
             for (auto renderDataEntity : renderModelsDataView) {
@@ -147,7 +176,8 @@ namespace kubarem {
 
             // render particles
             for (auto renderParticleEntity : renderParticlesDataView) {
-                auto [particle_controller, shader_path] = renderParticlesDataView.get<ParticlesComponent, ShaderProgramComponent>(renderParticleEntity);
+                auto[particle_controller, shader_path] = renderParticlesDataView.get<ParticlesComponent, ShaderProgramComponent>(
+                        renderParticleEntity);
 
                 auto shader_unpack = shaders_cache.cache.find(shader_path.v_shader_path);
                 auto shader = shader_unpack->second;
@@ -158,7 +188,7 @@ namespace kubarem {
 
             // playback background audio
             for (auto audioEntity : playbackBackgroundSoundsView) {
-                auto& audio = playbackBackgroundSoundsView.get(audioEntity);
+                auto &audio = playbackBackgroundSoundsView.get(audioEntity);
                 if (audio.audio.start_playback) {
                     audio.audio.RunPlayback();
                     audio.audio.start_playback = false;
@@ -167,7 +197,8 @@ namespace kubarem {
 
             // playback positioned audio
             for (auto audioEntity : playbackPositionedSoundsView) {
-                auto [audio, transform] = playbackPositionedSoundsView.get<AudioPositionedComponent, TransformComponent>(audioEntity);
+                auto[audio, transform] = playbackPositionedSoundsView.get<AudioPositionedComponent, TransformComponent>(
+                        audioEntity);
                 if (audio.audio.start_playback) {
                     audio.audio.RunPlayback(transform.position);
                     audio.audio.start_playback = false;
@@ -177,7 +208,7 @@ namespace kubarem {
 
             // playback speech audio
             for (auto audioEntity : playbackSpeechSoundsView) {
-                auto& audio = playbackSpeechSoundsView.get<AudioSpeechComponent>(audioEntity);
+                auto &audio = playbackSpeechSoundsView.get<AudioSpeechComponent>(audioEntity);
                 if (audio.audio.start_playback) {
                     audio.audio.RunPlayback();
                     audio.audio.start_playback = false;
