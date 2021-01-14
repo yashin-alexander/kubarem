@@ -177,7 +177,7 @@ namespace kubarem {
 
             out << YAML::Key << "AudioPositionedComponent";
             out << YAML::BeginMap;
-            out << YAML::Key << "sound_name" << YAML::Value << c.audio.GetSoundName();
+            out << YAML::Key << "sound_name" << YAML::Value << c.audio->GetSoundName();
             out << YAML::EndMap;
         }
 
@@ -186,7 +186,7 @@ namespace kubarem {
 
             out << YAML::Key << "AudioBackgroundComponent";
             out << YAML::BeginMap;
-            out << YAML::Key << "sound_name" << YAML::Value << c.audio.GetSoundName();
+            out << YAML::Key << "sound_name" << YAML::Value << c.audio->GetSoundName();
             out << YAML::EndMap;
         }
 
@@ -195,7 +195,7 @@ namespace kubarem {
 
             out << YAML::Key << "AudioSpeechComponent";
             out << YAML::BeginMap;
-            out << YAML::Key << "text_to_speak" << YAML::Value << c.audio.GetTextToSpeak();
+            out << YAML::Key << "text_to_speak" << YAML::Value << c.audio->GetTextToSpeak();
             out << YAML::EndMap;
         }
 
@@ -354,6 +354,7 @@ namespace kubarem {
                     }
                 }
 
+                /*
                 {
                     auto audio_positioned_component = entity["AudioPositionedComponent"];
                     if (audio_positioned_component) {
@@ -385,6 +386,7 @@ namespace kubarem {
                                 (int) KW_NOISE);
                     }
                 }
+                 */
 
 
                 {

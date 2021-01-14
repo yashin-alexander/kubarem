@@ -264,26 +264,24 @@ namespace kubarem {
     };
 
     struct AudioPositionedComponent {
-        AudioPositioned audio;
+        AudioPositioned * audio;
         bool is_playing = false;
 
-        explicit AudioPositionedComponent(const char *file_path) : audio(file_path) {};
+        explicit AudioPositionedComponent(AudioPositioned *audio) : audio(audio) {};
     };
 
     struct AudioBackgroundComponent {
-        AudioBackground audio;
+        AudioBackground * audio;
         bool is_playing = false;
 
-        explicit AudioBackgroundComponent(const char *file_path) : audio(file_path) {};
+        explicit AudioBackgroundComponent(AudioBackground * audio) : audio(audio) {};
     };
 
     struct AudioSpeechComponent {
-        AudioSpeech audio;
+        AudioSpeech * audio;
         bool is_playing = false;
 
-        explicit AudioSpeechComponent(const char *text_to_speak, unsigned int frequency,
-                             float speed, float declination, int wave_form) :
-                audio(text_to_speak, frequency, speed, declination, wave_form) {};
+        explicit AudioSpeechComponent(AudioSpeech * audio) : audio(audio) {};
     };
 
     struct PyScriptComponent {
