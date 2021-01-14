@@ -35,8 +35,15 @@ class DerivedPyParticleSystem(PyParticleSystem):
     def on_update(self, delta_time):
         if (time.time() % 10 > 5):
             self.parameters.scale += 0.02
+            self.parameters.gravity_effect += 0.5
+            self.parameters.position.x += math.sin(time.time())
+            self.parameters.position.z += math.cos(time.time())
         else:
             self.parameters.scale -= 0.02
+            self.parameters.gravity_effect -= 0.5
+            self.parameters.position.x -= math.sin(time.time())
+            self.parameters.position.z -= math.cos(time.time())
+
 
     def on_create(self):
         print("Particle system is created. Parameters: {}".format(

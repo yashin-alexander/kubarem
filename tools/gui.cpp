@@ -193,13 +193,13 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
             if (entity.hasComponent<kubarem::AudioPositionedComponent>()) {
                 auto &audio  = entity.getComponent<kubarem::AudioPositionedComponent>();
                 static char file_name[256];
-                strcpy(file_name, audio.audio.GetSoundName().c_str());
+                strcpy(file_name, audio.audio->GetSoundName().c_str());
                 if (ImGui::InputText("File name", file_name, 256 ))
-                    audio.audio.SetSoundName(file_name);
+                    audio.audio->SetSoundName(file_name);
                 if (ImGui::Button("Run playback"))
-                    audio.audio.RunPlayback(transform.position);
+                    audio.audio->RunPlayback(transform.position);
                 if (ImGui::Button("Stop playback"))
-                    audio.audio.StopPlayback();
+                    audio.audio->StopPlayback();
             }
         }
         if (entity.hasComponent<kubarem::ParticlesComponent>()){
@@ -224,34 +224,29 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
             auto &audio = entity.getComponent<kubarem::AudioSpeechComponent>();
 
             static char text_to_speak[256];
-            strcpy(text_to_speak, audio.audio.GetTextToSpeak().c_str());
+            strcpy(text_to_speak, audio.audio->GetTextToSpeak().c_str());
             if (ImGui::InputText("Text to speech", text_to_speak, 256 ))
-                audio.audio.SetTextToSpeak(text_to_speak);
+                audio.audio->SetTextToSpeak(text_to_speak);
             if (ImGui::Button("Playback sound"))
-                audio.audio.RunPlayback();
+                audio.audio->RunPlayback();
         }
 
         if (entity.hasComponent<kubarem::AudioBackgroundComponent>()) {
             auto &audio = entity.getComponent<kubarem::AudioBackgroundComponent>();
             static char file_name[256];
-            strcpy(file_name, audio.audio.GetSoundName().c_str());
+            strcpy(file_name, audio.audio->GetSoundName().c_str());
             if (ImGui::InputText("File name", file_name, 256 ))
-                audio.audio.SetSoundName(file_name);
+                audio.audio->SetSoundName(file_name);
             if (ImGui::Button("Run playback"))
-                audio.audio.RunPlayback();
+                audio.audio->RunPlayback();
             if (ImGui::Button("Stop playback"))
-                audio.audio.StopPlayback();
+                audio.audio->StopPlayback();
         }
 
         {
             auto& state = entity.getComponent<kubarem::StateComponent>();
-            auto audio_positioned = entity.hasComponent<kubarem::AudioPositionedComponent>();
-            auto audio_background = entity.hasComponent<kubarem::AudioBackgroundComponent>();
-            auto audio_speech = entity.hasComponent<kubarem::AudioSpeechComponent>();
-            if (!audio_background and !audio_positioned and !audio_speech) {
-                if (ImGui::Button("Remove element")) {
-                    state.destroy_flag = true;
-                }
+            if (ImGui::Button("Remove element")) {
+                state.destroy_flag = true;
             }
         }
 

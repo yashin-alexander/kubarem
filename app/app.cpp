@@ -101,6 +101,10 @@ namespace kubarem {
             auto *triangleSphereModel = new Model("resources/objects/sphere/triangle/sphere.obj", false);
             auto *thirdPersonCharacterModel = new Model("resources/objects/sphere/disco/sphere.obj", false);
 
+            auto * audioPositioned = new AudioPositioned("s.mp3");
+            auto * audioBackground = new AudioBackground("s.mp3");
+            auto * audioSpeech = new AudioSpeech("", (unsigned int) 530, (float) 10, (float) 0.5, (int) KW_NOISE);
+
             std::map<std::string, Model> models_map = {
                     {std::string("resources/objects/cyborg/cyborg.obj"),          *cyborgModel},
                     {std::string("resources/objects/sphere/sphere.obj"),          *sphereModel},
@@ -149,7 +153,7 @@ namespace kubarem {
             cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
             cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
             cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
-            cubeEntity.addComponent<kubarem::AudioPositionedComponent>("s.mp3");
+            cubeEntity.addComponent<kubarem::AudioPositionedComponent>(audioPositioned);
             cubeEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.cube_blueprint");
 
             kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
@@ -162,8 +166,8 @@ namespace kubarem {
             particlesEmitterEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/particle_vs.glsl");
 
 
-        kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
-        audioBackground.addComponent<kubarem::AudioBackgroundComponent>("s.mp3");
+        kubarem::Entity audio_background = scene_->CreateEntity("AudioBackground");
+        audio_background.addComponent<kubarem::AudioBackgroundComponent>(audioBackground);
 
 //        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
 //        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you",
