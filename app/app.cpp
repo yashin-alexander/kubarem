@@ -28,7 +28,6 @@ namespace kubarem {
         GLFWwindow *window;
         kubarem::Scene *scene_;
         glm::vec2 viewport_size;
-        SoLoud::Soloud soloud_;
     public:
 
         App() {
@@ -76,7 +75,7 @@ namespace kubarem {
         }
 
         void CreateSceneLayout() {
-            soloud_.init();
+            AudioCore::setup_audio_core();
             scene_ = new kubarem::Scene();
 
             Shader *text_shader_program_ = Shader::LoadFromFile("src/shaders/text_vs.glsl", "src/shaders/text_fs.glsl");
@@ -150,7 +149,7 @@ namespace kubarem {
             cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
             cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
             cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
-            cubeEntity.addComponent<kubarem::AudioPositionedComponent>(&soloud_, "s.mp3");
+            cubeEntity.addComponent<kubarem::AudioPositionedComponent>("s.mp3");
             cubeEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.cube_blueprint");
 
             kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
@@ -164,7 +163,7 @@ namespace kubarem {
 
 
         kubarem::Entity audioBackground = scene_->CreateEntity("AudioBackground");
-        audioBackground.addComponent<kubarem::AudioBackgroundComponent>(&soloud_, "s.mp3");
+        audioBackground.addComponent<kubarem::AudioBackgroundComponent>("s.mp3");
 
 //        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
 //        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you",
@@ -216,7 +215,7 @@ namespace kubarem {
         }
 
         void OnUpdate(float ts) {
-            soloud_.update3dAudio();
+            AudioCore::update_3d_audio();
             scene_->OnUpdateRuntime(ts);
         }
 
