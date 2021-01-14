@@ -15,7 +15,7 @@ referenceParameters(parameters)
 
 
 ParticleController::~ParticleController(){
-    delete renderer;
+//    delete renderer;
 }
 
 
