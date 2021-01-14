@@ -236,8 +236,13 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
 
         {
             auto& state = entity.getComponent<kubarem::StateComponent>();
-            if (ImGui::Button("Remove element")){
-                state.destroy_flag = true;
+            auto audio_positioned = entity.hasComponent<kubarem::AudioPositionedComponent>();
+            auto audio_background = entity.hasComponent<kubarem::AudioBackgroundComponent>();
+            auto audio_speech = entity.hasComponent<kubarem::AudioSpeechComponent>();
+            if (!audio_background and !audio_positioned and !audio_speech) {
+                if (ImGui::Button("Remove element")) {
+                    state.destroy_flag = true;
+                }
             }
         }
 
