@@ -8,15 +8,23 @@
 
 #include <glm/glm.hpp>
 
+namespace AudioCore {
+
+    static SoLoud::Soloud * _soloudCore;
+
+    void setup_audio_core();
+    void teardown_audio_core();
+    void update_3d_audio();
+}
+
+
 
 class _Sound{
 protected:
     uint8_t _soundHandler;
-    SoLoud::Soloud * _soloudCore;
-
 public:
     bool start_playback = false;
-    _Sound(SoLoud::Soloud * soloud_core);
+    _Sound();
     virtual ~_Sound();
     virtual void RunPlayback() = 0;
     virtual void StopPlayback() = 0;
@@ -29,7 +37,7 @@ protected:
     SoLoud::Wav sample;
     std::string file_name;
 public:
-    AudioPositioned(SoLoud::Soloud * soloud_core, const char * file_path);
+    AudioPositioned(const char * file_path);
     void RunPlayback() override {};
     void RunPlayback(glm::vec3 source_position);
     void StopPlayback() override;
@@ -39,7 +47,7 @@ public:
 
 class AudioBackground: public AudioPositioned{
 public:
-    AudioBackground(SoLoud::Soloud * soloud_core, const char * file_path);
+    AudioBackground(const char * file_path);
     void RunPlayback() override;
     void UpdatePositioning(glm::vec3 source_position, glm::vec3 listener_position, glm::vec3 listener_look_at) override {};
 };
@@ -50,8 +58,7 @@ protected:
     SoLoud::Speech speech;
 public:
     std::string text_to_speak;
-    AudioSpeech(SoLoud::Soloud * soloud_core,
-                const char * text_to_speak,
+    AudioSpeech(const char * text_to_speak,
                 unsigned int frequency,
                 float speed,
                 float declination,

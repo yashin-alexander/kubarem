@@ -50,8 +50,6 @@ namespace kubarem {
         GLFWwindow* window_;
         kubarem::Scene *scene_;
         Framebuffer *framebuffer_;
-        SoLoud::Soloud soloud_;
         Gui *gui_;
-
     };
 }

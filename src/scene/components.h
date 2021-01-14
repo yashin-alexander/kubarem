@@ -267,23 +267,23 @@ namespace kubarem {
         AudioPositioned audio;
         bool is_playing = false;
 
-        AudioPositionedComponent(SoLoud::Soloud *soloud_core, const char *file_path) : audio(soloud_core, file_path) {};
+        explicit AudioPositionedComponent(const char *file_path) : audio(file_path) {};
     };
 
     struct AudioBackgroundComponent {
         AudioBackground audio;
         bool is_playing = false;
 
-        AudioBackgroundComponent(SoLoud::Soloud *soloud_core, const char *file_path) : audio(soloud_core, file_path) {};
+        explicit AudioBackgroundComponent(const char *file_path) : audio(file_path) {};
     };
 
     struct AudioSpeechComponent {
         AudioSpeech audio;
         bool is_playing = false;
 
-        AudioSpeechComponent(SoLoud::Soloud *soloud_core, const char *text_to_speak, unsigned int frequency,
+        explicit AudioSpeechComponent(const char *text_to_speak, unsigned int frequency,
                              float speed, float declination, int wave_form) :
-                audio(soloud_core, text_to_speak, frequency, speed, declination, wave_form) {};
+                audio(text_to_speak, frequency, speed, declination, wave_form) {};
     };
 
     struct PyScriptComponent {

@@ -245,7 +245,7 @@ namespace kubarem {
         assert(false);
     }
 
-    bool SceneSerializer::Deserialize(const std::string &filepath,  SoLoud::Soloud * soloud_core) { // TODO: remove soloud pass
+    bool SceneSerializer::Deserialize(const std::string &filepath) {
         std::ifstream stream(filepath);
         std::stringstream strStream;
         strStream << stream.rdbuf();
@@ -349,7 +349,8 @@ namespace kubarem {
                                                                 rotation,
                                                                 scale};
 
-                        auto &c = deserializedEntity.addComponent<ParticlesComponent>(particles_parameters, (uint32_t)particles_number);
+                        auto &c = deserializedEntity.addComponent<ParticlesComponent>(particles_parameters,
+                                                                                      (uint32_t) particles_number);
                     }
                 }
 
@@ -358,7 +359,7 @@ namespace kubarem {
                     if (audio_positioned_component) {
                         log_dbg("\taudio positioned component");
                         auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
-                        deserializedEntity.addComponent<AudioPositionedComponent>(soloud_core, sound_name.c_str());
+                        deserializedEntity.addComponent<AudioPositionedComponent>(sound_name.c_str());
                     }
                 }
 
@@ -367,7 +368,7 @@ namespace kubarem {
                     if (audio_positioned_component) {
                         log_dbg("\taudio background component");
                         auto sound_name = audio_positioned_component["sound_name"].as<std::string>();
-                        deserializedEntity.addComponent<AudioBackgroundComponent>(soloud_core, sound_name.c_str());
+                        deserializedEntity.addComponent<AudioBackgroundComponent>(sound_name.c_str());
                     }
                 }
 
@@ -376,12 +377,12 @@ namespace kubarem {
                     if (audio_speech_component) {
                         log_dbg("\taudio speech component");
                         auto text_to_speak = audio_speech_component["text_to_speak"].as<std::string>();
-                        deserializedEntity.addComponent<AudioSpeechComponent>(soloud_core,
-                                                                                        text_to_speak.c_str(),
-                                                                                        (unsigned int) 530,
-                                                                                        (float) 10,
-                                                                                        (float) 0.5,
-                                                                                        (int) KW_NOISE);
+                        deserializedEntity.addComponent<AudioSpeechComponent>(
+                                text_to_speak.c_str(),
+                                (unsigned int) 530,
+                                (float) 10,
+                                (float) 0.5,
+                                (int) KW_NOISE);
                     }
                 }
 
