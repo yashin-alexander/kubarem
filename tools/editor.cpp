@@ -109,6 +109,7 @@ namespace kubarem {
         sceneContext.addComponent<kubarem::IlluminateCacheComponent>(
                 std::vector<glm::vec3>{glm::vec3(1), glm::vec3(2)}
         );
+        sceneContext.addComponent<kubarem::PyScriptComponent>("resources.blueprints.scene_blueprint");
 
 //        /*
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");

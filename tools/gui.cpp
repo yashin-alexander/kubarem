@@ -1,5 +1,7 @@
 #include "gui.h"
 
+#include <filesystem>
+
 
 static int InputTextCallback(ImGuiInputTextCallbackData* data){
     // Resize string callback
@@ -197,6 +199,18 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
             ImGui::InputFloat3("Position", glm::value_ptr(particles_component.controller.referenceParameters.position));
         }
 
+        if (entity.hasComponent<kubarem::PyScriptComponent>()){
+            auto &script = entity.getComponent<kubarem::PyScriptComponent>();
+            auto &state = entity.getComponent<kubarem::StateComponent>();
+            static char script_path[256];
+            strcpy(script_path, script.script_path.c_str());
+            if (ImGui::InputText("Script path", script_path, 256))
+                script._script_input_path = std::string(script_path);
+
+            if (ImGui::Button("Reload script"))
+                state.reload_script_flag = true;
+        }
+
         if (entity.hasComponent<kubarem::AudioSpeechComponent>()){
             auto &audio = entity.getComponent<kubarem::AudioSpeechComponent>();
 
@@ -218,6 +232,13 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
                 audio.audio.RunPlayback();
             if (ImGui::Button("Stop playback"))
                 audio.audio.StopPlayback();
+        }
+
+        {
+            auto& state = entity.getComponent<kubarem::StateComponent>();
+            if (ImGui::Button("Remove element")){
+                state.destroy_flag = true;
+            }
         }
 
         ImGui::TreePop();
