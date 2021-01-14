@@ -55,14 +55,20 @@ PYBIND11_EMBEDDED_MODULE(kubarem, module) {
             .def(py::init<float, float, float>())
             .def_readwrite("x", &glm::vec3::x)
             .def_readwrite("y", &glm::vec3::y)
-            .def_readwrite("z", &glm::vec3::z);
+            .def_readwrite("z", &glm::vec3::z)
+            .def("__repr__", [](const glm::vec3 &v) {
+                return std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+            });
 
     py::class_<glm::vec4>(module, "Vec4", py::dynamic_attr())
             .def(py::init<float, float, float, float>())
             .def_readwrite("x", &glm::vec4::x)
             .def_readwrite("y", &glm::vec4::y)
             .def_readwrite("z", &glm::vec4::z)
-            .def_readwrite("w", &glm::vec4::w);
+            .def_readwrite("w", &glm::vec4::w)
+            .def("__repr__", [](const glm::vec4 &v) {
+                return std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z) + " " + std::to_string(v.w);
+            });
 
     py::class_<kubarem::TransformComponent>(module, "TransformComponent", py::dynamic_attr())
             .def(py::init<glm::vec3, glm::vec3>())
