@@ -10,6 +10,7 @@
 #include "scene/entity.h"
 #include "scene/components.h"
 #include "renderer/framebuffer.h"
+#include "scene/scene_serializer.h"
 
 
 class Gui
@@ -18,7 +19,7 @@ public:
     Gui(GLFWwindow * window,
         kubarem::Framebuffer * framebuffer,
         kubarem::Scene * scene
-    ) : window_(window), framebuffer_(framebuffer), scene_(scene) {};
+    ) : window_(window), framebuffer_(framebuffer), scene_(scene), serializer_(scene_) {};
 
     ~Gui() = default;
     void ImGuiSetup();
@@ -38,4 +39,5 @@ private:
     kubarem::Scene * scene_;
 
     kubarem::Entity selection_context_;
+    kubarem::SceneSerializer serializer_;
 };

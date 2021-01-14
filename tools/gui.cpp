@@ -87,7 +87,16 @@ void Gui::onRender() {
             // Disabling fullscreen would allow the window to be moved to the front of other windows,
             // which we can't undo at the moment without finer window depth/z control.
             //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
+            if (ImGui::MenuItem("Open last scene('scene.yaml')")){
+                auto reg_view = scene_->registry.view<kubarem::UuidComponent>(entt::exclude<kubarem::InputComponent>);
+                for (const auto entity : reg_view){
+                    scene_->registry.destroy(entity);
+                }
+                serializer_.Deserialize("scene.yaml");
+            }
+            if (ImGui::MenuItem("Save current scene('scene.yaml')")){
+                serializer_.Serialize("scene.yaml");
+            }
             if (ImGui::MenuItem("Exit"))
                 glfwSetWindowShouldClose(window_, GL_TRUE);
             ImGui::EndMenu();
