@@ -1,20 +1,24 @@
 import math
 import time
-from kubarem import PyTransformComponent, Vec3
+from kubarem import Vec3, PyEntity
 
 
-class DerivedPyTransformComponent(PyTransformComponent):
-    def __init__(self, pos, siz):
-        super(DerivedPyTransformComponent, self).__init__(pos, siz)
-        # print("Position x:{} y:{} z:{}".format(self.position.x, self.position.y, self.position.z))
-        # print("Size x:{} y:{} z:{}".format(self.size.x, self.size.y, self.size.z))
+class DerivedPyEntity(PyEntity):
+    def __init__(self, uuid, tag, transform):
+        super(DerivedPyEntity, self).__init__(uuid, tag, transform)
 
     def on_update(self, delta_time):
-        self.position.x += math.sin(time.time())
-        self.position.z += math.cos(time.time())
+        self.transform.position.x += math.sin(time.time())
+        self.transform.position.z += math.cos(time.time())
+        # self.transform.position = Vec3(1, 2, 3)
+        # self.tag.tag = "Hello!"
+
 
     def on_create(self):
-        pass
+        super(DerivedPyEntity, self).on_create()
+        print("Entity {} created".format(self.tag.tag))
 
     def on_destroy(self):
-        pass
+        super(DerivedPyEntity, self).on_destroy()
+        print("Entity {} on destroy".format(self.tag.tag))
+
