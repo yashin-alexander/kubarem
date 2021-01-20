@@ -16,6 +16,7 @@
 #include "scene/components.h"
 #include "renderer/framebuffer.h"
 #include "particles/particle_controller.h"
+#include "scene/scene_serializer.h"
 
 
 const unsigned int SCR_WIDTH = 1280;
@@ -134,6 +135,7 @@ namespace kubarem {
             tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2, 3), glm::vec3(4));
             tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
 
+            /*
             kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
             cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
             cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
@@ -168,11 +170,15 @@ namespace kubarem {
 
         kubarem::Entity audio_background = scene_->CreateEntity("AudioBackground");
         audio_background.addComponent<kubarem::AudioBackgroundComponent>(audioBackground);
+             */
 
 //        kubarem::Entity audioSpeech = scene_->CreateEntity("AudioSpeech");
 //        audioSpeech.addComponent<kubarem::AudioSpeechComponent>(&soloud_, "You will die! I kill you",
 //                                                                (unsigned int) 530, (float) 10, (float) 0.5,
 //                                                                (int) KW_NOISE);
+
+            SceneSerializer serializer(scene_);
+            serializer.Deserialize("scene.yaml");
         }
 
 
