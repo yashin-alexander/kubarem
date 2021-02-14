@@ -27,9 +27,7 @@ namespace goap {
         }
 
         bool operator==(const WorldFact& other) const{
-            return (other.entity_uuid == this->entity_uuid and
-                    other.name == this->name and
-                    other.value == this->value);
+            return other.id_ == this->id_;
         }
 
         bool operator<(const WorldFact& rhs) const
