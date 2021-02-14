@@ -17,6 +17,7 @@
 #include "renderer/framebuffer.h"
 #include "particles/particle_controller.h"
 #include "scene/scene_serializer.h"
+#include "scene/uuid.h"
 
 
 const unsigned int SCR_WIDTH = 1280;
@@ -339,9 +340,92 @@ namespace kubarem {
     };
 }
 
-int main() {
-    kubarem::App app = kubarem::App();
-    app.Run();
-    return 0;
+//int main() {
+//    kubarem::App app = kubarem::App();
+//    app.Run();
+//    return 0;
+//}
+
+
+
+/**
+* @brief an example befitting the AI of a naval wargame
+*
+* @date August 2014
+* @copyright (c) 2014 Prylis Inc. All rights reserved.
+*/
+
+#include "ai/action.h"
+#include "ai/planner.h"
+#include "ai/world_state.h"
+
+#include <iostream>
+#include <vector>
+
+using namespace goap;
+
+
+
+int GOAPHeuristic(const WorldState &now, const WorldState &goal) {
+    return now.distanceTo(goal) * 2;
 }
 
+
+int main(void) {
+    std::vector<Action> actions;
+
+    std::string gun_uuid = UUID::generate_uuid_v4();
+    std::string target_uuid = UUID::generate_uuid_v4();
+    std::string car_uuid = UUID::generate_uuid_v4();
+
+    WorldState start("start");
+    start.setFact(target_uuid.c_str(), "Dead", false);
+    start.setFact(gun_uuid.c_str(), "Loaded", false);
+    start.setFact(car_uuid.c_str(), "Open", false);
+
+    WorldState end("end");
+    end.setFact(target_uuid.c_str(), "Dead", true);
+
+    goap::Action openCar("OpenCar", 5);
+    openCar.setPrecondition(gun_uuid.c_str(), "Loaded", true);
+    openCar.setPrecondition(car_uuid.c_str(), "Open", false);
+    openCar.setEffect(car_uuid.c_str(), "Open", true);
+    actions.push_back(openCar);
+
+    // ------
+    goap::Action getGun("GetGun", 4);
+    getGun.setPrecondition(car_uuid.c_str(), "Broken", true);
+    getGun.setPrecondition(gun_uuid.c_str(), "Loaded", false);
+    getGun.setEffect(gun_uuid.c_str(), "Loaded", true);
+    actions.push_back(getGun);
+    goap::Action breakCar("breakCar", 4);
+    breakCar.setPrecondition(car_uuid.c_str(), "Open", false);
+    breakCar.setEffect(car_uuid.c_str(), "Broken", true);
+    actions.push_back(breakCar);
+
+
+    goap::Action makeGun("makeGun", 9);
+    makeGun.setPrecondition(car_uuid.c_str(), "Open", false);
+    makeGun.setPrecondition(gun_uuid.c_str(), "Loaded", false);
+    makeGun.setEffect(gun_uuid.c_str(), "Loaded", true);
+    actions.push_back(makeGun);
+
+    // -----
+    goap::Action shoot("Shoot", 10);
+    shoot.setPrecondition(gun_uuid.c_str(), "Loaded", true);
+    shoot.setPrecondition(target_uuid.c_str(), "Dead", false);
+    shoot.setEffect(target_uuid.c_str(), "Dead", true);
+    shoot.setEffect(gun_uuid.c_str(), "Loaded", false);
+    actions.push_back(shoot);
+
+    Planner as(GOAPHeuristic);
+    try {
+        std::vector<Action> the_plan = as.plan(start, end, actions);
+        for (std::vector<Action>::reverse_iterator rit = the_plan.rbegin(); rit != the_plan.rend(); ++rit) {
+            log_info("%s", rit->name().c_str());
+        }
+    }
+    catch (const std::exception&) {
+        std::cout << "Sorry, could not find a path!\n";
+    }
+}
