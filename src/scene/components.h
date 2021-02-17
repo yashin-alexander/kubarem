@@ -18,6 +18,8 @@
 #include "audio/audio.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
+#include "ai/action.h"
+#include "ai/world_state.h"
 
 
 namespace kubarem {
@@ -289,5 +291,22 @@ namespace kubarem {
         std::string _script_input_path;
 
         explicit PyScriptComponent(const char * script_path) : script_path(script_path), _script_input_path(script_path) {};
+    };
+
+    struct AIComponent {
+        std::vector<goap::Action> actions_list;
+        goap::WorldState initial_world_state;
+        goap::WorldState goal_world_state;
+        int (*heuristicFunctionPointer)(const goap::WorldState &node, const goap::WorldState &goal);
+
+        explicit AIComponent(std::vector<goap::Action> actions,
+                             goap::WorldState initial,
+                             goap::WorldState goal,
+                             int (*heuristicFunction)(const goap::WorldState &node, const goap::WorldState &goal)):
+        actions_list(std::move(actions)),
+        initial_world_state(std::move(initial)),
+        goal_world_state(std::move(goal)),
+        heuristicFunctionPointer(heuristicFunction)
+        {};
     };
 }

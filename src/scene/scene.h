@@ -16,6 +16,7 @@ namespace kubarem {
         ~Scene() = default;
 
         Entity CreateEntity(const std::string& name = std::string(), const std::string &uuid = "");
+        void OnAIUpdateRuntime(float ts);
         void OnUpdateRuntime(float ts);
         void OnRenderRuntime(float ts);
         void InputUpdate();

@@ -2,6 +2,7 @@
 #include "scene/components.h"
 #include "scene/entity.h"
 #include "embeddings/embeddings.h"
+#include "ai/planner.h"
 
 
 namespace kubarem {
@@ -13,6 +14,44 @@ namespace kubarem {
         auto &generated_uuid = entity.addComponent<UuidComponent>(uuid);
         log_dbg("Scene: created entity with uuid %s", generated_uuid.uuid.c_str());
         return entity;
+    }
+
+    void Scene::OnAIUpdateRuntime(float ts) {
+        auto AIEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, AIComponent>();
+        auto AITransformView = registry.view<UuidComponent, TransformComponent, TagComponent>();
+        for (const auto AIEntity : AIEntitiesView) {
+            auto[uuid, tag, transform, ai] = AIEntitiesView.get<UuidComponent, TagComponent, TransformComponent, AIComponent>(AIEntity);
+            goap::Planner planner(ai.heuristicFunctionPointer);
+            try {
+                std::vector<goap::Action> plan = planner.plan(ai.initial_world_state, ai.goal_world_state, ai.actions_list);
+                if (!plan.empty()){
+                    auto current_action = plan.back();
+
+                    log_info("%s", current_action.name().c_str());
+
+
+
+                    if (current_action.name() == "Load fuel"){
+                        for (const auto probable_goal: AITransformView) {
+                            auto[uuid, goal_transform, tag] = AITransformView.get<UuidComponent, TransformComponent, TagComponent>(probable_goal);
+                            for (auto& effects : current_action.effects_->facts_){
+                                if (uuid.uuid == effects.entity_uuid) {
+//                                    transform.position.x += (goal_transform.position.x - transform.position.x) * ts;
+                                    goal_transform.position.x += 1;
+//                                    transform.position.z = goal_transform.position.z;
+                                    log_info("UUId odunfr! %d %d", transform.position.x, goal_transform.position.x);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                log_info("=====");
+            }
+            catch (const std::exception&) {
+                log_info("Path cannot be found");
+            }
+        }
     }
 
     void Scene::OnUpdateRuntime(float ts) {
