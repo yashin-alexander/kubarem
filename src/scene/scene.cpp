@@ -17,29 +17,31 @@ namespace kubarem {
     }
 
     void Scene::OnAIUpdateRuntime(float ts) {
-        auto AIEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, AIComponent>();
+        auto AIEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, AIComponent>(entt::exclude<PyScriptComponent>);
         auto AITransformView = registry.view<UuidComponent, TransformComponent, TagComponent>();
         for (const auto AIEntity : AIEntitiesView) {
             auto[uuid, tag, transform, ai] = AIEntitiesView.get<UuidComponent, TagComponent, TransformComponent, AIComponent>(AIEntity);
-            goap::Planner planner(ai.heuristicFunctionPointer);
             try {
-                std::vector<goap::Action> plan = planner.plan(ai.initial_world_state, ai.goal_world_state, ai.actions_list);
+                goap::Planner planner(ai.heuristicFunctionPointer);
+                std::vector<goap::Action> plan = planner.plan(ai.initial_world_state,
+                                                              ai.goal_world_state,
+                                                              ai.actions_list);
                 if (!plan.empty()){
                     auto current_action = plan.back();
 
-                    log_info("%s", current_action.name().c_str());
-
-
+                    log_info("Current action %s", current_action.name().c_str());
 
                     if (current_action.name() == "Load fuel"){
                         for (const auto probable_goal: AITransformView) {
                             auto[uuid, goal_transform, tag] = AITransformView.get<UuidComponent, TransformComponent, TagComponent>(probable_goal);
+                            log_info("%d", current_action.effects_->facts_.size());
                             for (auto& effects : current_action.effects_->facts_){
+                                log_info("%s", effects.name.c_str());
                                 if (uuid.uuid == effects.entity_uuid) {
 //                                    transform.position.x += (goal_transform.position.x - transform.position.x) * ts;
                                     goal_transform.position.x += 1;
 //                                    transform.position.z = goal_transform.position.z;
-                                    log_info("UUId odunfr! %d %d", transform.position.x, goal_transform.position.x);
+                                    log_info("Goal work with UUID %s tag: %s position x", uuid.uuid.c_str(), tag.tag.c_str());
                                 }
                             }
                         }

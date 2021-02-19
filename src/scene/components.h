@@ -20,6 +20,7 @@
 #include "particles/particle_controller.h"
 #include "ai/action.h"
 #include "ai/world_state.h"
+#include "ai/planner.h"
 
 
 namespace kubarem {
@@ -298,6 +299,7 @@ namespace kubarem {
         goap::WorldState initial_world_state;
         goap::WorldState goal_world_state;
         int (*heuristicFunctionPointer)(const goap::WorldState &node, const goap::WorldState &goal);
+//        goap::Planner planner;
 
         explicit AIComponent(std::vector<goap::Action> actions,
                              goap::WorldState initial,
@@ -307,6 +309,11 @@ namespace kubarem {
         initial_world_state(std::move(initial)),
         goal_world_state(std::move(goal)),
         heuristicFunctionPointer(heuristicFunction)
+//        planner(heuristicFunction)
         {};
+    };
+
+    struct AIFollowGoalComponent {
+
     };
 }
