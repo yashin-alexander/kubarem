@@ -32,6 +32,6 @@ namespace goap {
         void logOpenList() const;
         void logClosedList() const;
 
-        std::vector<Action> plan(const WorldState& start, const WorldState& goal, const std::vector<Action>& actions);
+        std::vector<const Action *> plan(const WorldState& start, const WorldState& goal, const std::vector<const Action *> actions);
     };
 }
