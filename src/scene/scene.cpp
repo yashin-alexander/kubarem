@@ -2,6 +2,9 @@
 #include "scene/components.h"
 #include "scene/entity.h"
 #include "embeddings/embeddings.h"
+#include "ai/planner.h"
+#include "ai/actions/ai_action_follow.h"
+#include "entt/entt.hpp"
 
 
 namespace kubarem {
@@ -13,6 +16,34 @@ namespace kubarem {
         auto &generated_uuid = entity.addComponent<UuidComponent>(uuid);
         log_dbg("Scene: created entity with uuid %s", generated_uuid.uuid.c_str());
         return entity;
+    }
+
+    void Scene::OnAIUpdateRuntime(float ts) {
+        auto AIEntitiesView = registry.view<UuidComponent, TagComponent, TransformComponent, AIComponent>();
+        auto AITargetView = registry.view<AITargetComponent, UuidComponent, TransformComponent, TagComponent>();
+        for (const auto ai_entity : AIEntitiesView) {
+            auto[uuid, tag, transform, ai] = AIEntitiesView.get<UuidComponent, TagComponent, TransformComponent, AIComponent>(ai_entity);
+            goap::Planner planner(ai.heuristicFunctionPointer);
+            try {
+                std::vector<const goap::Action *> plan = planner.plan(ai.initial_world_state, ai.goal_world_state, ai.actions_list);
+                if (!plan.empty()){
+                    auto current_action = plan.back();
+                    std::string target_id_str = current_action->getTargetId();
+
+                    for (const auto ai_target : AITargetView){
+                        auto applier_entity_entt = entt::to_entity(registry, transform);
+                        kubarem::Entity applier_entity = {applier_entity_entt, this};
+                        auto target_entity_entt = entt::to_entity(registry, ai_target);
+                        kubarem::Entity target_entity = {target_entity_entt, this};
+
+                        (static_cast<const AIActionFollow *>(current_action))->perform(applier_entity, target_entity);
+                    }
+                }
+            }
+            catch (const std::exception&) {
+                log_info("Path cannot be found");
+            }
+        }
     }
 
     void Scene::OnUpdateRuntime(float ts) {

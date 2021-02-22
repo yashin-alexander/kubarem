@@ -18,6 +18,8 @@
 #include "audio/audio.h"
 #include "objects/object.h"
 #include "particles/particle_controller.h"
+#include "ai/action.h"
+#include "ai/world_state.h"
 
 
 namespace kubarem {
@@ -53,7 +55,6 @@ namespace kubarem {
     struct TransformComponent {
         glm::vec3 position;
         glm::vec3 size;
-        float x = 0.01;
 
         TransformComponent(glm::vec3 position, glm::vec3 size) : position(position), size(size) {};
     };
@@ -290,4 +291,28 @@ namespace kubarem {
 
         explicit PyScriptComponent(const char * script_path) : script_path(script_path), _script_input_path(script_path) {};
     };
+
+    struct AIComponent {
+        std::vector<const goap::Action *> actions_list;
+        goap::WorldState initial_world_state;
+        goap::WorldState goal_world_state;
+        int (*heuristicFunctionPointer)(const goap::WorldState &node, const goap::WorldState &goal);
+
+        explicit AIComponent(std::vector<const goap::Action *> actions,
+                             goap::WorldState initial,
+                             goap::WorldState goal,
+                             int (*heuristicFunction)(const goap::WorldState &node, const goap::WorldState &goal)):
+        actions_list(std::move(actions)),
+        initial_world_state(std::move(initial)),
+        goal_world_state(std::move(goal)),
+        heuristicFunctionPointer(heuristicFunction)
+        {};
+    };
+
+   struct AITargetComponent {
+       // Indicates that this entity acts as a target for some action
+       std::string action_name;
+
+       explicit AITargetComponent(std::string action_name): action_name(std::move(action_name)){};
+   };
 }
