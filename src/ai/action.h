@@ -4,34 +4,40 @@
 #include <unordered_map>
 
 #include "world_state.h"
+#include "scene/entity.h"
 
 
 namespace goap {
     class Action {
-    private:
-        std::string name_;
+    protected:
         int cost_;
+        std::string name_;
+        std::string target_entity_id_;
 
     public:
         WorldState * effects_;
         WorldState * preconditions_;
+
         Action(std::string name, int cost);
+        Action(std::string name, int cost, kubarem::Entity &target_entity);
+        virtual ~Action() = default;
 
-        bool operableOn(const goap::WorldState& ws) const;
+        virtual bool operableOn(const goap::WorldState& ws) const;
+        virtual WorldState actOn(const WorldState& ws) const;
+        virtual bool perform(kubarem::Entity &applier, kubarem::Entity &target) const = 0;
 
-        WorldState actOn(const WorldState& ws) const;
-
-        void setPrecondition(const char * uuid_v4 , const char * name, bool value) const{
+        virtual void setPrecondition(const char * uuid_v4 , const char * name, bool value) const{
             preconditions_->setFact(uuid_v4, name, value);
         }
 
-        void setEffect(const char * uuid_v4 , const char * name, bool value) const{
+        virtual void setEffect(const char * uuid_v4 , const char * name, bool value) const{
             effects_->setFact(uuid_v4, name, value);
         }
 
-        int cost() const { return cost_; }
-        std::string name() const { return name_; }
+        virtual int getCost() const { return cost_; }
+        virtual std::string getName() const { return name_; }
+        virtual std::string getTargetId() const { return target_entity_id_; }
 
-        void log() const;
+        virtual void log() const;
     };
 }
