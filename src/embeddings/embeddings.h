@@ -71,8 +71,9 @@ PYBIND11_EMBEDDED_MODULE(kubarem, module) {
             });
 
     py::class_<kubarem::TransformComponent>(module, "TransformComponent", py::dynamic_attr())
-            .def(py::init<glm::vec3, glm::vec3>())
+            .def(py::init<glm::vec3, glm::vec3, glm::vec3>())
             .def_readwrite("position", &kubarem::TransformComponent::position)
+            .def_readwrite("rotation", &kubarem::TransformComponent::rotation)
             .def_readwrite("size", &kubarem::TransformComponent::size);
 
     py::class_<kubarem::TagComponent>(module, "TagComponent", py::dynamic_attr())

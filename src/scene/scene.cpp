@@ -230,7 +230,7 @@ namespace kubarem {
 
                 renderer.Render(camera.GetCamera(), screen_scale.screen_scale, &model, &shader,
                                 lights_cache.light_sources[0],
-                                transform.position, transform.size);
+                                transform.getTransform());
             }
             // render cubes
             for (auto renderCubeEntity : renderCubeDataView) {
@@ -241,7 +241,7 @@ namespace kubarem {
                 auto shader = shader_unpack->second;
 
                 renderer.RenderCube(camera.GetCamera(), screen_scale.screen_scale, cube.VAO_, cube.texture, &shader,
-                                    lights_cache.light_sources[0], transform.position, transform.size);
+                                    lights_cache.light_sources[0], transform.getTransform());
             }
 
             // render particles

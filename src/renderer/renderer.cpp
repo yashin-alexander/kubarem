@@ -21,18 +21,12 @@ void Renderer::Render(Camera *camera,
                  Model *model,
                  Shader *shader,
                  glm::vec3 light_point,
-                 glm::vec3 position,
-                 glm::vec3 size) {
+                 glm::mat4 transform) {
     glUseProgram(shader->program_ID_);
 
     this->SetupLightning_(light_point, shader);
 
-    glm::mat4 mod_matrix = glm::mat4(1.0f);
-
-    mod_matrix = glm::translate(mod_matrix, position);
-    mod_matrix = glm::scale(mod_matrix, size);
-
-    shader->SetMatrix4("model", mod_matrix);
+    shader->SetMatrix4("model", transform);
     glm::mat4 view = camera->GetViewMatrix();
     shader->SetMatrix4("view", view);
     glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_),
@@ -43,11 +37,8 @@ void Renderer::Render(Camera *camera,
 }
 
 
-void Renderer::Render(Camera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size, GLfloat delta_time) {
-
-    auto time = (GLfloat) glfwGetTime();
-    position[2] = sin(time) * position[2];
-    Render(camera, screen_scale, model, shader, light_point, position, size);
+void Renderer::Render(Camera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::mat4 transform, GLfloat delta_time) {
+    Render(camera, screen_scale, model, shader, light_point, transform);
 }
 
 void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size) {
@@ -74,7 +65,7 @@ void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat scr
 
 
 void Renderer::RenderCube(Camera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader,
-                          glm::vec3 light_point, glm::vec3 position, glm::vec3 size) {
+                          glm::vec3 light_point, glm::mat4 transform) {
     glUseProgram(shader->program_ID_);
     this->SetupLightning_(light_point, shader);
     shader->SetVector3f("viewPos", camera->position_);
@@ -84,15 +75,10 @@ void Renderer::RenderCube(Camera *camera, GLfloat screen_scale, GLuint VAO, GLui
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::scale(model, size);
-
     glm::mat4 view = camera->GetViewMatrix();
-
     glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_), screen_scale, 0.1f, 1200.0f);
 
-    shader->SetMatrix4("model", model);
+    shader->SetMatrix4("model", transform);
     shader->SetMatrix4("view", view);
     shader->SetMatrix4("projection", projection);
 

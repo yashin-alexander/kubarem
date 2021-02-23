@@ -54,9 +54,18 @@ namespace kubarem {
 
     struct TransformComponent {
         glm::vec3 position;
+        glm::vec3 rotation;
         glm::vec3 size;
 
-        TransformComponent(glm::vec3 position, glm::vec3 size) : position(position), size(size) {};
+        TransformComponent(glm::vec3 position, glm::vec3 rotation, glm::vec3 size) : position(position), rotation(rotation), size(size) {};
+
+        glm::mat4 getTransform() const {
+            glm::mat4 rot = glm::toMat4(glm::quat(rotation));
+            return glm::translate(glm::mat4(1.0f), position)
+                                  * rot
+                                  * glm::scale(glm::mat4(1.0f), size);
+
+        }
     };
 
     struct ShaderProgramComponent {

@@ -92,6 +92,7 @@ namespace kubarem {
             out << YAML::Key << "TransformComponent";
             out << YAML::BeginMap;
             out << YAML::Key << "position" << YAML::Value << c.position;
+            out << YAML::Key << "rotation" << YAML::Value << c.rotation;
             out << YAML::Key << "size" << YAML::Value << c.size;
             out << YAML::EndMap;
         }
@@ -271,8 +272,9 @@ namespace kubarem {
                     if (transformComponent) {
                         log_dbg("\ttransform component");
                         auto position = transformComponent["position"].as<glm::vec3>();
+                        auto rotation = transformComponent["rotation"].as<glm::vec3>();
                         auto size = transformComponent["size"].as<glm::vec3>();
-                        auto &c = deserializedEntity.addComponent<TransformComponent>(position, size);
+                        auto &c = deserializedEntity.addComponent<TransformComponent>(position, rotation, size);
                     }
                 }
 
