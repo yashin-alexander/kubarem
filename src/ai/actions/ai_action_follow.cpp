@@ -8,6 +8,8 @@ bool AIActionFollow::perform(kubarem::Entity &applier, kubarem::Entity &target) 
     auto &target_transform = target.getComponent<kubarem::TransformComponent>();
     glm::vec3 distance = glm::vec3(target_transform.position) - glm::vec3(applier_transform.position);
     if (glm::length(distance) >= speed) {
+        applier_transform.is_looking_at = true;
+        applier_transform.look_at = target_transform.position;
         applier_transform.position += glm::normalize(distance) * speed;
         return false;
     }

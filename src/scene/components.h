@@ -57,14 +57,21 @@ namespace kubarem {
         glm::vec3 rotation;
         glm::vec3 size;
 
+        bool is_looking_at = false;
+        glm::vec3 look_at{0.0f, 0.0f, 0.0f};
+
         TransformComponent(glm::vec3 position, glm::vec3 rotation, glm::vec3 size) : position(position), rotation(rotation), size(size) {};
 
         glm::mat4 getTransform() const {
-            glm::mat4 rot = glm::toMat4(glm::quat(rotation));
-            return glm::translate(glm::mat4(1.0f), position)
-                                  * rot
-                                  * glm::scale(glm::mat4(1.0f), size);
-
+            if (!is_looking_at){
+                glm::mat4 rot = glm::toMat4(glm::quat(rotation));
+                return glm::translate(glm::mat4(1.0f), position)
+                                      * rot
+                                      * glm::scale(glm::mat4(1.0f), size);
+            } else {
+                glm::mat4 rot = glm::inverse(glm::lookAt(position, look_at, glm::vec3(0, 1, 0)));
+                return rot * glm::scale(glm::mat4(1.0f), size);
+            }
         }
     };
 
