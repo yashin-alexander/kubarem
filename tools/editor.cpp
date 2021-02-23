@@ -118,12 +118,12 @@ namespace kubarem {
         kubarem::Entity tpc = scene_->CreateEntity("ThirdPersonCharacter");
         tpc.addComponent<kubarem::ThirdPersonCharacterComponent>(false);
         tpc.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
-        tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2, 3), glm::vec3(4));
+        tpc.addComponent<kubarem::TransformComponent>(glm::vec3(1, 2, 3), glm::vec3(0), glm::vec3(4));
         tpc.addComponent<kubarem::ShaderProgramComponent>("src/shaders/main_vs.glsl");
 
         kubarem::Entity cyborgEntity = scene_->CreateEntity("Cyborg");
         cyborgEntity.addComponent<kubarem::ModelComponent>("resources/objects/cyborg/cyborg.obj");
-        cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(6, 6, 6));
+        cyborgEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -100), glm::vec3(0), glm::vec3(6, 6, 6));
         cyborgEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 
         for (int i = 0; i < 65; i++) {
@@ -133,20 +133,20 @@ namespace kubarem {
             kubarem::Entity ballEntity = scene_->CreateEntity(name);
             ballEntity.addComponent<kubarem::ModelComponent>("resources/objects/sphere/sphere.obj");
             ballEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.ball_blueprint");
-            ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(1));
+            ballEntity.addComponent<kubarem::TransformComponent>(position, glm::vec3(0), glm::vec3(1));
             ballEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
         }
 
         kubarem::Entity cubeEntity = scene_->CreateEntity("Cube");
         cubeEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/minecraft_wood.png");
-        cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(10));
+        cubeEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, 0, -40), glm::vec3(0), glm::vec3(10));
         cubeEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
         cubeEntity.addComponent<kubarem::AudioPositionedComponent>(audioPositioned);
         cubeEntity.addComponent<kubarem::PyScriptComponent>("resources.blueprints.cube_blueprint");
 
         kubarem::Entity floorEntity = scene_->CreateEntity("Floor");
         floorEntity.addComponent<kubarem::CubeObjectComponent>("resources/textures/background.png");
-        floorEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, -5, 0), glm::vec3(400, 0.3, 400));
+        floorEntity.addComponent<kubarem::TransformComponent>(glm::vec3(0, -5, 0), glm::vec3(0), glm::vec3(400, 0.3, 400));
         floorEntity.addComponent<kubarem::ShaderProgramComponent>("src/shaders/object_vs.glsl");
 
         kubarem::Entity particlesEmitterEntity = scene_->CreateEntity("ParticleEmitter");

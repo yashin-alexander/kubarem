@@ -187,7 +187,11 @@ void Gui::renderEntityNode(kubarem::Entity entity) {
     if (open){
         if (entity.hasComponent<kubarem::TransformComponent>()){
             auto& transform = entity.getComponent<kubarem::TransformComponent>();
+            glm::vec3 rotation = glm::degrees(transform.rotation);
             ImGui::InputFloat3("Position", glm::value_ptr(transform.position));
+            if (ImGui::InputFloat3("Rotation", glm::value_ptr(rotation))) {
+                transform.rotation = glm::radians(rotation);
+            }
             ImGui::InputFloat3("Size", glm::value_ptr(transform.size));
 
             if (entity.hasComponent<kubarem::AudioPositionedComponent>()) {
