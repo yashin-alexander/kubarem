@@ -139,6 +139,8 @@ set(YAML_CPP_INCLUDE_DIR "${YAML_CPP_DIR}/include")
 set(PYBIND11_DIR "${THIRDPARTY_DIR}/pybind11")
 
 add_subdirectory("${PYBIND11_DIR}")
+target_link_libraries(pybind11::embed INTERFACE -lutil -rdynamic)
+
 #find_library(PYBIND11_LIBRARY "pybind11" "${PYBIND11_DIR}" "${PYBIND11_DIR}")
 #include_directories("${PYBIND11_DIR}/pybind11/include" /usr/include/python3.7)
 
