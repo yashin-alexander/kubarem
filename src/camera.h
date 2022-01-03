@@ -36,7 +36,6 @@ public:
     float zoom_;
 
     glm::vec3 main_character_position_;
-    GLfloat spring_arm_length_;
     glm::vec3 spring_arm_offset_;
 
     explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -90,6 +89,7 @@ protected:
 
 class PlatformerCamera: public Camera {
 public:
+    GLfloat spring_arm_length_;
     explicit PlatformerCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
     glm::vec3 GetFront() const override;
     glm::mat4 GetViewMatrix() override;

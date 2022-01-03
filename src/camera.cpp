@@ -112,8 +112,8 @@ void Camera::UpdateCameraVectors()
 
 ThirdPersonCamera::ThirdPersonCamera(GLfloat spring_arm_length,
                                      glm::vec3 position):
-                                     Camera(position),
-                                     spring_arm_length_(spring_arm_length)
+                                     spring_arm_length_(spring_arm_length),
+                                     Camera(position)
 {
     pitch_ = -20.0f;
     spring_arm_offset_ = glm::vec3(0.0f, -pitch_, spring_arm_length_);

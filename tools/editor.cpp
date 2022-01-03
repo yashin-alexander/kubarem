@@ -105,7 +105,8 @@ namespace kubarem {
         };
 
         kubarem::Entity sceneContext = scene_->CreateEntity("SceneContext");
-        sceneContext.addComponent<kubarem::CameraComponent>(1.f);
+        Camera *camera = new Camera();
+        sceneContext.addComponent<kubarem::CameraComponent>(camera, 1.f);
         sceneContext.addComponent<kubarem::InputComponent>(window_);
         sceneContext.addComponent<kubarem::ScreenScaleComponent>((float) SCR_WIDTH / (float) SCR_HEIGHT);
         sceneContext.addComponent<kubarem::ModelsCacheComponent>(models_map);
