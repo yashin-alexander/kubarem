@@ -16,7 +16,7 @@ void Renderer::SetupLightning_(glm::vec3 light_point, Shader * shader) {
 }
 
 
-void Renderer::Render(Camera *camera,
+void Renderer::Render(BaseCamera *camera,
                  GLfloat screen_scale,
                  Model *model,
                  Shader *shader,
@@ -37,7 +37,7 @@ void Renderer::Render(Camera *camera,
 }
 
 
-void Renderer::Render(Camera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::mat4 transform, GLfloat delta_time) {
+void Renderer::Render(BaseCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::mat4 transform, GLfloat delta_time) {
     Render(camera, screen_scale, model, shader, light_point, transform);
 }
 
@@ -64,7 +64,7 @@ void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat scr
 }
 
 
-void Renderer::RenderCube(Camera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader,
+void Renderer::RenderCube(BaseCamera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader,
                           glm::vec3 light_point, glm::mat4 transform) {
     glUseProgram(shader->program_ID_);
     this->SetupLightning_(light_point, shader);

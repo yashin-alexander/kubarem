@@ -121,13 +121,13 @@ namespace kubarem {
             out << YAML::Key << "CameraComponent";
             out << YAML::BeginMap;
             if (typeid(*c.GetCamera()) == typeid(ThirdPersonCamera)) {
-                camera_type = "ThirdPersonCamera";
+                camera_type = THIRD_PERSON_CAMERA_CLASSNAME;
                 out << YAML::Key << "spring_arm_length" <<
                 YAML::Value << static_cast<ThirdPersonCamera *>(c.GetCamera())->spring_arm_length_;
             } else if (typeid(*c.GetCamera()) == typeid(PlatformerCamera)) {
-                camera_type = "PlatformerCamera";
+                camera_type = PLATFORMER_CAMERA_CLASSNAME;
             } else {
-                camera_type = "Camera";
+                camera_type = FREE_CAMERA_CLASSNAME;
             }
             out << YAML::Key << "camera_type" << YAML::Value << camera_type;
             out << YAML::Key << "input_speed" << YAML::Value << c.input_speed;
@@ -309,7 +309,7 @@ namespace kubarem {
                         log_dbg("\tcamera component");
                         auto camera_type = camera_component["camera_type"].as<std::string>();
                         auto input_speed = camera_component["input_speed"].as<float>();
-                        Camera * camera = nullptr;
+                        BaseCamera * camera = nullptr;
                         if (camera_type == "ThirdPersonCamera") {
                             auto spring_arm_length = camera_component["spring_arm_length"].as<float>();
                             log_dbg("\t\tThird person camera component setting up");
@@ -319,7 +319,7 @@ namespace kubarem {
                             camera = new PlatformerCamera();
                         } else {
                             log_dbg("\t\tCamera component setting up");
-                            camera = new Camera();
+                            camera = new BaseCamera();
                         }
                         auto &c = deserializedEntity.addComponent<CameraComponent>(camera, input_speed);
                     }

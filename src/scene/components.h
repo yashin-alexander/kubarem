@@ -92,9 +92,9 @@ namespace kubarem {
 
     struct CameraComponent {
         GLfloat input_speed;
-        Camera *camera;
+        BaseCamera *camera;
 
-        explicit CameraComponent(Camera *camera, GLfloat input_speed): camera(camera), input_speed(input_speed) {
+        explicit CameraComponent(BaseCamera *camera, GLfloat input_speed): camera(camera), input_speed(input_speed) {
             this->camera->GetViewMatrix();
         };
 
@@ -106,7 +106,7 @@ namespace kubarem {
             camera->ProcessMouseMovement(x_offset, y_offset, constrain_pitch);
         }
 
-        Camera * GetCamera() {
+        BaseCamera * GetCamera() {
             return camera;
         }
     };

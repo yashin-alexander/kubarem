@@ -21,7 +21,12 @@ const float kSensitivity =  0.1f;
 const float kZoom        =  45.0f;
 
 
-class Camera {
+inline const char* FREE_CAMERA_CLASSNAME = "BaseCamera";
+inline const char* THIRD_PERSON_CAMERA_CLASSNAME = "ThirdPersonCamera";
+inline const char* PLATFORMER_CAMERA_CLASSNAME = "PlatformerCamera";
+
+
+class BaseCamera {
 public:
     glm::vec3 position_;
     glm::vec3 front_;
@@ -38,11 +43,11 @@ public:
     glm::vec3 main_character_position_;
     glm::vec3 spring_arm_offset_;
 
-    explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+    explicit BaseCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
                     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
                     float yaw = kYaw,
                     float pitch = kPitch);
-    ~Camera();
+    ~BaseCamera();
     virtual glm::vec3 FrontXZ();
     virtual glm::vec3 RightXZ();
     virtual glm::mat4 GetViewMatrix();
@@ -61,7 +66,7 @@ protected:
 };
 
 
-class ThirdPersonCamera: public Camera {
+class ThirdPersonCamera: public BaseCamera {
 public:
     glm::vec3 main_character_position_;
     GLfloat spring_arm_length_;
@@ -87,7 +92,7 @@ protected:
 };
 
 
-class PlatformerCamera: public Camera {
+class PlatformerCamera: public BaseCamera {
 public:
     GLfloat spring_arm_length_;
     explicit PlatformerCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));

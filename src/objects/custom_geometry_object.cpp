@@ -6,7 +6,7 @@
 
 CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
                                            Shader *shader_program,
-                                           Camera *camera,
+                                           BaseCamera *camera,
                                            const char *texture_name,
                                            glm::vec3 position,
                                            glm::vec3 size) :

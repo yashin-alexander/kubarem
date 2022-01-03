@@ -36,7 +36,7 @@ ParticleRenderer::ParticleRenderer()
 }
 
 
-void ParticleRenderer::render(Camera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) {
+void ParticleRenderer::render(BaseCamera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) {
     shader->Use();
 
     vboBufferWritePosition = -1;

@@ -50,6 +50,6 @@ inline ParticleParameters ParticleController::randomizeParticleParameters() {
     return randomized_params;
 }
 
-void ParticleController::renderParticles(Camera *camera, Shader * shader, GLfloat screen_scale) {
+void ParticleController::renderParticles(BaseCamera *camera, Shader * shader, GLfloat screen_scale) {
     renderer->render(camera, particles, shader, screen_scale);
 }

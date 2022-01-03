@@ -9,7 +9,7 @@
 #include "camera.h"
 #include "objects/object.h"
 
-class Camera;
+class BaseCamera;
 
 class Object {
 protected:
@@ -17,7 +17,7 @@ protected:
 
     GLfloat screen_scale_;
     Shader *shader_program_;
-    Camera *camera_;
+    BaseCamera *camera_;
 
 public:
     glm::vec3 position;
@@ -25,7 +25,7 @@ public:
 
     Object(GLfloat screen_scale,
            Shader *shader_program,
-           Camera *camera,
+           BaseCamera *camera,
            glm::vec3 position,
            glm::vec3 size);
 
@@ -93,7 +93,7 @@ protected:
 public:
     CustomGeometryObject(GLfloat screen_scale,
                          Shader *shader_program,
-                         Camera *camera,
+                         BaseCamera *camera,
                          const char *texture_name,
                          glm::vec3 position,
                          glm::vec3 size);
@@ -114,7 +114,7 @@ public:
     ModeledObject(GLfloat screen_scale,
                   Shader *shader_program,
                   Model *model,
-                  Camera *camera,
+                  BaseCamera *camera,
                   glm::vec3 position,
                   glm::vec3 size);
 

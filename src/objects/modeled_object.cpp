@@ -6,7 +6,7 @@
 ModeledObject::ModeledObject(GLfloat screen_scale,
                              Shader *shader_program,
                              Model *model,
-                             Camera *camera,
+                             BaseCamera *camera,
                              glm::vec3 position,
                              glm::vec3 size) :
         Object(screen_scale, shader_program, camera, position, size),

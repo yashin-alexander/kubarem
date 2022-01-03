@@ -3,7 +3,7 @@
 #include "particles/particle.h"
 #include "particles/particle_renderer.h"
 
-class Camera;
+class BaseCamera;
 
 class ParticleController{
 
@@ -12,7 +12,7 @@ public:
     ~ParticleController();
 
     void update(GLfloat deltaTime);
-    void renderParticles(Camera *camera, Shader * shader, GLfloat screen_scale);
+    void renderParticles(BaseCamera *camera, Shader * shader, GLfloat screen_scale);
     int getParticlesNumber(){
         return this->particles.size();
     };

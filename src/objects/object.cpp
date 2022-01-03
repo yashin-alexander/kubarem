@@ -3,7 +3,7 @@
 
 Object::Object(GLfloat screen_scale,
                Shader *shader_program,
-               Camera *camera,
+               BaseCamera *camera,
                glm::vec3 position,
                glm::vec3 size) :
         screen_scale_(screen_scale),

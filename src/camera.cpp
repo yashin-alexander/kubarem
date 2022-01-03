@@ -6,14 +6,14 @@
 // Camera
 
 
-Camera::Camera(glm::vec3 position,
-               glm::vec3 up,
-               float yaw,
-               float pitch):
-               front_(glm::vec3(0.0f, 0.0f, -1.0f)),
-               movement_speed_(kSpeed),
-               mouse_sensitivity_(kSensitivity),
-               zoom_(kZoom)
+BaseCamera::BaseCamera(glm::vec3 position,
+                       glm::vec3 up,
+                       float yaw,
+                       float pitch):
+                       front_(glm::vec3(0.0f, 0.0f, -1.0f)),
+                       movement_speed_(kSpeed),
+                       mouse_sensitivity_(kSensitivity),
+                       zoom_(kZoom)
 {
     position_ = position;
     world_up_ = up;
@@ -22,32 +22,32 @@ Camera::Camera(glm::vec3 position,
     UpdateCameraVectors();
 }
 
-Camera::~Camera(){};
+BaseCamera::~BaseCamera(){};
 
-glm::vec3 Camera::FrontXZ()
+glm::vec3 BaseCamera::FrontXZ()
 {
     return glm::vec3(this->front_[0], 0.0f, this->front_[2]);
 }
 
-glm::vec3 Camera::RightXZ()
+glm::vec3 BaseCamera::RightXZ()
 {
     return glm::vec3(this->right_[0], 0.0f, this->right_[2]);
 }
 
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 BaseCamera::GetViewMatrix()
 {
     return glm::lookAt(position_, position_ + front_, up_);
 }
 
-glm::vec3 Camera::GetFront() const{
+glm::vec3 BaseCamera::GetFront() const{
     return glm::vec3(front_[0], 0.0f, front_[2]);
 }
 
-glm::vec3 Camera::GetRight() const{
+glm::vec3 BaseCamera::GetRight() const{
     return right_;
 }
 
-glm::vec3 Camera::ProcessKeyboard(CameraMovement direction,
+glm::vec3 BaseCamera::ProcessKeyboard(CameraMovement direction,
                                   float delta_time,
                                   GLfloat speed,
                                   glm::vec3 position)
@@ -64,7 +64,7 @@ glm::vec3 Camera::ProcessKeyboard(CameraMovement direction,
     return position_;
 }
 
-void Camera::ProcessMouseMovement(float x_offset,
+void BaseCamera::ProcessMouseMovement(float x_offset,
                                   float y_offset,
                                   GLboolean constrain_pitch)
 {
@@ -85,7 +85,7 @@ void Camera::ProcessMouseMovement(float x_offset,
     UpdateCameraVectors();
 }
 
-void Camera::ProcessMouseScroll(float y_offset)
+void BaseCamera::ProcessMouseScroll(float y_offset)
 {
     if (zoom_ >= 1.0f && zoom_ <= 45.0f)
         zoom_ -= y_offset;
@@ -95,7 +95,7 @@ void Camera::ProcessMouseScroll(float y_offset)
         zoom_ = 45.0f;
 }
 
-void Camera::UpdateCameraVectors()
+void BaseCamera::UpdateCameraVectors()
 {
     glm::vec3 front;
     front.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
@@ -113,7 +113,7 @@ void Camera::UpdateCameraVectors()
 ThirdPersonCamera::ThirdPersonCamera(GLfloat spring_arm_length,
                                      glm::vec3 position):
                                      spring_arm_length_(spring_arm_length),
-                                     Camera(position)
+                                     BaseCamera(position)
 {
     pitch_ = -20.0f;
     spring_arm_offset_ = glm::vec3(0.0f, -pitch_, spring_arm_length_);
@@ -215,7 +215,7 @@ void ThirdPersonCamera::UpdateCameraVectors()
 
 // PLATFORMER
 
-PlatformerCamera::PlatformerCamera(glm::vec3 position): Camera(position){
+PlatformerCamera::PlatformerCamera(glm::vec3 position): BaseCamera(position){
     pitch_ = -20.0f;
     spring_arm_offset_ = glm::vec3(0.0f, -pitch_, spring_arm_length_);
     this->main_character_position_ = position;

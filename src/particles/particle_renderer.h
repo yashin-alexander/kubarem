@@ -3,7 +3,7 @@
 #include <vector>
 #include "particles/particle.h"
 
-class Camera;
+class BaseCamera;
 class Shader;
 
 
@@ -18,7 +18,7 @@ public:
     ParticleRenderer();
     ~ParticleRenderer() = default;
 
-    void render(Camera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) ;
+    void render(BaseCamera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) ;
     void updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::vec4 color, glm::mat4 view);
 
 protected:
