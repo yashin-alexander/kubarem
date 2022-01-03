@@ -117,13 +117,20 @@ namespace kubarem {
 
         if (entity.hasComponent<CameraComponent>()) {
             auto &c = entity.getComponent<CameraComponent>();
-
+            std::string camera_type{};
             out << YAML::Key << "CameraComponent";
             out << YAML::BeginMap;
-            out << YAML::Key << "is_tpc" << YAML::Value << c.is_tpc;
+            if (typeid(*c.GetCamera()) == typeid(ThirdPersonCamera)) {
+                camera_type = "ThirdPersonCamera";
+                out << YAML::Key << "spring_arm_length" <<
+                YAML::Value << static_cast<ThirdPersonCamera *>(c.GetCamera())->spring_arm_length_;
+            } else if (typeid(*c.GetCamera()) == typeid(PlatformerCamera)) {
+                camera_type = "PlatformerCamera";
+            } else {
+                camera_type = "Camera";
+            }
+            out << YAML::Key << "camera_type" << YAML::Value << camera_type;
             out << YAML::Key << "input_speed" << YAML::Value << c.input_speed;
-            if (c.is_tpc)
-                out << YAML::Key << "spring_arm_length" << YAML::Value << c.tpc_camera.spring_arm_length_;
             out << YAML::EndMap;
         }
 
@@ -300,16 +307,21 @@ namespace kubarem {
                     auto camera_component = entity["CameraComponent"];
                     if (camera_component) {
                         log_dbg("\tcamera component");
-                        auto is_tpc = camera_component["is_tpc"].as<bool>();
+                        auto camera_type = camera_component["camera_type"].as<std::string>();
                         auto input_speed = camera_component["input_speed"].as<float>();
-                        if (is_tpc) {
-                            log_dbg("\t\tThird person camera component setting up");
+                        Camera * camera = nullptr;
+                        if (camera_type == "ThirdPersonCamera") {
                             auto spring_arm_length = camera_component["spring_arm_length"].as<float>();
-                            auto &c = deserializedEntity.addComponent<CameraComponent>(spring_arm_length, input_speed);
+                            log_dbg("\t\tThird person camera component setting up");
+                            camera = new ThirdPersonCamera(spring_arm_length);
+                        } else if (camera_type == "PlatformerCamera"){
+                            log_dbg("\t\tPlatformer Camera component setting up");
+                            camera = new PlatformerCamera();
                         } else {
                             log_dbg("\t\tCamera component setting up");
-                            auto &c = deserializedEntity.addComponent<CameraComponent>(input_speed);
+                            camera = new Camera();
                         }
+                        auto &c = deserializedEntity.addComponent<CameraComponent>(camera, input_speed);
                     }
                 }
 
