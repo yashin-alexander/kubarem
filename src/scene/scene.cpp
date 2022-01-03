@@ -273,7 +273,7 @@ namespace kubarem {
                     audio.audio->RunPlayback(transform.position);
                     audio.audio->start_playback = false;
                 }
-                audio.audio->UpdatePositioning(transform.position, camera.GetCamera()->position_, camera.camera.front_);
+                audio.audio->UpdatePositioning(transform.position, camera.GetCamera()->position_, camera.GetCamera()->front_);
             }
 
             // playback speech audio

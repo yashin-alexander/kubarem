@@ -55,7 +55,7 @@ void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat scr
 
     shader->SetMatrix4("model", mod_matrix);
 
-    glm::mat4 view = ((ThirdPersonCamera *) camera)->GetViewMatrix();
+    glm::mat4 view = camera->GetViewMatrix();
     view = glm::translate(view, position);
     shader->SetMatrix4("view", view);
 
