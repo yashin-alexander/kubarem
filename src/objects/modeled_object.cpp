@@ -2,18 +2,19 @@
 
 #include "camera.h"
 
-
 ModeledObject::ModeledObject(GLfloat screen_scale,
-                             Shader *shader_program,
-                             Model *model,
-                             BaseCamera *camera,
-                             glm::vec3 position,
-                             glm::vec3 size) :
-        Object(screen_scale, shader_program, camera, position, size),
-        model_(model) {}
+    Shader* shader_program,
+    Model* model,
+    BaseCamera* camera,
+    glm::vec3 position,
+    glm::vec3 size)
+    : Object(screen_scale, shader_program, camera, position, size)
+    , model_(model)
+{
+}
 
-
-void ModeledObject::Render(glm::vec3 light_point) {
+void ModeledObject::Render(glm::vec3 light_point)
+{
     glUseProgram(shader_program_->program_ID_);
     this->SetupLightning_(light_point);
 
@@ -31,5 +32,4 @@ void ModeledObject::Render(glm::vec3 light_point) {
     model_->Draw(*shader_program_);
 }
 
-
-void ModeledObject::DoCollisions() {}
+void ModeledObject::DoCollisions() { }

@@ -1,11 +1,11 @@
 #include "renderer/renderer.h"
 
-
-void Renderer::SetupLightning_(glm::vec3 light_point, Shader * shader) {
+void Renderer::SetupLightning_(glm::vec3 light_point, Shader* shader)
+{
     shader->SetVector3f("light.position", light_point);
 
     // light properties
-    auto time = (GLfloat) glfwGetTime();
+    auto time = (GLfloat)glfwGetTime();
     shader->SetVector3f("light.ambient", 1.f, 1.f, 1.f);
     shader->SetVector3f("light.diffuse", 0.1f, cos(2 * time), sin(time));
     shader->SetVector3f("light.specular", 1.0f, .0f, .0f);
@@ -15,13 +15,13 @@ void Renderer::SetupLightning_(glm::vec3 light_point, Shader * shader) {
     shader->SetFloat("material.shininess", 256.0f);
 }
 
-
-void Renderer::Render(BaseCamera *camera,
-                 GLfloat screen_scale,
-                 Model *model,
-                 Shader *shader,
-                 glm::vec3 light_point,
-                 glm::mat4 transform) {
+void Renderer::Render(BaseCamera* camera,
+    GLfloat screen_scale,
+    Model* model,
+    Shader* shader,
+    glm::vec3 light_point,
+    glm::mat4 transform)
+{
     glUseProgram(shader->program_ID_);
 
     this->SetupLightning_(light_point, shader);
@@ -30,22 +30,23 @@ void Renderer::Render(BaseCamera *camera,
     glm::mat4 view = camera->GetViewMatrix();
     shader->SetMatrix4("view", view);
     glm::mat4 projection = glm::perspective(glm::radians(camera->zoom_),
-                                            screen_scale, 0.1f, 1200.0f);
+        screen_scale, 0.1f, 1200.0f);
     shader->SetMatrix4("projection", projection);
 
     model->Draw(*shader);
 }
 
-
-void Renderer::Render(BaseCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::mat4 transform, GLfloat delta_time) {
+void Renderer::Render(BaseCamera* camera, GLfloat screen_scale, Model* model, Shader* shader, glm::vec3 light_point, glm::mat4 transform, GLfloat delta_time)
+{
     Render(camera, screen_scale, model, shader, light_point, transform);
 }
 
-void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat screen_scale,  Model *model, Shader *shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size) {
+void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera* camera, GLfloat screen_scale, Model* model, Shader* shader, glm::vec3 light_point, glm::vec3 position, glm::vec3 size)
+{
     glUseProgram(shader->program_ID_);
     this->SetupLightning_(light_point, shader);
 
-    shader->SetVector3f("viewPos", ((ThirdPersonCamera *) camera)->position_);
+    shader->SetVector3f("viewPos", ((ThirdPersonCamera*)camera)->position_);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), screen_scale, 0.1f, 500.0f);
     shader->SetMatrix4("projection", projection);
@@ -59,13 +60,13 @@ void Renderer::RenderThirdPersonCharacter(ThirdPersonCamera *camera, GLfloat scr
     view = glm::translate(view, position);
     shader->SetMatrix4("view", view);
 
-//    glBindVertexArray(VAO_);
+    //    glBindVertexArray(VAO_);
     model->Draw(*shader);
 }
 
-
-void Renderer::RenderCube(BaseCamera *camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader *shader,
-                          glm::vec3 light_point, glm::mat4 transform) {
+void Renderer::RenderCube(BaseCamera* camera, GLfloat screen_scale, GLuint VAO, GLuint texture, Shader* shader,
+    glm::vec3 light_point, glm::mat4 transform)
+{
     glUseProgram(shader->program_ID_);
     this->SetupLightning_(light_point, shader);
     shader->SetVector3f("viewPos", camera->position_);

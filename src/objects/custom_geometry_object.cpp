@@ -5,21 +5,22 @@
 #include "camera.h"
 
 CustomGeometryObject::CustomGeometryObject(GLfloat screen_scale,
-                                           Shader *shader_program,
-                                           BaseCamera *camera,
-                                           const char *texture_name,
-                                           glm::vec3 position,
-                                           glm::vec3 size) :
-        Object(screen_scale, shader_program, camera, position, size) {
+    Shader* shader_program,
+    BaseCamera* camera,
+    const char* texture_name,
+    glm::vec3 position,
+    glm::vec3 size)
+    : Object(screen_scale, shader_program, camera, position, size)
+{
     CustomGeometryObject::Init(texture_name);
 };
 
-
-void CustomGeometryObject::loadTexture_(char const *path) {
+void CustomGeometryObject::loadTexture_(char const* path)
+{
     glGenTextures(1, &texture);
 
     int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
     if (data) {
         GLenum format;
         if (nrComponents == 1)
@@ -49,8 +50,8 @@ void CustomGeometryObject::loadTexture_(char const *path) {
     }
 }
 
-
-void CustomGeometryObject::Init(char const *path) {
+void CustomGeometryObject::Init(char const* path)
+{
     glGenVertexArrays(1, &VAO_);
     glGenBuffers(1, &VBO_);
 
@@ -60,13 +61,13 @@ void CustomGeometryObject::Init(char const *path) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // normales coord attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     // texture
@@ -75,8 +76,8 @@ void CustomGeometryObject::Init(char const *path) {
     shader_program_->SetInteger("texture1", 0);
 }
 
-
-void CustomGeometryObject::Render(glm::vec3 light_point) {
+void CustomGeometryObject::Render(glm::vec3 light_point)
+{
     glUseProgram(shader_program_->program_ID_);
     this->SetupLightning_(light_point);
     shader_program_->SetVector3f("viewPos", camera_->position_);
@@ -102,4 +103,4 @@ void CustomGeometryObject::Render(glm::vec3 light_point) {
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
-void CustomGeometryObject::DoCollisions() {}
+void CustomGeometryObject::DoCollisions() { }

@@ -3,7 +3,6 @@
 #include "camera.h"
 #include "shader.h"
 
-
 ParticleRenderer::ParticleRenderer()
 {
     glGenVertexArrays(1, &this->VAO_);
@@ -35,8 +34,8 @@ ParticleRenderer::ParticleRenderer()
     glBindVertexArray(0);
 }
 
-
-void ParticleRenderer::render(BaseCamera *camera, const std::vector<Particle>& particles, Shader * shader, GLfloat screen_scale) {
+void ParticleRenderer::render(BaseCamera* camera, const std::vector<Particle>& particles, Shader* shader, GLfloat screen_scale)
+{
     shader->Use();
 
     vboBufferWritePosition = -1;
@@ -53,9 +52,9 @@ void ParticleRenderer::render(BaseCamera *camera, const std::vector<Particle>& p
     glBindVertexArray(0);
 }
 
-
 void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotation, GLfloat scale, glm::vec4 color,
-                                             glm::mat4 view) {
+    glm::mat4 view)
+{
     glm::mat4 model = glm::mat4(1);
     model = glm::translate(model, position);
     model[0][0] = view[0][0];
@@ -95,8 +94,8 @@ void ParticleRenderer::updateModelViewMatrix(glm::vec3 position, GLfloat rotatio
     vboAttributesBuffer[++vboBufferWritePosition] = color.w;
 }
 
-
-void ParticleRenderer::createEmptyVBO(uint32_t floatCount) {
+void ParticleRenderer::createEmptyVBO(uint32_t floatCount)
+{
     glGenBuffers(1, &this->quadAttributesVBO_);
     glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
     glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(GLfloat), nullptr, GL_STREAM_DRAW);
@@ -104,7 +103,8 @@ void ParticleRenderer::createEmptyVBO(uint32_t floatCount) {
 }
 
 void ParticleRenderer::createQuadAttributesVBO(uint32_t attribute, uint32_t dataSize, uint32_t instancedDataLength,
-                                               uint32_t offset) const {
+    uint32_t offset) const
+{
     /* VAO structure:
      *
      * positionsVBO:      2f 2f, 2f 2f, 2f 2f, 2f 2f   x, y for each vertex of a quad. Each x, y pair obviously goes for different vertex.
@@ -113,14 +113,14 @@ void ParticleRenderer::createQuadAttributesVBO(uint32_t attribute, uint32_t data
      * */
     glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
     glBindVertexArray(VAO_);
-    glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLength * sizeof(GLfloat), (const void *)(offset * sizeof(GLfloat)));
+    glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLength * sizeof(GLfloat), (const void*)(offset * sizeof(GLfloat)));
     glVertexAttribDivisor(attribute, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-
-void ParticleRenderer::updateQuadAttributesVBO(const std::vector<Particle>& particles) {
+void ParticleRenderer::updateQuadAttributesVBO(const std::vector<Particle>& particles)
+{
     glBindBuffer(GL_ARRAY_BUFFER, quadAttributesVBO_);
     glBufferData(GL_ARRAY_BUFFER, instanceDataLength * maxQuadCount * sizeof(GLfloat), vboAttributesBuffer, GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vboAttributesBuffer), vboAttributesBuffer);

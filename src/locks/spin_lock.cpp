@@ -4,8 +4,7 @@
 
 void SpinLock::Acquire()
 {
-    while(!TryAcquire())
-    {
+    while (!TryAcquire()) {
         std::this_thread::yield();
     }
 }

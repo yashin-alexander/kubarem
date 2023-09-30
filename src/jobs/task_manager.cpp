@@ -1,21 +1,21 @@
 #include "task_manager.h"
 
+#include "locks/scoped_lock.h"
+#include "log.h"
+#include "task_worker.h"
 #include <algorithm>
 #include <cassert>
 #include <thread>
-#include "task_worker.h"
-#include "locks/scoped_lock.h"
-#include "log.h"
 
 TaskManager::TaskManager()
-    : workers_lock("WorkersLock"), maxWorkersCount(CalcMaxWorkersCount())
+    : workers_lock("WorkersLock")
+    , maxWorkersCount(CalcMaxWorkersCount())
 {
     assert(maxWorkersCount > 0);
     workers.reserve(maxWorkersCount);
     free_workers.reserve(maxWorkersCount);
 
-    for(unsigned i = 0; i < AllTaskPriorities.size(); ++i)
-    {
+    for (unsigned i = 0; i < AllTaskPriorities.size(); ++i) {
         const auto priority = AllTaskPriorities[i];
         waiting_tasks[i].priority = priority;
         waiting_tasks[i].lock.UpdateName(std::string(GetPriorityName(priority)) + "PriorityTasksLock");
@@ -27,7 +27,7 @@ TaskManager::~TaskManager()
     ShutDown();
 }
 
-TaskManager &TaskManager::GetInstance()
+TaskManager& TaskManager::GetInstance()
 {
     static TaskManager manager;
     return manager;
@@ -37,19 +37,16 @@ void TaskManager::ShutDown()
 {
     ScopedLock scopeWorkersLock(workers_lock);
 
-    for(auto& worker : workers)
-    {
+    for (auto& worker : workers) {
         worker->MarkStopped();
         // If worker is waiting for a task, assign null task
         auto free_worker = std::find(free_workers.begin(), free_workers.end(), worker.get());
-        if(free_worker != free_workers.end())
-        {
+        if (free_worker != free_workers.end()) {
             free_workers.erase(free_worker);
             worker->AssignTask(nullptr);
         }
 
-        if(!worker->WaitForStop())
-        {
+        if (!worker->WaitForStop()) {
             log_err("Worker %s refusing to shut down", worker->GetName().c_str());
         }
     }
@@ -58,12 +55,11 @@ void TaskManager::ShutDown()
     workers.clear();
 }
 
-void TaskManager::WaitForTask(const TaskHandleBase &task_handle)
+void TaskManager::WaitForTask(const TaskHandleBase& task_handle)
 {
-    while (!task_handle.HasTaskResult())
-    {
+    while (!task_handle.HasTaskResult()) {
         auto next_task = GetNextTask();
-        if(next_task.has_value())
+        if (next_task.has_value())
             next_task.value()->RunTask();
         else
             std::this_thread::yield();
@@ -77,8 +73,7 @@ void TaskManager::AddTask(std::unique_ptr<TaskBase> task, TaskPriority priority)
         ScopedLock scopeWorkersLock(workers_lock);
 
         // Instantly assign task, if there is any free workers
-        if (!free_workers.empty())
-        {
+        if (!free_workers.empty()) {
             auto worker = free_workers.back();
             free_workers.pop_back();
             worker->AssignTask(std::move(task));
@@ -86,14 +81,14 @@ void TaskManager::AddTask(std::unique_ptr<TaskBase> task, TaskPriority priority)
         }
 
         // Create new worker and assign task to it, if we can
-        if (workers.size() < maxWorkersCount)
-        {
-            auto *newWorker = new TaskWorker();
+        if (workers.size() < maxWorkersCount) {
+            auto* newWorker = new TaskWorker();
             workers.emplace_back(newWorker);
 
-            auto workerThread = std::thread(&TaskWorker::StartWorker, newWorker, std::move(task),
-                                            [this] { return GetNextTask(); },
-                                            [this](TaskWorker *worker) { return AddFreeWorker(worker); });
+            auto workerThread = std::thread(
+                &TaskWorker::StartWorker, newWorker, std::move(task),
+                [this] { return GetNextTask(); },
+                [this](TaskWorker* worker) { return AddFreeWorker(worker); });
             workerThread.detach();
 
             return;
@@ -108,9 +103,9 @@ void TaskManager::AddTask(std::unique_ptr<TaskBase> task, TaskPriority priority)
     }
 }
 
-bool TaskManager::AddFreeWorker(TaskWorker *worker)
+bool TaskManager::AddFreeWorker(TaskWorker* worker)
 {
-    if(!workers_lock.TryAcquire())
+    if (!workers_lock.TryAcquire())
         return false;
     ScopedLock scopeWorkersLock(workers_lock, true);
 
@@ -120,13 +115,12 @@ bool TaskManager::AddFreeWorker(TaskWorker *worker)
 
 std::optional<std::unique_ptr<TaskBase>> TaskManager::GetNextTask()
 {
-    for(auto& tasks : waiting_tasks)
-    {
+    for (auto& tasks : waiting_tasks) {
         if (!tasks.lock.TryAcquire())
             continue;
 
         ScopedLock scopeTasksLock(tasks.lock, true);
-        if(tasks.tasks.empty())
+        if (tasks.tasks.empty())
             continue;
 
         auto result = std::move(tasks.tasks.back());
@@ -137,11 +131,10 @@ std::optional<std::unique_ptr<TaskBase>> TaskManager::GetNextTask()
     return {};
 }
 
-TaskManager::TasksContainer &TaskManager::GetTasksForPriority(TaskPriority priority)
+TaskManager::TasksContainer& TaskManager::GetTasksForPriority(TaskPriority priority)
 {
-    for(auto& tasks : waiting_tasks)
-    {
-        if(tasks.priority == priority)
+    for (auto& tasks : waiting_tasks) {
+        if (tasks.priority == priority)
             return tasks;
     }
 
@@ -158,5 +151,7 @@ unsigned int TaskManager::CalcMaxWorkersCount()
 }
 
 TaskManager::TasksContainer::TasksContainer()
-: lock("TasksLock"), priority(TaskPriority::Normal)
-{}
+    : lock("TasksLock")
+    , priority(TaskPriority::Normal)
+{
+}
