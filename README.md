@@ -15,9 +15,8 @@ Things implemented:
 
 ## Dependencies installation
 ```
-apt-get install libsoil-dev libglm-dev libassimp-dev \
-        libglew-dev libglfw3-dev libxinerama-dev \ 
-        libxcursor-dev libxi-dev libasound2-dev
+apt-get install libsoil-dev libglm-dev libassimp-dev libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev libasound2-dev 
+apt-get install clang-format
 make init
 ```
 
